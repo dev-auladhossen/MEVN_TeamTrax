@@ -1,0 +1,120 @@
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const router = express.Router();
+const User = require("../models/User");
+
+const JWT_SECRET = "your_secret_key";
+
+router.post("/add-user", async (req, res) => {
+  const { username, password, role, email, title, status, color } = req.body;
+
+  try {
+    // Only allow adding if username doesn't exist
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      username,
+      password: hashedPassword,
+      role,
+      email,
+      title,
+      status,
+      color,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "User created successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Login route
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.json({
+      id: user._id,
+      role: user.role,
+      name: user.username,
+      title: user.title,
+      email: user.email,
+      color: user.color,
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Update user
+router.put("/users/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { username, email, title, role, color, password } = req.body;
+    const updatedData = {
+      username,
+      email,
+      title,
+      role,
+      color,
+    };
+
+    // Only update password if provided
+    if (password) {
+      updatedData.password = password;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+      new: true, // returns updated document
+      runValidators: true,
+    });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User updated successfully", user: updatedUser });
+  } catch (err) {
+    console.error("Update Error:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete user
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Delete Error:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+module.exports = router;
