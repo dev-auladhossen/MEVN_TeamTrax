@@ -5,6 +5,7 @@ import AdminDashboard from "../pages/AdminDashboard.vue";
 import UserDashboard from "../pages/UserDashboard.vue";
 import AddNewUser from "../pages/AddNewUser.vue";
 import Layout from "../components/Layout.vue";
+import ToastContainer from "../components/Task/ToastContainer.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -36,6 +37,12 @@ const routes = [
     path: "/add-user",
     name: "AddUser",
     component: AddNewUser,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/tasks",
+    name: "tasks",
+    component: ToastContainer,
     meta: { hideLayout: true },
   },
 ];

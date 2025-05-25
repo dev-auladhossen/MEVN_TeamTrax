@@ -1,6 +1,7 @@
 <template>
   <Layout>
     <!-- Button to open modal -->
+    <button @click="handleToastClick">Show Toast</button>
     <div class="flex justify-end gap-3 p-3 max-w-5xl mx-auto">
       <button
         @click="refreshUserList"
@@ -127,24 +128,28 @@
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Status</label
               >
-              <label>
-                <input
-                  type="radio"
-                  value="active"
-                  v-model="form.status"
-                  @change="updateStatus(user)"
-                />
-                Active
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="disabled"
-                  v-model="form.status"
-                  @change="updateStatus(user)"
-                />
-                Inactive
-              </label>
+              <div class="flex flex-row gap-2">
+                <label>
+                  <input
+                    class="cursor-pointer focus:ring-0"
+                    type="radio"
+                    value="active"
+                    v-model="form.status"
+                    @change="updateStatus(user)"
+                  />
+                  Active
+                </label>
+                <label>
+                  <input
+                    class="cursor-pointer focus:ring-0"
+                    type="radio"
+                    value="disabled"
+                    v-model="form.status"
+                    @change="updateStatus(user)"
+                  />
+                  Inactive
+                </label>
+              </div>
             </div>
 
             <!-- Submit -->
@@ -176,6 +181,15 @@ import axios from "axios";
 import Layout from "../components/Layout.vue";
 import Dialog from "../components/Task/Dialog.vue";
 import UserList from "../components/UserList.vue";
+import { useToast } from "../components/Composables/useToast.js";
+
+// Using the composable
+const { success, error, warning, info, showToast, clear } = useToast();
+
+const handleToastClick = () => {
+  success("Operation completed successfully!");
+};
+
 // reactive state
 const message = ref("");
 const showModal = ref(false);
@@ -187,7 +201,7 @@ const initialForm = {
   email: "",
   title: "",
   role: "",
-  status: "Active",
+  status: "active",
   color: "#0000ff",
 };
 const updateStatus = () => {
