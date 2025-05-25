@@ -50,7 +50,7 @@ const getIconClass = (type) => {
 <style scoped>
 .toast-container {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   right: 20px;
   z-index: 9999;
   pointer-events: none;
@@ -122,8 +122,9 @@ const getIconClass = (type) => {
 
 /* Toast Types */
 .toast-success {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
+  background: #7affd557;
+  color: gray;
+  border: #7affd557;
 }
 
 .toast-error {

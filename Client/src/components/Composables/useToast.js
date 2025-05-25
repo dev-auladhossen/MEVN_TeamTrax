@@ -12,7 +12,7 @@ const addToast = (toast) => {
     type: toast.type || "info",
     title: toast.title || "",
     message: toast.message || "",
-    duration: toast.duration || 4000,
+    duration: toast.duration || 2000,
     closable: toast.closable !== false,
   };
 

@@ -102,7 +102,7 @@
         <span class="side-bar-item-icon"
           ><font-awesome-icon class="text-black" icon="circle-user"
         /></span>
-        <span class="side-bar-item-caption">Add User</span>
+        <span class="side-bar-item-caption">Team</span>
       </router-link>
     </div>
 

@@ -231,6 +231,7 @@ const handleSubmit = async () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       message.value = "User added successfully!";
+      success(message.value);
     } else if (mode.value === "edit" && selectedUserId.value) {
       await axios.put(
         `http://localhost:5000/api/users/${selectedUserId.value}`,
@@ -240,6 +241,7 @@ const handleSubmit = async () => {
         }
       );
       message.value = "User updated successfully!";
+      success(message.value);
     }
     Object.assign(form, initialForm);
     showModal.value = false;
