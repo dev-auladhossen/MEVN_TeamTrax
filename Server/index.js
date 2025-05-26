@@ -6,10 +6,13 @@ const app = express();
 const port = 3000;
 
 const authRoutes = require("./routes/auth");
+const projectRoutes = require("./routes/project");
 const User = require("./models/User");
+const Project = require("./models/Project");
 
 app.use(cors());
 app.use(express.json());
+app.use("/api", projectRoutes);
 app.use("/api", authRoutes);
 
 mongoose

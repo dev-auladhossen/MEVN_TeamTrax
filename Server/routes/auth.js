@@ -60,6 +60,7 @@ router.post("/login", async (req, res) => {
       name: user.username,
       title: user.title,
       email: user.email,
+      status: user.status,
       color: user.color,
       token,
     });
@@ -72,12 +73,13 @@ router.post("/login", async (req, res) => {
 router.put("/users/:id", async (req, res) => {
   try {
     const userId = req.params.id;
-    const { username, email, title, role, color, password } = req.body;
+    const { username, email, title, role, status, color, password } = req.body;
     const updatedData = {
       username,
       email,
       title,
       role,
+      status,
       color,
     };
 
@@ -102,18 +104,18 @@ router.put("/users/:id", async (req, res) => {
 });
 
 // Delete user
-router.delete('/users/:id', async (req, res) => {
+router.delete("/users/:id", async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
 
     if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.json({ message: 'User deleted successfully' });
+    res.json({ message: "User deleted successfully" });
   } catch (err) {
-    console.error('Delete Error:', err.message);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Delete Error:", err.message);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
