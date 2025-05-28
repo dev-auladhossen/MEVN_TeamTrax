@@ -37,4 +37,17 @@ router.get("/projects", async (req, res) => {
   }
 });
 
+router.delete("/projects/:id", async (req, res) => {
+  try {
+    const deletedProject = await Project.findByIdAndDelete(req.params.id);
+    if (!deletedProject) {
+      return res.status(400).json({ message: "Project not found!" });
+    }
+    res.json({ message: "Project Deleted Successfully!" });
+  } catch (err) {
+    console.error("Delete Error:", err.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
 module.exports = router;
