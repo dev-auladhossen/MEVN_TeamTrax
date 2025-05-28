@@ -86,6 +86,7 @@ const getIconClass = (type) => {
 }
 
 .toast-message {
+  color: #2b2b2b !important;
   flex: 1;
 }
 
@@ -123,23 +124,26 @@ const getIconClass = (type) => {
 /* Toast Types */
 .toast-success {
   background: #7affd557;
-  color: gray;
-  border: #7affd557;
+  color: #09b309;
+  border: 1px solid#09b309;
 }
 
 .toast-error {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
+  background: #ffc6c658;
+  color: #dc2626;
+  border: 1px solid#dc2626;
 }
 
 .toast-warning {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
+  background: #ffd5a454;
+  color: #d97706;
+  border: 1px solid#d97706;
 }
 
 .toast-info {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
+  background: #a8c4ff33;
+  color: #2563eb;
+  border: 1px solid#2563eb;
 }
 
 /* Animations */
@@ -150,12 +154,12 @@ const getIconClass = (type) => {
 
 .toast-enter-from {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(100%);
 }
 
 .toast-leave-to {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(100%);
 }
 
 .toast-move {

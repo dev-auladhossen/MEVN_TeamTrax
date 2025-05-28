@@ -102,11 +102,13 @@ import { useRouter } from "vue-router";
 import Loading from "../components/Loading.vue";
 import { ref } from "vue";
 import axios from "axios";
+import { useToast } from "../components/Composables/useToast.js";
 
+const { success, error, warning, info, showToast, clear } = useToast();
 const router = useRouter();
 
-const username = ref("himel");
-const password = ref("123456");
+const username = ref("Himel");
+const password = ref("1234");
 const errorMessage = ref("");
 const isLoading = ref(false);
 // Email: testuser@codewave.com
@@ -121,7 +123,6 @@ const login = async () => {
     });
 
     console.log("Logged in:", response.data);
-    console.log("Logged in:", response);
     const { token, role, id, name, email, firstname, lastname, color } =
       response.data;
 
@@ -139,6 +140,7 @@ const login = async () => {
     localStorage.setItem("current-user", JSON.stringify(userData));
 
     isLoading.value = false;
+    success("Loged In Successfully!", { title: "Welcome!" });
 
     // Redirect based on role
     if (role === "admin" || "manager") {
@@ -148,9 +150,11 @@ const login = async () => {
     } else {
       router.push("/");
     }
-  } catch (error) {
-    console.error("Login failed:", error.response?.data || error.message);
-    errorMessage.value = "Login failed. Please check your credentials.";
+  } catch (err) {
+    console.error("Login failed:", err.response?.data || err.message);
+    errorMessage.value = `Login failed. Please check your credentials.`;
+    error(errorMessage.value, { title: "Error" });
+    isLoading.value = false;
   }
 };
 </script>

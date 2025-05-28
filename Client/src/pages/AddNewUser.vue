@@ -1,15 +1,10 @@
 <template>
   <Layout>
     <!-- Button to open modal -->
-    <button @click="handleToastClick">Show Toast</button>
-    <div class="flex justify-end gap-3 p-3 max-w-5xl mx-auto">
-      <button
-        @click="refreshUserList"
-        class="px-4 py-2 text-gray-500 hover:text-gray-900 font-bold"
-      >
-        <font-awesome-icon class="mr-2" icon="refresh" />
-        Refresh
-      </button>
+    <div class="flex justify-between gap-3 p-3 max-w-5xl mx-auto">
+      <div class="text-xl flex items-center justify-center font-bold">
+        <span>Team Members</span>
+      </div>
       <button
         @click="handleAddUser"
         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -129,7 +124,7 @@
                 >Status</label
               >
               <div class="flex flex-row gap-2">
-                <label>
+                <label class="cursor-pointer">
                   <input
                     class="cursor-pointer focus:ring-0"
                     type="radio"
@@ -139,7 +134,7 @@
                   />
                   Active
                 </label>
-                <label>
+                <label class="cursor-pointer">
                   <input
                     class="cursor-pointer focus:ring-0"
                     type="radio"
@@ -185,10 +180,6 @@ import { useToast } from "../components/Composables/useToast.js";
 
 // Using the composable
 const { success, error, warning, info, showToast, clear } = useToast();
-
-const handleToastClick = () => {
-  success("Operation completed successfully!");
-};
 
 // reactive state
 const message = ref("");
@@ -241,7 +232,7 @@ const handleSubmit = async () => {
         }
       );
       message.value = "User updated successfully!";
-      success(message.value);
+      success(message, { title: "Success" });
     }
     Object.assign(form, initialForm);
     showModal.value = false;
@@ -271,28 +262,29 @@ const handleEdit = (row) => {
 
 const handleDelete = async (row) => {
   const userId = row._id;
-  const confirmed = confirm("Are you sure you want to delete this user?");
-  if (!confirmed) return;
-
   try {
     const token = localStorage.getItem("token");
 
-    await axios.delete(`http://localhost:5000/api/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const confirmed = await $confirm({
+      title: "Delete Item",
+      message: "Are you sure you want to delete the selected record?",
     });
 
-    alert("User deleted successfully!");
-    refreshUserList();
+    if (!confirmed) {
+      return;
+    } else {
+      // Proceed with deletion
+      await axios.delete(`http://localhost:5000/api/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      refreshUserList();
+      success("Deleted Succeussfully!", { title: "Success" });
+    }
   } catch (error) {
     console.error("Error deleting user:", error);
-    alert("Failed to delete user.");
   }
-};
-
-const handleConfirm = () => {
-  console.log("form", form);
 };
 </script>
 <style scoped></style>

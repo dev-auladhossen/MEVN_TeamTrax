@@ -73,7 +73,7 @@ const showSuccess = () => {
 const showError = () => {
   error("Something went wrong!", {
     title: "Error",
-    duration: 6000,
+    duration: 2000,
   });
 };
 
@@ -92,7 +92,7 @@ const showCustom = () => {
     type: "success",
     title: "Custom Toast",
     message: "This toast was created using showToast method",
-    duration: 5000,
+    duration: 2000,
     closable: true,
   });
 };
@@ -143,7 +143,7 @@ const handleSubmit = () => {
   if (!hasErrors) {
     success("Form submitted successfully!", {
       title: "Success",
-      duration: 3000,
+      duration: 2000,
     });
     // Reset form
     email.value = "";
@@ -165,7 +165,7 @@ const simulateApiCall = async () => {
     if (Math.random() > 0.3) {
       success("Data fetched successfully!", {
         title: "API Success",
-        duration: 4000,
+        duration: 2000,
       });
     } else {
       throw new Error("Network timeout");
@@ -173,7 +173,7 @@ const simulateApiCall = async () => {
   } catch (err) {
     error(`API Error: ${err.message}`, {
       title: "Request Failed",
-      duration: 6000,
+      duration: 2000,
     });
   } finally {
     loading.value = false;

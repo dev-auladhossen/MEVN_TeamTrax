@@ -11,17 +11,9 @@
     </div>
     <div class="overflow-x-auto w-full">
       <!-- Table -->
-      <table class="w-full text-sm text-left">
+      <table class="w-full text-sm text-left text-nowrap">
         <thead class="bg-white text-black font-semibold border-b">
           <tr>
-            <th class="px-3 py-2">
-              <input
-                type="checkbox"
-                v-model="selectAll"
-                @change="toggleAll"
-                class="form-checkbox h-4 w-4 rounded transition-all duration-300 ease-in-out text-blue-600 focus:ring-0 focus:outline-none cursor-pointer"
-              />
-            </th>
             <th
               v-for="(header, index) in headers"
               :key="index"
@@ -43,19 +35,10 @@
             :key="rowIndex"
             class="border-t hover:bg-gray-100"
           >
-            <td class="px-3 py-2">
-              <input
-                type="checkbox"
-                v-model="selectedRows"
-                :value="row"
-                class="h-4 w-4 rounded transition-all duration-300 ease-in-out text-blue-600 focus:ring-0 focus:outline-none cursor-pointer"
-              />
-            </td>
-
             <td
               v-for="(key, index) in headerKeys"
               :key="index"
-              class="px-1 py-1"
+              class="px-3 py-2"
             >
               <div class="flex flex-row gap-2" v-if="key === 'username'">
                 <span
@@ -64,8 +47,17 @@
                 >
                   {{ getInitials(row[key]) }}
                 </span>
-                <span>
-                  {{ row[key] }}
+                <span> {{ row[key] }} </span>
+              </div>
+
+              <div class="flex flex-row gap-2" v-if="Array.isArray(row[key])">
+                <!-- <span> {{ row[key].join(", ") }} </span> -->
+                <span
+                  v-for="(value, idx) in row[key]"
+                  :key="idx"
+                  class="bg-gray-100 text-gray-800 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
+                >
+                  {{ value }}
                 </span>
               </div>
 
@@ -79,7 +71,9 @@
               >
                 {{ row[key] }}
               </div>
-              <div v-if="key !== 'username' && key !== 'status'">
+              <div
+                v-if="key !== 'username' && key !== 'status' && key !== 'teams'"
+              >
                 {{ row[key] }}
               </div>
             </td>

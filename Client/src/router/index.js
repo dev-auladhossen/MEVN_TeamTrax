@@ -6,6 +6,7 @@ import UserDashboard from "../pages/UserDashboard.vue";
 import AddNewUser from "../pages/AddNewUser.vue";
 import Layout from "../components/Layout.vue";
 import ToastContainer from "../components/Task/ToastContainer.vue";
+import Projects from "../pages/Projects.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -37,6 +38,12 @@ const routes = [
     path: "/add-user",
     name: "AddUser",
     component: AddNewUser,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/projects",
+    name: "projects",
+    component: Projects,
     meta: { hideLayout: true },
   },
   {
