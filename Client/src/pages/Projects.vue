@@ -12,11 +12,25 @@
         Add New Project
       </button>
     </div>
+
+    <!-- switch view  -->
+    <div class="flex gap-3 space-x-3 mb-4 max-w-5xl mx-auto">
+      <button @click="currentView = 'board'" :class="buttonClass('board')">
+        <font-awesome-icon class="mr-2" icon="grip" /> Board View
+      </button>
+      <button @click="currentView = 'list'" :class="buttonClass('list')">
+        <font-awesome-icon class="mr-2" icon="list" /> List View
+      </button>
+    </div>
+
     <ProjectList
+      v-if="currentView === 'list'"
       ref="projectListRef"
       @edit="handleEdit"
       @delete="handleDelete"
     />
+    <ProjectBoard v-if="currentView === 'board'" />
+
     <Dialog :isOpen="showModal" @close="showModal = false">
       <div class="max-w-xl mx-auto bg-white">
         <h3 class="text-lg font-bold leading-6 text-center mb-2 text-gray-700">
@@ -166,11 +180,13 @@ import Layout from "../components/Layout.vue";
 import ProjectList from "../components/ProjectList.vue";
 import Dialog from "../components/Task/Dialog.vue";
 import { useToast } from "../components/Composables/useToast.js";
+import ProjectBoard from "../components/ProjectBoard.vue";
 
 // Using the composable
 const { success, error } = useToast();
 const showModal = ref(false);
 const mode = ref("add");
+const currentView = ref("list");
 const message = ref("");
 const projectListRef = ref(null);
 
@@ -241,5 +257,14 @@ const handleDelete = async (row) => {
 
 const refreshProjectList = () => {
   projectListRef.value?.fetchProjects?.();
+};
+
+const buttonClass = (view) => {
+  return [
+    "bg-white px-4 py-2 text-sm font-semibold transition-all",
+    currentView.value === view
+      ? "border-b-2 border-blue-600 text-blue-600"
+      : "text-gray-600 hover:text-blue-500",
+  ].join(" ");
 };
 </script>

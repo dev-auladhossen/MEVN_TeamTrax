@@ -108,8 +108,8 @@ a:hover {
   scrollbar-width: thin;
 }
 .side-nav-open::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 .side-nav-open::-webkit-scrollbar-track-piece {
   background-color: #f5f5f5;

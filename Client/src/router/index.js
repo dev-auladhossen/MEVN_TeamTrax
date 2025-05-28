@@ -7,6 +7,7 @@ import AddNewUser from "../pages/AddNewUser.vue";
 import Layout from "../components/Layout.vue";
 import ToastContainer from "../components/Task/ToastContainer.vue";
 import Projects from "../pages/Projects.vue";
+import CardViewBoard from "../components/Task/CardViewBoard.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -48,8 +49,8 @@ const routes = [
   },
   {
     path: "/tasks",
-    name: "tasks",
-    component: ToastContainer,
+    name: "cardViewBoard",
+    component: CardViewBoard,
     meta: { hideLayout: true },
   },
 ];

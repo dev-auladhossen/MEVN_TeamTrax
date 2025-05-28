@@ -28,11 +28,15 @@ import {
   faRightFromBracket,
   faRefresh,
   faAdd,
+  faGrip,
+  faList,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(
+  faList,
+  faGrip,
   faAdd,
   faRefresh,
   faRightFromBracket,

@@ -1,36 +1,16 @@
 <template>
-  <DataTable
-    :headers="[
-      'Project Title',
-      'Description',
-      'Status',
-      'Owner',
-      'Assigned Team',
-      'Start Date',
-      'End Date',
-    ]"
-    :headerKeys="[
-      'name',
-      'description',
-      'status',
-      'createdBy',
-      'teams',
-      'startDate',
-      'endDate',
-    ]"
-    :data="projects"
-    :items-per-page="5"
-  />
+  <div>
+    <CardViewBoard />
+  </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import DataTable from "./Task/DataTable.vue";
 import moment from "moment";
+import CardViewBoard from "../components/Task/CardViewBoard.vue";
 
 const projects = ref([]);
-
+const statuses = ref(["Started", "Pending", "In Progress", "Completed"]);
 const fetchProjects = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -46,6 +26,7 @@ const fetchProjects = async () => {
       startDate: moment(project.startDate).format("LL"),
       endDate: moment(project.endDate).format("LL"),
     }));
+    console.log("clg from projects board", projects.value);
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }
@@ -55,3 +36,4 @@ onMounted(fetchProjects);
 
 defineExpose({ fetchProjects });
 </script>
+<style lang=""></style>

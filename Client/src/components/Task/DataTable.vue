@@ -9,7 +9,7 @@
         class="w-64 px-3 py-1.5 border rounded text-sm"
       />
     </div>
-    <div class="overflow-x-auto w-full">
+    <div class="overflow-x-auto w-full custom-scrollbar">
       <!-- Table -->
       <table class="w-full text-sm text-left text-nowrap">
         <thead class="bg-white text-black font-semibold border-b">
@@ -17,7 +17,12 @@
             <th
               v-for="(header, index) in headers"
               :key="index"
-              class="px-3 py-2 cursor-pointer select-none"
+              :class="[
+                'px-3 py-2 cursor-pointer',
+                index === 0
+                  ? 'sticky left-0 z-10 bg-white whitespace-nowrap'
+                  : '',
+              ]"
               @click="sortBy(headerKeys[index])"
             >
               {{ header }}
@@ -38,7 +43,12 @@
             <td
               v-for="(key, index) in headerKeys"
               :key="index"
-              class="px-3 py-2"
+              :class="[
+                'px-3 py-2',
+                index === 0
+                  ? 'sticky left-0 z-10 bg-white whitespace-nowrap'
+                  : '',
+              ]"
             >
               <div class="flex flex-row gap-2" v-if="key === 'username'">
                 <span
