@@ -84,7 +84,7 @@ a:hover {
 
 .side-nav-open {
   height: 100%;
-  width: 240px;
+  width: 200px;
   position: fixed;
   top: 0;
   left: 0;
@@ -135,7 +135,7 @@ a:hover {
 .top-navbar {
   background: #ffffff;
   transition: 0.3s;
-  margin-left: 240px;
+  margin-left: 200px;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.03);
 }
 .top-navbar-expand {
@@ -148,7 +148,7 @@ a:hover {
 .content {
   margin-top: 70px;
   transition: 0.3s;
-  margin-left: 240px;
+  margin-left: 200px;
 }
 
 .content-expand {
@@ -165,20 +165,20 @@ a:hover {
 .side-bar-item {
   text-decoration: none;
   display: inline-block;
-  padding: 12px 5px 12px 12px;
+  padding: 5px;
   width: 100% !important;
+  margin-bottom: 0.8rem;
 }
 .side-bar-item:hover {
   transition: 0.2s;
-  background-color: #166ad74b;
+  background-color: #daeaff;
+  color: #0063cc;
 }
-.side-bar-item:hover .side-bar-item-icon {
-  color: #fcfcff;
-}
-.side-bar-item:hover .side-bar-item-caption {
-  color: #ffffff;
-}
+
 .side-bar-item .side-bar-item-caption:hover {
+  color: #156fcf;
+}
+.side-bar-item .side-bar-item-icon:hover {
   color: #156fcf;
 }
 .side-bar-item-active {
@@ -189,13 +189,11 @@ a:hover {
   margin-left: 10px;
   margin-right: 10px;
   font-weight: 500;
-  color: #000000;
 }
 .side-bar-item-caption {
   font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #000000;
 }
 
 /* Responsive */

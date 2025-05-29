@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <CardViewBoard />
-  </div>
+  <CardViewBoard :statuses="statuses" :items="projects" />
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
@@ -10,7 +8,8 @@ import moment from "moment";
 import CardViewBoard from "../components/Task/CardViewBoard.vue";
 
 const projects = ref([]);
-const statuses = ref(["Started", "Pending", "In Progress", "Completed"]);
+const statuses = ["To Do", "Pending", "In Progress", "Completed"];
+
 const fetchProjects = async () => {
   try {
     const token = localStorage.getItem("token");

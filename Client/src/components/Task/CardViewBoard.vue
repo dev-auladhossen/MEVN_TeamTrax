@@ -1,16 +1,16 @@
 <template>
-  <div class="flex overflow-x-auto space-x-4 p-4 max-w-5xl mx-auto">
+  <div class="flex overflow-x-auto space-x-1 max-w-5xl mx-auto max-h-96">
     <div
       v-for="status in statuses"
       :key="status"
-      class="min-w-[250px] bg-gray-100 rounded-xl shadow p-4 flex flex-col"
+      class="min-w-[250px] p-1 flex flex-col"
     >
-      <h3 class="text-lg font-semibold mb-4">{{ status }}</h3>
+      <h3 class="text-md font-bold mb-3 bg-white p-2">{{ status }}</h3>
 
-      <div class="space-y-4">
+      <div class="space-y-2 overflow-y-auto cursor-pointer p-1">
         <CardView
           v-for="item in filteredItems(status)"
-          :key="item.id"
+          :key="item._id"
           :item="item"
         />
       </div>
@@ -21,7 +21,7 @@
 <script setup>
 import CardView from "./CardView.vue";
 
-defineProps({
+const props = defineProps({
   items: {
     type: Array,
     required: true,
@@ -32,40 +32,30 @@ defineProps({
   },
 });
 
+console.log("items", props.items);
+
 const filteredItems = (status) => {
-  return items.filter((item) => item.status === status);
+  return props.items.filter((item) => item.status === status);
 };
-const items = [
-  {
-    id: 1,
-    title: "Task One",
-    description: "First task",
-    status: "Not Started",
-  },
-  {
-    id: 2,
-    title: "Task Two",
-    description: "Second task",
-    status: "In Progress",
-  },
-  {
-    id: 3,
-    title: "Task Three",
-    description: "Third task",
-    status: "Completed",
-  },
-  {
-    id: 5,
-    title: "Task Three",
-    description: "Third task",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    title: "Task Three",
-    description: "Third task",
-    status: "Pending",
-  },
-  // You can replace this with project data as well
-];
 </script>
+<style scoped>
+::-webkit-scrollbar {
+  width: 5px;
+  height: 6px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: #e4e4e4;
+  border-radius: 0px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b1b1b1;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+</style>

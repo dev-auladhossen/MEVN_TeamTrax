@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <div class="flex justify-between gap-3 p-3 max-w-5xl mx-auto">
+    <div class="flex justify-between gap-3 px-3 py-2 max-w-5xl mx-auto">
       <div class="text-xl flex items-center justify-center font-bold">
         <span>Projects</span>
       </div>
@@ -14,7 +14,7 @@
     </div>
 
     <!-- switch view  -->
-    <div class="flex gap-3 space-x-3 mb-4 max-w-5xl mx-auto">
+    <div class="flex gap-3 space-x-3 mb-2 max-w-5xl mx-auto">
       <button @click="currentView = 'board'" :class="buttonClass('board')">
         <font-awesome-icon class="mr-2" icon="grip" /> Board View
       </button>
@@ -29,7 +29,7 @@
       @edit="handleEdit"
       @delete="handleDelete"
     />
-    <ProjectBoard v-if="currentView === 'board'" />
+    <ProjectBoard v-else />
 
     <Dialog :isOpen="showModal" @close="showModal = false">
       <div class="max-w-xl mx-auto bg-white">
@@ -186,7 +186,7 @@ import ProjectBoard from "../components/ProjectBoard.vue";
 const { success, error } = useToast();
 const showModal = ref(false);
 const mode = ref("add");
-const currentView = ref("list");
+const currentView = ref("board");
 const message = ref("");
 const projectListRef = ref(null);
 

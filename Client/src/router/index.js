@@ -8,6 +8,7 @@ import Layout from "../components/Layout.vue";
 import ToastContainer from "../components/Task/ToastContainer.vue";
 import Projects from "../pages/Projects.vue";
 import CardViewBoard from "../components/Task/CardViewBoard.vue";
+import ProjectDetails from "../components/ProjectDetails.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -45,6 +46,12 @@ const routes = [
     path: "/projects",
     name: "projects",
     component: Projects,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/project-details/:id",
+    name: "projectDetails",
+    component: ProjectDetails,
     meta: { hideLayout: true },
   },
   {

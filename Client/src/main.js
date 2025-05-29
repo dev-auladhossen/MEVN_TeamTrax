@@ -30,11 +30,40 @@ import {
   faAdd,
   faGrip,
   faList,
+  faPeopleGroup,
+  faTrashCan,
+  faClipboardList,
+  faClipboardCheck,
+  faTableCellsLarge,
+  faTimeline,
+  faBug,
+  faComment,
+  faHexagonNodes,
+  faLaptopCode,
+  faCubes,
+  faEllipsisVertical,
+  faGear,
+  faGears,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faPaste } from "@fortawesome/free-regular-svg-icons";
 library.add(
+  faGear,
+  faGears,
+  faPaste,
+  faEllipsisVertical,
+  faCubes,
+  faLaptopCode,
+  faHexagonNodes,
+  faComment,
+  faBug,
+  faTimeline,
+  faClipboardCheck,
+  faClipboardList,
+  faTrashCan,
+  faPeopleGroup,
   faList,
   faGrip,
   faAdd,
@@ -52,7 +81,8 @@ library.add(
   faTableColumns,
   faUser,
   faBars,
-  faSignOutAlt
+  faSignOutAlt,
+  faTableCellsLarge
 );
 
 createApp(App)

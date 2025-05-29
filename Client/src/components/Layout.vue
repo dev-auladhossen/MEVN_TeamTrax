@@ -59,50 +59,126 @@
     </nav>
 
     <div id="sideNav" class="side-nav-open">
-      <div class="side-nav-top flex justify-center mb-10">
-        <img alt="" class="side-nav-logo" src="../assets/logo.JPG" />
+      <div
+        class="side-nav-top flex gap-2 justify-center p-2 mb-5 text-xl font-bold text-blue-600"
+      >
+        <span class="text-xl"> <font-awesome-icon icon="hexagon-nodes" /></span>
+        <span class="">TeamTrax</span>
       </div>
 
-      <router-link to="/admindashboard" class="side-bar-item">
+      <router-link
+        to="/admindashboard"
+        class="side-bar-item rounded-full"
+        :class="isActive('/admindashboard')"
+      >
         <span class="side-bar-item-icon">
-          <font-awesome-icon class="text-black" icon="house-laptop"
-        /></span>
+          <font-awesome-icon
+            class="text-sm"
+            icon="laptop-code"
+            :class="[
+              'text-sm',
+              route.path === '/admindashboard' ? 'animate-bounce' : '',
+            ]"
+          />
+        </span>
         <span class="side-bar-item-caption">Dashboard</span>
       </router-link>
-
-      <router-link to="/projects" class="side-bar-item">
+      <router-link
+        to="/projects"
+        class="side-bar-item rounded-full"
+        :class="isActive('/projects')"
+      >
         <span class="side-bar-item-icon"
-          ><font-awesome-icon class="text-black" icon="project-diagram"
+          ><font-awesome-icon
+            class="text-sm"
+            icon="clipboard-check"
+            :class="[
+              'text-sm',
+              route.path === '/projects' ? 'animate-bounce' : '',
+            ]"
         /></span>
         <span class="side-bar-item-caption hover:text-blue-600">Projects</span>
       </router-link>
 
-      <router-link to="/tasks" class="side-bar-item">
+      <router-link
+        to="/tasks"
+        class="side-bar-item rounded-full"
+        :class="isActive('/tasks')"
+      >
         <span class="side-bar-item-icon"
-          ><font-awesome-icon class="text-black" icon="tasks"
+          ><font-awesome-icon
+            class="text-sm"
+            icon="tasks"
+            :class="[
+              'text-sm',
+              route.path === '/tasks' ? 'animate-bounce' : '',
+            ]"
         /></span>
         <span class="side-bar-item-caption">Tasks</span>
       </router-link>
 
-      <router-link to="/completed" class="side-bar-item">
+      <router-link
+        to="/completed"
+        class="side-bar-item rounded-full"
+        :class="isActive('/completed')"
+      >
         <span class="side-bar-item-icon"
-          ><font-awesome-icon class="text-black" icon="circle-check"
+          ><font-awesome-icon
+            icon="circle-check"
+            :class="[
+              'text-sm',
+              route.path === '/completed' ? 'animate-bounce' : '',
+            ]"
         /></span>
         <span class="side-bar-item-caption">Completed</span>
       </router-link>
 
-      <router-link to="/inprogress" class="side-bar-item">
+      <router-link
+        to="/inprogress"
+        class="side-bar-item rounded-full"
+        :class="isActive('/inprogress')"
+      >
         <span class="side-bar-item-icon"
-          ><font-awesome-icon class="text-black" icon="note-sticky"
+          ><font-awesome-icon
+            icon="tasks-alt"
+            :class="[
+              'text-sm',
+              route.path === '/inprogress' ? 'animate-bounce' : '',
+            ]"
         /></span>
         <span class="side-bar-item-caption">In Progress</span>
       </router-link>
 
-      <router-link to="/add-user" class="side-bar-item">
+      <router-link
+        to="/add-user"
+        class="side-bar-item rounded-full"
+        :class="isActive('/add-user')"
+      >
         <span class="side-bar-item-icon"
-          ><font-awesome-icon class="text-black" icon="circle-user"
+          ><font-awesome-icon
+            icon="people-group"
+            :class="[
+              'text-sm',
+              route.path === '/add-user' ? 'animate-bounce' : '',
+            ]"
         /></span>
         <span class="side-bar-item-caption">Team</span>
+      </router-link>
+
+      <router-link
+        to="/settings"
+        class="side-bar-item rounded-full"
+        :class="isActive('/settings')"
+      >
+        <span class="side-bar-item-icon"
+          ><font-awesome-icon
+            icon="gear"
+            :class="[
+              'text-sm',
+              route.path === '/settings' ? 'animate-bounce' : '',
+            ]"
+        /></span>
+        <span class="side-bar-item-caption">Settings</span>
       </router-link>
     </div>
 
@@ -118,8 +194,17 @@
 <script setup>
 import { useAuth } from "../utils/auth";
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const { logout } = useAuth();
+
+const isActive = (path) =>
+  route.path === path ? "bg-blue-500 text-white" : "";
+
+const getIconAttrs = (path) => {
+  return route.path === path ? { bounce: "" } : {};
+};
 
 const dropdownRef = ref(null);
 const dropdownOpen = ref(false);
@@ -165,12 +250,17 @@ const user = JSON.parse(localStorage.getItem("current-user"));
 const fullName = user.name;
 const nameParts = fullName.trim().split(" ");
 
-console.log("nameParts", nameParts);
-
 const initials =
   nameParts.length === 1
     ? nameParts[0][0].toUpperCase()
     : nameParts[0][0].toUpperCase() +
       nameParts[nameParts.length - 1][0].toUpperCase();
 </script>
-<style scoped></style>
+<style scoped>
+.side-nav-open {
+  padding: 10px;
+}
+.side-nav-close {
+  padding: 0px;
+}
+</style>
