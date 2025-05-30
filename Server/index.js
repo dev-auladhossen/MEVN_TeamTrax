@@ -7,11 +7,13 @@ const port = 3000;
 
 const authRoutes = require("./routes/auth");
 const projectRoutes = require("./routes/project");
+const statusRoutes = require("./routes/status");
+
 const User = require("./models/User");
-const Project = require("./models/Project");
 
 app.use(cors());
 app.use(express.json());
+app.use("/api", statusRoutes);
 app.use("/api", projectRoutes);
 app.use("/api", authRoutes);
 
@@ -43,7 +45,6 @@ app.get("/api/users", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch users" });
   }
 });
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

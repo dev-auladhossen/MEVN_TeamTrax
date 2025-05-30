@@ -30,10 +30,26 @@ router.post("/projects", async (req, res) => {
 // (Optional) GET all projects route can be placed here too
 router.get("/projects", async (req, res) => {
   try {
-    const projects = await Project.find().sort({ createdAt: -1 });
+    const projects = await Project.find()
+      .sort({ createdAt: -1 })
+      .populate("createdBy", "username");
     res.json(projects);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch projects" });
+  }
+});
+
+router.get("/project-details/:id", async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    console.log("project", project);
+    if (!project) {
+      return res.status(400).json({ message: "Project not found!" });
+    }
+    res.json(project);
+  } catch (err) {
+    console.error("Error fetching project by ID:", err.message);
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
