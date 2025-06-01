@@ -1,6 +1,5 @@
 <template scoped>
   <Layout>
-    <div class="font-semibold">Settings:</div>
     <SettingStatus />
   </Layout>
 </template>

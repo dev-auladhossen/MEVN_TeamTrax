@@ -29,7 +29,7 @@
       @edit="handleEdit"
       @delete="handleDelete"
     />
-    <ProjectBoard v-else />
+    <ProjectBoard ref="projectBoardRef" v-else />
 
     <Dialog :isOpen="showModal" @close="showModal = false">
       <div class="max-w-xl mx-auto bg-white">
@@ -65,6 +65,7 @@
 
           <div class="grid grid-cols-2 gap-4">
             <div>
+              <VueDatePicker v-model="date"></VueDatePicker>
               <label class="block text-sm font-medium text-gray-700"
                 >Start Date</label
               >
@@ -174,21 +175,25 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, provide } from "vue";
 import axios from "axios";
 import Layout from "../components/Layout.vue";
 import ProjectList from "../components/ProjectList.vue";
 import Dialog from "../components/Task/Dialog.vue";
 import { useToast } from "../components/Composables/useToast.js";
 import ProjectBoard from "../components/ProjectBoard.vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 // Using the composable
 const { success, error } = useToast();
+const date = ref();
 const showModal = ref(false);
 const mode = ref("add");
 const currentView = ref("board");
 const message = ref("");
 const projectListRef = ref(null);
+const projectBoardRef = ref(null);
 
 const user = JSON.parse(localStorage.getItem("current-user"));
 const projectCreatorId = user.id;
@@ -200,13 +205,15 @@ const initialForm = {
   startDate: "",
   endDate: "",
   teams: [],
-  status: "Not Started",
+  status: "To Do",
   createdBy: projectCreatorId, // Replace with logged-in user ID
 };
 
 const form = reactive({ ...initialForm });
 
-const handleAddProject = () => {
+const handleAddProject = (status) => {
+  initialForm.status = status.name;
+  console.log("initialForm", initialForm);
   mode.value = "add";
   showModal.value = true;
   Object.assign(form, initialForm);
@@ -257,6 +264,7 @@ const handleDelete = async (row) => {
 
 const refreshProjectList = () => {
   projectListRef.value?.fetchProjects?.();
+  projectBoardRef.value?.fetchProjects?.();
 };
 
 const buttonClass = (view) => {
@@ -267,4 +275,8 @@ const buttonClass = (view) => {
       : "text-gray-600 hover:text-blue-500",
   ].join(" ");
 };
+
+// Provide & Inject Process
+provide("openCreateModal", handleAddProject);
+provide("deleteProject", handleDelete);
 </script>

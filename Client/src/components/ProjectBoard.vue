@@ -8,7 +8,23 @@ import moment from "moment";
 import CardViewBoard from "../components/Task/CardViewBoard.vue";
 
 const projects = ref([]);
-const statuses = ["To Do", "Pending", "In Progress", "Completed"];
+const statuses = ref(["To Do", "Pending", "In Progress", "Completed"]);
+
+const fetchStatuses = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get("http://localhost:5000/api/status", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    statuses.value = res.data;
+
+    console.log("clg from statuses ", statuses.value);
+  } catch (error) {
+    console.error("Failed to fetch statuses:", error);
+  }
+};
 
 const fetchProjects = async () => {
   try {
@@ -31,7 +47,10 @@ const fetchProjects = async () => {
   }
 };
 
-onMounted(fetchProjects);
+onMounted(() => {
+  fetchProjects();
+  fetchStatuses();
+});
 
 defineExpose({ fetchProjects });
 </script>

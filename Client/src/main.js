@@ -6,6 +6,8 @@ import App from "./App.vue";
 import router from "./router";
 import Vue3ColorPicker from "vue3-colorpicker";
 import "vue3-colorpicker/style.css";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 // Import Font Awesome core
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -44,12 +46,14 @@ import {
   faEllipsisVertical,
   faGear,
   faGears,
+  faEllipsisH,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPaste } from "@fortawesome/free-regular-svg-icons";
 library.add(
+  faEllipsisH,
   faGear,
   faGears,
   faPaste,
@@ -87,6 +91,7 @@ library.add(
 
 createApp(App)
   .component("font-awesome-icon", FontAwesomeIcon)
+  .component("VueDatePicker", VueDatePicker)
   .use(router)
   .use(Vue3ColorPicker)
   .mount("#app");

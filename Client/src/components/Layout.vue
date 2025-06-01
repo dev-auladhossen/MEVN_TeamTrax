@@ -31,7 +31,7 @@
         >
           <div
             v-if="dropdownOpen"
-            class="absolute right-0 mt-2 w-52 borderrounded-md bg-white shadow-2xl transform opacity-100 scale-100"
+            class="absolute right-0 mt-2 w-52 border rounded-md bg-white shadow-2xl transform opacity-100 scale-100"
           >
             <div class="p-4">
               <button class="w-full px-4 py-2 text-left hover:bg-gray-100">
