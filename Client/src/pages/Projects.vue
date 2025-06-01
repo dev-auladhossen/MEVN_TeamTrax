@@ -63,19 +63,28 @@
             ></textarea>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="">
             <div>
-              <VueDatePicker v-model="date"></VueDatePicker>
               <label class="block text-sm font-medium text-gray-700"
+                >Date Range</label
+              >
+              <VueDatePicker
+                v-model="date"
+                :range="{ fixedStart: true }"
+                :teleport="true"
+                :clearable="false"
+                :month-change-on-arrows="true"
+              ></VueDatePicker>
+              <!-- <label class="block text-sm font-medium text-gray-700"
                 >Start Date</label
               >
               <input
                 v-model="form.startDate"
                 type="date"
                 class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
-              />
+              /> -->
             </div>
-            <div>
+            <!-- <div>
               <label class="block text-sm font-medium text-gray-700"
                 >End Date</label
               >
@@ -84,7 +93,7 @@
                 type="date"
                 class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               />
-            </div>
+            </div> -->
           </div>
 
           <div>
@@ -175,7 +184,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, provide } from "vue";
+import { reactive, ref, provide, onMounted } from "vue";
 import axios from "axios";
 import Layout from "../components/Layout.vue";
 import ProjectList from "../components/ProjectList.vue";
@@ -197,7 +206,6 @@ const projectBoardRef = ref(null);
 
 const user = JSON.parse(localStorage.getItem("current-user"));
 const projectCreatorId = user.id;
-console.log("user", user);
 
 const initialForm = {
   name: "",
@@ -213,14 +221,12 @@ const form = reactive({ ...initialForm });
 
 const handleAddProject = (status) => {
   initialForm.status = status.name;
-  console.log("initialForm", initialForm);
   mode.value = "add";
   showModal.value = true;
   Object.assign(form, initialForm);
 };
 
 const createProject = async () => {
-  console.log("form", form);
   try {
     const res = await axios.post("http://localhost:5000/api/projects", form);
     refreshProjectList();
@@ -236,7 +242,6 @@ const createProject = async () => {
 };
 
 const handleDelete = async (row) => {
-  console.log(row);
   const projectId = row._id;
   try {
     const token = localStorage.getItem("token");
@@ -279,4 +284,10 @@ const buttonClass = (view) => {
 // Provide & Inject Process
 provide("openCreateModal", handleAddProject);
 provide("deleteProject", handleDelete);
+onMounted(() => {
+  const startDate = new Date();
+  const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
+  date.value = [startDate, endDate];
+  console.log("date.value", date.value);
+});
 </script>

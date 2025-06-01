@@ -72,7 +72,7 @@ const props = defineProps({
     required: true,
   },
 });
-console.log("props", props.item);
+
 const dropdownOpen = ref(false);
 
 const router = useRouter();

@@ -52,14 +52,11 @@ const props = defineProps({
   },
 });
 
-console.log("items", props.items);
-
 const filteredItems = (status) => {
   return props.items.filter((item) => item.status === status.name);
 };
 
 const createNewProject = (status) => {
-  console.log(status);
   openModal(status);
 };
 
