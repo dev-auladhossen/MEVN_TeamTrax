@@ -52,6 +52,6 @@ onMounted(() => {
   fetchStatuses();
 });
 
-defineExpose({ fetchProjects });
+defineExpose({ fetchProjects, fetchStatuses });
 </script>
 <style lang=""></style>

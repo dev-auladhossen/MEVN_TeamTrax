@@ -247,7 +247,7 @@ const handleSubmit = async () => {
 
 const handleEdit = (row) => {
   mode.value = "edit";
-  selectedUserId.value = row._id; // assuming _id is the unique identifier
+  selectedUserId.value = row._id; 
   Object.assign(form, {
     username: row.username,
     email: row.email,
@@ -255,7 +255,7 @@ const handleEdit = (row) => {
     role: row.role,
     color: row.color,
     status: row.status,
-    password: "", // leave blank for edit
+    password: "", 
   });
   showModal.value = true;
 };

@@ -37,7 +37,7 @@
           {{ mode === "add" ? "ADD NEW PROJECT" : "EDIT PROJECT" }}
         </h3>
 
-        <form @submit.prevent="createProject" class="space-y-4">
+        <form @submit.prevent="createProject" class="space-y-3">
           <div>
             <label class="block text-sm font-medium text-gray-700"
               >Project Name</label
@@ -58,49 +58,34 @@
             <textarea
               v-model="form.description"
               placeholder="Enter project description"
-              rows="3"
+              rows="2"
               class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             ></textarea>
           </div>
 
-          <div class="">
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Date Range</label
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Status</label
+            >
+            <select
+              v-model="form.status"
+              class="border rounded px-3 py-2 w-full bg-white text-sm cursor-pointer"
+            >
+              <option
+                v-for="option in statusList"
+                :key="option._id"
+                :value="option.name"
               >
-              <VueDatePicker
-                v-model="date"
-                :range="{ fixedStart: true }"
-                :teleport="true"
-                :clearable="false"
-                :month-change-on-arrows="true"
-              ></VueDatePicker>
-              <!-- <label class="block text-sm font-medium text-gray-700"
-                >Start Date</label
-              >
-              <input
-                v-model="form.startDate"
-                type="date"
-                class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
-              /> -->
-            </div>
-            <!-- <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >End Date</label
-              >
-              <input
-                v-model="form.endDate"
-                type="date"
-                class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
-              />
-            </div> -->
+                {{ option.name }}
+              </option>
+            </select>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2"
               >Select Teams</label
             >
-            <div class="grid grid-cols-4 gap-4">
+            <div class="grid grid-cols-4 gap-1">
               <label class="inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -169,12 +154,46 @@
             </div>
           </div>
 
+          <div class="text-sm">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Date Range</label
+              >
+              <VueDatePicker
+                input-class="text-sm px-3 py-2 border rounded w-full"
+                v-model="dateRange"
+                :range="{ fixedStart: true }"
+                :teleport="true"
+                :clearable="false"
+                :month-change-on-arrows="true"
+              ></VueDatePicker>
+              <!-- <label class="block text-sm font-medium text-gray-700"
+                >Start Date</label
+              >
+              <input
+                v-model="form.startDate"
+                type="date"
+                class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+              /> -->
+            </div>
+            <!-- <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >End Date</label
+              >
+              <input
+                v-model="form.endDate"
+                type="date"
+                class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+              />
+            </div> -->
+          </div>
+
           <div class="pt-4">
             <button
               type="submit"
               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-200"
             >
-              Create Project
+              {{ mode === "add" ? "Create Project" : "Update Project" }}
             </button>
           </div>
         </form>
@@ -194,15 +213,19 @@ import ProjectBoard from "../components/ProjectBoard.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
+import { useFetchStatus } from "../components/Composables/useFetchStatus";
+const { statusList, loading, fetchStatus } = useFetchStatus();
+
 // Using the composable
 const { success, error } = useToast();
-const date = ref();
+const dateRange = ref();
 const showModal = ref(false);
 const mode = ref("add");
 const currentView = ref("board");
 const message = ref("");
 const projectListRef = ref(null);
 const projectBoardRef = ref(null);
+const selectedProjectId = ref(null);
 
 const user = JSON.parse(localStorage.getItem("current-user"));
 const projectCreatorId = user.id;
@@ -221,24 +244,63 @@ const form = reactive({ ...initialForm });
 
 const handleAddProject = (status) => {
   initialForm.status = status.name;
+  initialForm.startDate = dateRange.value[0]?.toISOString();
+  initialForm.endDate = dateRange.value[1]?.toISOString();
   mode.value = "add";
   showModal.value = true;
   Object.assign(form, initialForm);
 };
 
 const createProject = async () => {
+  const testDate = dateRange.value[0]?.toISOString();
+  const newVal = new Date(testDate);
+  console.log("testDate", testDate);
+  console.log("newVal", newVal);
+
   try {
-    const res = await axios.post("http://localhost:5000/api/projects", form);
+    const token = localStorage.getItem("token");
+    if (mode.value === "add") {
+      await axios.post("http://localhost:5000/api/projects", form, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      message.value = "Project Created Successfully!";
+      success(message.value, { title: "Success" });
+    } else if (mode.value === "edit" && selectedProjectId.value) {
+      await axios.put(
+        `http://localhost:5000/api/projects/${selectedProjectId.value}`,
+        form,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      message.value = "Project updated successfully!";
+      success(message.value, { title: "Success" });
+    }
+    mode.value = "add";
     refreshProjectList();
     showModal.value = false;
-    message.value = "Project Created Successfully!";
-    success(message.value, { title: "Success" });
     Object.assign(form, initialForm);
-  } catch (err) {
-    console.error(err);
-    message.value = "Failed to create project";
-    error(message.value, { title: "Error" });
+  } catch (error) {
+    message.value =
+      error.response?.data?.message || "Failed to add Project. Try again.";
   }
+};
+
+const handleEdit = (row) => {
+  console.log("row", row);
+  mode.value = "edit";
+  selectedProjectId.value = row._id;
+  Object.assign(form, {
+    name: row.name,
+    description: row.description,
+    startDate: row.startDate,
+    endDate: row.endDate,
+    teams: row.teams,
+    status: row.status,
+    createdBy: projectCreatorId,
+  });
+  showModal.value = true;
+  console.log("form handleEdit", form);
 };
 
 const handleDelete = async (row) => {
@@ -287,7 +349,18 @@ provide("deleteProject", handleDelete);
 onMounted(() => {
   const startDate = new Date();
   const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
-  date.value = [startDate, endDate];
-  console.log("date.value", date.value);
+  dateRange.value = [startDate, endDate];
+  console.log("date.value", dateRange.value);
+  fetchStatus();
+  console.log("statusList  from", statusList.value);
 });
 </script>
+<style>
+.dp__pointer,
+.dp__calendar {
+  font-size: 14px;
+}
+.dp__cell_inner {
+  font-size: 13px;
+}
+</style>
