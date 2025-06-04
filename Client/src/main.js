@@ -49,6 +49,8 @@ import {
   faEllipsisH,
   faEdit,
   faArrowUpRightFromSquare,
+  faPencil,
+  faCalendarDays,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
@@ -56,6 +58,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPaste } from "@fortawesome/free-regular-svg-icons";
 import { faOpencart } from "@fortawesome/free-brands-svg-icons";
 library.add(
+  faCalendarDays,
+  faPencil,
   faArrowUpRightFromSquare,
   faEdit,
   faOpencart,

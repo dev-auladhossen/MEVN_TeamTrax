@@ -26,7 +26,7 @@
       @click="$emit('delete', status._id)"
       class="ml-2 text-red-600 hover:underline"
     >
-      Delete
+      <font-awesome-icon icon="trash-can" />
     </button>
   </div>
 </template>

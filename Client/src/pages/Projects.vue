@@ -5,7 +5,7 @@
         <span>Projects</span>
       </div>
       <button
-        @click="handleAddProject('To Do')"
+        @click="handleAddProject('Planning')"
         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         <font-awesome-icon class="mr-2" icon="add" />
@@ -236,7 +236,7 @@ const initialForm = {
   startDate: "",
   endDate: "",
   teams: [],
-  status: "To Do",
+  status: "Planning",
   createdBy: projectCreatorId, // Replace with logged-in user ID
 };
 

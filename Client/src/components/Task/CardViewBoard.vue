@@ -28,6 +28,8 @@
           v-for="item in filteredItems(status)"
           :key="item._id"
           :item="item"
+          :statusColor="status.color"
+          :statusList="props.statuses"
         />
       </div>
     </div>
@@ -47,7 +49,13 @@ const props = defineProps({
   },
   statuses: {
     type: Array,
-    default: () => ["Pending", "In Progress", "Completed"],
+    default: () => [
+      "Planning",
+      "In Progress",
+      "On Hold",
+      "Completed",
+      "Cancelled",
+    ],
     required: true,
   },
 });

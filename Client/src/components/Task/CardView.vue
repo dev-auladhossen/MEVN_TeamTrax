@@ -3,7 +3,9 @@
     class="bg-white project-card p-3 rounded-lg shadow hover:shadow-md transition"
   >
     <div class="card-header flex justify-between">
-      <h4 class="text-md font-semibold mb-2">{{ item.name }}</h4>
+      <h4 class="text-md font-semibold mb-2">
+        {{ item.name }}
+      </h4>
       <div ref="menuRef">
         <font-awesome-icon
           class="menu-wrapper text-black cursor-pointer"
@@ -22,9 +24,9 @@
       leave-to-class="opacity-0 scale-95"
       ><div
         v-if="openMenuId === item._id"
-        class="absolute right-0 mt-2 w-52 border rounded-md bg-white shadow-2xl transform opacity-100 scale-100 z-50"
+        class="absolute right-0 w-36 border rounded-md bg-white shadow-2xl transform opacity-100 scale-100 z-50"
       >
-        <div class="p-4">
+        <div class="p-1">
           <button
             @click="goToDetails"
             class="w-full px-4 py-2 text-left hover:bg-gray-100"
@@ -39,46 +41,86 @@
             @click="handleEditProject(item)"
             class="w-full px-4 py-2 text-left hover:bg-gray-100"
           >
-            <font-awesome-icon class="text-black mr-2" icon="edit" />
+            <font-awesome-icon class="text-black mr-2" icon="pencil" />
             Edit
           </button>
           <button
             @click="handleDeleteProject(item)"
-            class="w-full px-4 py-2 text-left hover:bg-gray-100"
+            class="w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600"
           >
-            <font-awesome-icon class="text-black mr-2" icon="trash-can" />
+            <font-awesome-icon class="mr-2" icon="trash-can" />
             Delete
           </button>
         </div>
       </div></transition
     >
 
-    <div class="text-xs flex justify-between gap-2 my-2">
+    <div class="text-xs flex justify-between gap-2 mb-2 items-center">
       <span>{{ item.startDate }}</span>
-      <span>{{ item.endDate }}</span>
-    </div>
-    <p class="text-sm text-gray-600">
-      {{ truncate(item.description, 50) }}
-    </p>
-    <div class="flex gap-1 items-center my-2">
-      <button
-        @click=""
-        class="rounded-full bg-blue-600 text-white w-6 h-6 text-sm flex items-center justify-center"
+      <span
+        :class="[
+          'py-0.5 px-2 border rounded-full text-xs',
+          `bg-[${statusColor}]/10 text-[${statusColor}]`,
+        ]"
       >
-        {{ getInitials(item.createdBy) }}
-      </button>
-      <span>{{ getFirstName(item.createdBy) }}</span>
-      <button @click="handleDeleteProject(item)">Delete</button>
+        {{ item.status }}
+      </span>
+    </div>
+    <div class="my-2">
+      <span class="text-sm text-gray-600">
+        {{ truncate(item.description, 50) }}
+      </span>
+    </div>
+
+    <!-- <div class="flex gap-1 justify-between items-center my-2">
+      <div class="flex gap-1 items-center">
+        <button
+          @click=""
+          class="rounded-full bg-blue-600 text-white w-6 h-6 text-xs flex items-center justify-center"
+        >
+          {{ getInitials(item.createdBy) }}
+        </button>
+        <span>{{ getFirstName(item.createdBy) }}</span>
+      </div>
+    </div> -->
+    <div>
+      <div class="progress-section">
+        <div class="flex justify-between text-xs text-gray-600 mb-1">
+          <span>Progress</span>
+          <span>{{ progressPercentage }}%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded h-2 overflow-hidden">
+          <div
+            class="bg-blue-500 h-full"
+            :style="{ width: progressPercentage + '%' }"
+          ></div>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-between text-xs my-2 text-gray-600">
+      <span>0 Tasks</span>
+      <span
+        ><font-awesome-icon icon="calendar-days" /> Due:
+        {{ item.endDate }}</span
+      >
     </div>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from "vue-router";
-import { inject, ref, onMounted, onBeforeUnmount } from "vue";
+import { inject, ref, onMounted, onBeforeUnmount, computed } from "vue";
 const props = defineProps({
   item: {
     type: Object,
+    required: true,
+  },
+  statusList: {
+    type: Object,
+    required: true,
+  },
+  statusColor: {
+    type: String,
     required: true,
   },
 });
@@ -137,6 +179,24 @@ const handleClickOutside = (event) => {
   }
 };
 
+// Progress Percentage
+const progressPercentage = computed(() => {
+  const total = props.statusList.length;
+  console.log("total", total);
+
+  const currentIndex = props.statusList.findIndex(
+    (status) => status.name === props.item.status
+  );
+  console.log("currentIndex", currentIndex);
+  console.log("props.statusList", props.statusList);
+  console.log("props.item.status", props.item.status);
+
+  if (currentIndex === -1 || total <= 1) return 0;
+
+  const percentage = (currentIndex / (total - 1)) * 100;
+  return Math.round(percentage);
+});
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
 });
@@ -153,19 +213,8 @@ onBeforeUnmount(() => {
   border-radius: 8px;
 }
 
-/* .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-} */
-
-/* .menu-wrapper {
-  position: relative;
-} */
-
 .dropdown-menu {
   position: absolute;
-  /* Places it below the button */
   right: 0;
   background: white;
   border: 1px solid #ccc;
