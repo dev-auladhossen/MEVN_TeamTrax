@@ -17,7 +17,7 @@
           <h3 class="text-md font-bold bg-white p-2">{{ status.name }}</h3>
         </div>
         <font-awesome-icon
-          @click="createNewProject(status)"
+          @click="createNewProject(status.name)"
           class="mx-1 text-xs text-gray-500 hover:text-gray-800 cursor-pointer"
           icon="add"
         />

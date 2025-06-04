@@ -47,12 +47,18 @@ import {
   faGear,
   faGears,
   faEllipsisH,
+  faEdit,
+  faArrowUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPaste } from "@fortawesome/free-regular-svg-icons";
+import { faOpencart } from "@fortawesome/free-brands-svg-icons";
 library.add(
+  faArrowUpRightFromSquare,
+  faEdit,
+  faOpencart,
   faEllipsisH,
   faGear,
   faGears,

@@ -5,7 +5,7 @@
         <span>Projects</span>
       </div>
       <button
-        @click="handleAddProject"
+        @click="handleAddProject('To Do')"
         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         <font-awesome-icon class="mr-2" icon="add" />
@@ -243,19 +243,24 @@ const initialForm = {
 const form = reactive({ ...initialForm });
 
 const handleAddProject = (status) => {
-  initialForm.status = status.name;
-  initialForm.startDate = dateRange.value[0]?.toISOString();
-  initialForm.endDate = dateRange.value[1]?.toISOString();
+  console.log("status", status);
+  console.log("form", form);
   mode.value = "add";
+
+  initialForm.status = status;
+  const startDate = new Date();
+  const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
+  dateRange.value = [startDate, endDate];
+
+  console.log("initialForm.status", initialForm.status);
+
   showModal.value = true;
   Object.assign(form, initialForm);
 };
 
 const createProject = async () => {
-  const testDate = dateRange.value[0]?.toISOString();
-  const newVal = new Date(testDate);
-  console.log("testDate", testDate);
-  console.log("newVal", newVal);
+  form.startDate = new Date(dateRange.value[0]?.toISOString());
+  form.endDate = new Date(dateRange.value[1]?.toISOString());
 
   try {
     const token = localStorage.getItem("token");
@@ -290,17 +295,19 @@ const handleEdit = (row) => {
   console.log("row", row);
   mode.value = "edit";
   selectedProjectId.value = row._id;
+  const startDate = new Date(row.startDate);
+  const endDate = new Date(row.endDate);
+  dateRange.value = [startDate, endDate];
   Object.assign(form, {
     name: row.name,
     description: row.description,
-    startDate: row.startDate,
-    endDate: row.endDate,
+    startDate: new Date(row.startDate),
+    endDate: new Date(row.endDate),
     teams: row.teams,
     status: row.status,
     createdBy: projectCreatorId,
   });
   showModal.value = true;
-  console.log("form handleEdit", form);
 };
 
 const handleDelete = async (row) => {
@@ -346,13 +353,13 @@ const buttonClass = (view) => {
 // Provide & Inject Process
 provide("openCreateModal", handleAddProject);
 provide("deleteProject", handleDelete);
+provide("editProject", handleEdit);
 onMounted(() => {
   const startDate = new Date();
   const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
+
   dateRange.value = [startDate, endDate];
-  console.log("date.value", dateRange.value);
   fetchStatus();
-  console.log("statusList  from", statusList.value);
 });
 </script>
 <style>
