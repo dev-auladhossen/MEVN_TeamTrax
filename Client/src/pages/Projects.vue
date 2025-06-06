@@ -167,25 +167,7 @@
                 :clearable="false"
                 :month-change-on-arrows="true"
               ></VueDatePicker>
-              <!-- <label class="block text-sm font-medium text-gray-700"
-                >Start Date</label
-              >
-              <input
-                v-model="form.startDate"
-                type="date"
-                class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
-              /> -->
             </div>
-            <!-- <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >End Date</label
-              >
-              <input
-                v-model="form.endDate"
-                type="date"
-                class="mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
-              />
-            </div> -->
           </div>
 
           <div class="pt-4">

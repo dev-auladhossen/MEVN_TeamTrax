@@ -37,8 +37,9 @@
         <tbody>
           <tr
             v-for="(row, rowIndex) in paginatedData"
+            @click="goToDetails(row)"
             :key="rowIndex"
-            class="border-t hover:bg-gray-100"
+            class="border-t hover:bg-gray-100 cursor-pointer"
           >
             <td
               v-for="(key, index) in headerKeys"
@@ -84,7 +85,7 @@
               <div
                 v-if="key !== 'username' && key !== 'status' && key !== 'teams'"
               >
-                {{ row[key] }}
+                {{ truncate(row[key]) }}
               </div>
             </td>
 
@@ -153,6 +154,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   headers: Array,
@@ -165,7 +167,7 @@ const props = defineProps({
 });
 
 defineEmits(["edit", "delete"]);
-
+const router = useRouter();
 const currentPage = ref(1);
 const searchQuery = ref("");
 const selectedRows = ref([]);
@@ -206,6 +208,14 @@ const sortBy = (key) => {
     sortKey.value = key;
     sortOrder.value = "asc";
   }
+};
+
+const truncate = (text, length = 60) => {
+  return text.length > length ? text.slice(0, length) + "..." : text;
+};
+
+const goToDetails = (item) => {
+  router.push(`/project-details/${item._id}`);
 };
 
 const goToPage = (page) => {
