@@ -3,16 +3,17 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-const port = 3000;
 
 const authRoutes = require("./routes/auth");
 const projectRoutes = require("./routes/project");
 const statusRoutes = require("./routes/status");
+const taskRoutes = require("./routes/task");
 
 const User = require("./models/User");
 
 app.use(cors());
 app.use(express.json());
+app.use("/api", taskRoutes);
 app.use("/api", statusRoutes);
 app.use("/api", projectRoutes);
 app.use("/api", authRoutes);

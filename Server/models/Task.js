@@ -5,7 +5,10 @@ const taskSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: String,
-    status: { type: String, default: "Backlog" },
+    status: { type: String, default: "Planning" },
+    priority: { type: String, default: "Medium" },
+    dueDate: Date,
+    assignedTo: { type: Array },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
