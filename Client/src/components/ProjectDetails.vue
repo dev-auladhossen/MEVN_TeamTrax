@@ -148,7 +148,7 @@
         </div>
       </div>
 
-      <!-- Task Cards by Status -->
+      <!-- Task Cards by Statuses -->
       <div class="grid md:grid-cols-3 gap-6">
         <div
           v-for="status in filteredColumns"
