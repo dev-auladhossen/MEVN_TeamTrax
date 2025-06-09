@@ -6,11 +6,17 @@
       <h4 class="text-md font-semibold mb-2">
         {{ item.name }}
       </h4>
-      <div ref="menuRef">
+
+      <div ref="menuRef" class="flex gap-2">
         <font-awesome-icon
           class="menu-wrapper text-black cursor-pointer"
           icon="ellipsis-h"
           @click="toggleDropdown(item._id)"
+        />
+        <font-awesome-icon
+          class="text-gray-600 cursor-pointer text-xs"
+          icon="arrow-up-right-from-square"
+          @click="goToDetails"
         />
       </div>
     </div>

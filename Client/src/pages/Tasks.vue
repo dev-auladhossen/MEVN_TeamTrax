@@ -1,11 +1,33 @@
 <template scoped>
   <Layout>
-    <button
-      @click="showModal = true"
-      class="mt-4 md:mt-0 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition"
-    >
-      + Add Task
-    </button>
+    <div class="flex justify-between gap-3 px-3 py-2 max-w-5xl mx-auto">
+      <div class="text-xl flex items-center justify-center font-bold">
+        <span>Tasks</span>
+      </div>
+      <button
+        @click="showModal = true"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        + Add New Task
+      </button>
+    </div>
+
+    <!-- switch view  -->
+    <div class="flex gap-3 space-x-3 mb-2 max-w-5xl mx-auto">
+      <button @click="currentView = 'board'" :class="buttonClass('board')">
+        <font-awesome-icon class="mr-2" icon="grip" /> Board View
+      </button>
+      <button @click="currentView = 'list'" :class="buttonClass('list')">
+        <font-awesome-icon class="mr-2" icon="list" /> List View
+      </button>
+    </div>
+
+    <TaskList
+      v-if="currentView === 'list'"
+      ref="projectListRef"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    />
 
     <!-- Task Form Modal -->
     <Dialog :isOpen="showModal" @close="showModal = false">
@@ -56,13 +78,13 @@
                 </option>
               </select>
             </div>
-            <div>
+            <div class="w-full">
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Priority</label
               >
               <select
                 v-model="newTask.priority"
-                class="w-40 px-4 py-1 border rounded text-sm cursor-pointer"
+                class="w-full px-4 py-1 border rounded text-sm cursor-pointer"
               >
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
@@ -80,7 +102,7 @@
               >
               <select
                 v-model="newTask.projectId"
-                class="w-48 px-4 py-1 border rounded text-sm cursor-pointer"
+                class="w-40 px-4 py-1 border rounded text-sm cursor-pointer"
                 required
               >
                 <option disabled value="">-- Select Project --</option>
@@ -95,7 +117,7 @@
             </div>
 
             <!-- Assignees Multi-Select Dropdown -->
-            <div class="space-y-1">
+            <div class="w-full space-y-1">
               <label class="block text-sm font-medium text-gray-700"
                 >Assign To</label
               >
@@ -195,9 +217,10 @@
 <script setup>
 import Layout from "../components/Layout.vue";
 import Dialog from "../components/Task/Dialog.vue";
-import { ref, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, onBeforeUnmount } from "vue";
 import axios from "axios";
 import { useToast } from "../components/Composables/useToast.js";
+import TaskList from "../components/TaskList.vue";
 
 const showModal = ref(false);
 const showAssigneeDropdown = ref(false);
@@ -205,6 +228,7 @@ const assigneeDropdownRef = ref(null);
 const expandedDepts = ref([]);
 const message = ref("");
 const mode = ref("add");
+const currentView = ref("board");
 const taskStatuses = ["Todo", "In Progress", "Review", "Done"];
 const projects = ref([]);
 const users = ref([]);
@@ -220,17 +244,12 @@ const initialTask = {
   projectId: "",
 };
 
-const newTask = ref({ ...initialTask.value });
-
-const toggleAssigneeDropdown = () => {
-  showAssigneeDropdown.value = !showAssigneeDropdown.value;
-};
+const newTask = reactive({ ...initialTask });
 
 async function submitTask() {
   try {
     const token = localStorage.getItem("token");
-    const payLoad = { ...newTask.value };
-    console.log("payLoad", payLoad);
+    const payLoad = { ...newTask };
     if (mode.value === "add") {
       await axios.post("http://localhost:5000/api/create-task", payLoad, {
         headers: { Authorization: `Bearer ${token}` },
@@ -256,8 +275,6 @@ async function submitTask() {
     message.value =
       error.response?.data?.message || "Failed to add Task. Try again.";
   }
-
-  newTask.value = { title: "", description: "", projectId: "" };
 }
 const dummyUsers = [
   { id: 1, fullName: "Alice", department: "Design" },
@@ -266,6 +283,15 @@ const dummyUsers = [
   { id: 4, fullName: "David Lee", department: "Development" },
   { id: 5, fullName: "Eva Green", department: "QA" },
 ];
+
+const buttonClass = (view) => {
+  return [
+    "bg-white px-4 py-2 text-sm font-semibold transition-all",
+    currentView.value === view
+      ? "border-b-2 border-blue-600 text-blue-600"
+      : "text-gray-600 hover:text-blue-500",
+  ].join(" ");
+};
 
 const groupedUsers = computed(() => {
   const map = {};
@@ -285,8 +311,11 @@ const toggleDept = (dept) => {
 };
 
 const isAllSelected = (users) => {
+  console.log("newTask", newTask);
+  console.log("users", users);
+  console.log("newTask.value.assignedTo", newTask);
   return users.every((user) =>
-    newTask.value.assignedTo?.some((u) => u.id === user.id)
+    newTask.assignedTo.some((u) => u.id === user.id)
   );
 };
 
@@ -334,9 +363,15 @@ const fetchUsers = async () => {
     console.error("Failed to fetch users:", error);
   }
 };
+
 onMounted(() => {
   fetchProjects();
   fetchUsers();
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 <style scoped></style>

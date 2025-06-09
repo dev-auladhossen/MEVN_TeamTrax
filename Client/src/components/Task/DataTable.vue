@@ -83,7 +83,12 @@
                 {{ row[key] }}
               </div>
               <div
-                v-if="key !== 'username' && key !== 'status' && key !== 'teams'"
+                v-if="
+                  key !== 'username' &&
+                  key !== 'status' &&
+                  key !== 'teams' &&
+                  key !== 'assignedTo'
+                "
               >
                 {{ truncate(row[key]) }}
               </div>
@@ -91,13 +96,13 @@
 
             <td class="px-3 py-2 space-x-2">
               <button
-                @click="$emit('edit', row)"
+                @click.stop="$emit('edit', row)"
                 class="text-blue-600 hover:underline"
               >
                 Edit
               </button>
               <button
-                @click="$emit('delete', row)"
+                @click.stop="$emit('delete', row)"
                 class="text-red-600 hover:underline"
               >
                 Delete

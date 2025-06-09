@@ -173,7 +173,7 @@
               >
                 <div class="flex justify-between items-center mb-2">
                   <div class="text-sm font-semibold text-gray-800">
-                    {{ task.name }}
+                    {{ task.title }}
                   </div>
                   <span
                     class="text-xs px-2 py-0.5 rounded"
@@ -393,8 +393,12 @@
           <h3 class="text-lg font-semibold text-gray-800">
             {{ selectedMember.username }}
           </h3>
-          <p class="text-sm text-gray-600">Email: {{ selectedMember.email }}</p>
-          <p class="text-sm text-gray-600">Role: {{ selectedMember.title }}</p>
+          <p class="text-sm text-gray-600">
+            Name: {{ selectedMember.fullName }}
+          </p>
+          <p class="text-sm text-gray-600">
+            Department: {{ selectedMember.department }}
+          </p>
         </div>
       </div>
     </div>
@@ -402,7 +406,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from "vue";
+import {
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  onBeforeMount,
+} from "vue";
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
@@ -450,6 +461,7 @@ const mode = ref("add");
 const expandedDepts = ref([]);
 const statuses = ref([]);
 const message = ref("");
+const currentProjectId = route.params.id;
 
 const assigneeDropdownRef = ref(null);
 const toggleAssigneeDropdown = () => {
@@ -474,6 +486,7 @@ const toggleDept = (dept) => {
 };
 
 const isAllSelected = (users) => {
+  console.log("newTask.value.assignedTo", newTask.value.assignedTo);
   return users.every((user) =>
     newTask.value.assignedTo.some((u) => u.id === user.id)
   );
@@ -533,6 +546,10 @@ const fetchProject = async () => {
 onMounted(() => {
   fetchProject();
   fetchStatuses();
+  if (currentProjectId) {
+    fetchTasks(currentProjectId);
+  }
+
   document.addEventListener("click", handleClickOutside);
 });
 
@@ -548,57 +565,7 @@ const dummyUsers = [
   { id: 5, fullName: "Eva Green", department: "QA" },
 ];
 
-const tasks = ref([
-  {
-    id: 1,
-    name: "Create Wireframes",
-    description: "Initial layout and structure",
-    status: "Todo",
-    priority: "High",
-    dueDate: "2025-06-05",
-    assignedTo: [
-      {
-        id: 1,
-        fullName: "Alice Smith",
-        email: "alice@example.com",
-        role: "Designer",
-      },
-      { id: 2, fullName: "Bob Johnson", email: "bob@example.com", role: "UX" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Develop Homepage",
-    description: "HTML + Tailwind",
-    status: "In Progress",
-    priority: "Medium",
-    dueDate: "2025-06-10",
-    assignedTo: [
-      {
-        id: 3,
-        fullName: "Charlie Brown",
-        email: "charlie@example.com",
-        role: "Frontend Developer",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Code Review",
-    description: "Review the latest merge request",
-    status: "Review",
-    priority: "Low",
-    dueDate: "2025-06-12",
-    assignedTo: [
-      {
-        id: 4,
-        fullName: "David Lee",
-        email: "david@example.com",
-        role: "Reviewer",
-      },
-    ],
-  },
-]);
+const tasks = ref([]);
 
 const selectedMember = ref(null);
 
@@ -694,7 +661,6 @@ const onTaskDrop = (event, newStatus) => {
 
 // Progress Percentage
 const progressPercentage = computed(() => {
-  console.log("project.tasks", project.tasks);
   const tasks = project.tasks || [];
   const total = tasks.length;
   if (total === 0) return 0;
@@ -722,6 +688,26 @@ const fetchStatuses = async () => {
     console.error("Failed to fetch statuses:", error);
   }
 };
+const fetchTasks = async (currentProjectId) => {
+  try {
+    console.log("project.value._id", project.value);
+    console.log("currentProjectId", currentProjectId);
+    const token = localStorage.getItem("token");
+    const res = await axios.get(
+      `http://localhost:5000/api/tasks/project/${currentProjectId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    tasks.value = res.data;
+
+    console.log("clg from tasks", tasks.value);
+  } catch (error) {
+    console.error("Failed to fetch tasks:", error);
+  }
+};
 
 const getStatusColor = (statusName) => {
   const matchedStatus = statuses.value.find(
@@ -736,62 +722,3 @@ body {
   font-family: "Inter", sans-serif;
 }
 </style>
-
-<!-- <template>
-  <Layout>
-    <div class="p-6 max-w-3xl mx-auto">
-      <h1 class="text-2xl font-bold mb-4">{{ project?.name }}</h1>
-
-      <div v-if="project">
-        <p><strong>Title:</strong> {{ project.name }}</p>
-        <p><strong>Description:</strong> {{ project.description }}</p>
-        <p><strong>Status:</strong> {{ project.status }}</p>
-      </div>
-
-      <div v-else>
-        <p>Loading project details...</p>
-      </div>
-    </div>
-  </Layout>
-</template>
-
-<script setup>
-import { useRoute } from "vue-router";
-import { ref, onMounted } from "vue";
-import Layout from "./Layout.vue";
-import axios from "axios";
-import moment from "moment";
-
-const route = useRoute();
-const project = ref(null);
-
-const fetchProject = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.get(
-      `http://localhost:5000/api/project-details/${route.params.id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const p = res.data;
-    project.value = {
-      ...p,
-      createdBy: p.createdBy?.username || "Unknown",
-      startDate: moment(p.startDate).format("LL"),
-      endDate: moment(p.endDate).format("LL"),
-    };
-  } catch (error) {
-    console.error("Failed to fetch project:", error);
-  }
-};
-
-onMounted(() => {
-  fetchProject();
-  //   const projectId = Number(route.params.id);
-  //   project.value = mockProjects.find((p) => p.id === projectId);
-});
-</script> -->
