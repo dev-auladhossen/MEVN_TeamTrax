@@ -226,7 +226,7 @@
                 >Title</label
               >
               <input
-                v-model="newTask.name"
+                v-model="newTask.title"
                 type="text"
                 placeholder="Enter project name"
                 required
@@ -351,6 +351,7 @@
                   >Due Date</label
                 >
                 <VueDatePicker
+                  required
                   input-class="text-sm px-3 py-2 border rounded w-full"
                   v-model="newTask.dueDate"
                   :teleport="true"
@@ -409,19 +410,21 @@ import Dialog from "../components/Task/Dialog.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import Layout from "../components/Layout.vue";
+import { useToast } from "../components/Composables/useToast.js";
 import axios from "axios";
 import moment from "moment";
 
 const route = useRoute();
 const router = useRouter();
 const goBack = () => router.back();
+const { success, error } = useToast();
 
 const project = ref({
   name: "",
   status: "",
   startDate: "",
   endDate: "",
-  createdBy: { username: "Test" },
+  createdBy: { username: "" },
   teams: [],
 });
 
@@ -432,7 +435,7 @@ const initialForm = {
   endDate: "",
   teams: [],
   status: "Planning",
-  createdBy: "", // Replace with logged-in user ID
+  createdBy: "",
 };
 
 const form = reactive({ ...initialForm });
@@ -446,6 +449,7 @@ const showAssigneeDropdown = ref(false);
 const mode = ref("add");
 const expandedDepts = ref([]);
 const statuses = ref([]);
+const message = ref("");
 
 const assigneeDropdownRef = ref(null);
 const toggleAssigneeDropdown = () => {
@@ -620,29 +624,60 @@ const filteredTasksByStatus = (status) => {
 };
 
 const newTask = ref({
-  name: "",
+  title: "",
   description: "",
   status: taskStatuses[0],
   priority: "Medium",
   dueDate: "",
   assignedTo: [],
+  projectId: project.value._id,
 });
 
-const createTask = () => {
-  console.log("newTask", newTask.value);
+const createTask = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const payLoad = { ...newTask.value, projectId: project.value._id };
+    console.log("payLoad", payLoad);
+    if (mode.value === "add") {
+      await axios.post("http://localhost:5000/api/create-task", payLoad, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      message.value = "Task Created Successfully!";
+      success(message.value, { title: "Success" });
+    } else if (mode.value === "edit") {
+      // await axios.put(
+      //   `http://localhost:5000/task/${}`,
+      //   form,
+      //   {
+      //     headers: { Authorization: `Bearer ${token}` },
+      //   }
+      // );
+      message.value = "Task updated successfully!";
+      success(message.value, { title: "Success" });
+    }
+    mode.value = "add";
+    // refreshProjectList();
+    showModal.value = false;
+    Object.assign(form, initialForm);
+  } catch (error) {
+    message.value =
+      error.response?.data?.message || "Failed to add Task. Try again.";
+  }
   // tasks.value.push({
   //   id: tasks.value.length + 1,
   //   ...newTask.value,
   // });
-  // newTask.value = {
-  //   name: "",
-  //   description: "",
-  //   status: taskStatuses[0],
-  //   priority: "Medium",
-  //   dueDate: "",
-  //   assignedTo: [],
-  // };
-  // showTaskForm.value = false;
+  newTask.value = {
+    title: "",
+    description: "",
+    status: taskStatuses[0],
+    priority: "Medium",
+    dueDate: "",
+    assignedTo: [],
+    projectId: "",
+  };
+  showModal.value = false;
 };
 
 const onTaskDrop = (event, newStatus) => {
