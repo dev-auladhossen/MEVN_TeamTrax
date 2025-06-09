@@ -20,10 +20,14 @@ router.get("/get-tasks", async (req, res) => {
   res.json(tasks);
 });
 
-// Get tasks by project
-router.get("/get-project-tasks/:projectId", async (req, res) => {
-  const tasks = await Task.find({ projectId: req.params.projectId });
-  res.json(tasks);
+// GET tasks by projectId
+router.get("/tasks/project/:projectId", async (req, res) => {
+  try {
+    const tasks = await Task.find({ projectId: req.params.projectId });
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
