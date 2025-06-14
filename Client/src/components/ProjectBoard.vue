@@ -1,5 +1,5 @@
 <template>
-  <CardViewBoard :statuses="statuses" :items="projects" />
+  <CardViewBoard :statuses="statuses" :items="projects" type="project" />
 </template>
 <script setup>
 import { ref, onMounted } from "vue";

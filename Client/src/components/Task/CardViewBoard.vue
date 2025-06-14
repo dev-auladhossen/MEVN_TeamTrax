@@ -28,6 +28,7 @@
           v-for="item in filteredItems(status)"
           :key="item._id"
           :item="item"
+          :type="type"
           :statusColor="status.color"
           :statusList="props.statuses"
         />
@@ -45,6 +46,10 @@ const emit = defineEmits(["create"]);
 const props = defineProps({
   items: {
     type: Array,
+    required: true,
+  },
+  type: {
+    type: String,
     required: true,
   },
   statuses: {

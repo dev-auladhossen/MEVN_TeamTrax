@@ -51,6 +51,8 @@ import {
   faArrowUpRightFromSquare,
   faPencil,
   faCalendarDays,
+  faPaperclip,
+  faCommentAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
@@ -96,7 +98,9 @@ library.add(
   faUser,
   faBars,
   faSignOutAlt,
-  faTableCellsLarge
+  faTableCellsLarge,
+  faPaperclip,
+  faComment
 );
 
 createApp(App)

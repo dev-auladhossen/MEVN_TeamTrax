@@ -24,10 +24,12 @@
 
     <TaskList
       v-if="currentView === 'list'"
-      ref="projectListRef"
+      ref="taskListRef"
       @edit="handleEdit"
       @delete="handleDelete"
     />
+
+    <TaskBoard ref="taskBoardRef" v-else />
 
     <!-- Task Form Modal -->
     <Dialog :isOpen="showModal" @close="showModal = false">
@@ -221,6 +223,7 @@ import { ref, reactive, onMounted, computed, onBeforeUnmount } from "vue";
 import axios from "axios";
 import { useToast } from "../components/Composables/useToast.js";
 import TaskList from "../components/TaskList.vue";
+import TaskBoard from "../components/TaskBoard.vue";
 
 const showModal = ref(false);
 const showAssigneeDropdown = ref(false);
@@ -362,6 +365,11 @@ const fetchUsers = async () => {
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }
+};
+
+const refreshTaskList = () => {
+  taskListRef.value?.fetchProjects?.();
+  taskBoardRef.value?.fetchProjects?.();
 };
 
 onMounted(() => {

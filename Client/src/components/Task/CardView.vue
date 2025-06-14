@@ -3,8 +3,11 @@
     class="bg-white project-card p-3 rounded-lg shadow hover:shadow-md transition"
   >
     <div class="card-header flex justify-between">
-      <h4 class="text-md font-semibold mb-2">
+      <h4 v-if="type === 'project'" class="text-md font-semibold mb-2">
         {{ item.name }}
+      </h4>
+      <h4 v-else class="text-md font-semibold mb-2">
+        {{ item.title }}
       </h4>
 
       <div ref="menuRef" class="flex gap-2">
@@ -62,7 +65,7 @@
     >
 
     <div class="text-xs flex justify-between gap-2 mb-2 items-center">
-      <span>{{ item.startDate }}</span>
+      <span>{{ item?.startDate }}</span>
       <span
         :class="[
           'py-0.5 px-2 border rounded-full text-xs',
@@ -89,7 +92,7 @@
         <span>{{ getFirstName(item.createdBy) }}</span>
       </div>
     </div> -->
-    <div>
+    <div v-if="type === 'project'">
       <div class="progress-section">
         <div class="flex justify-between text-xs text-gray-600 mb-1">
           <span>Progress</span>
@@ -103,12 +106,67 @@
         </div>
       </div>
     </div>
-    <div class="flex justify-between text-xs my-2 text-gray-600">
+    <div
+      v-if="type === 'project'"
+      class="flex justify-between text-xs my-2 text-gray-600"
+    >
       <span>0 Tasks</span>
       <span
         ><font-awesome-icon icon="calendar-days" /> Due:
         {{ item.endDate }}</span
       >
+    </div>
+    <div v-else class="flex justify-between text-xs my-2 text-gray-600">
+      <span
+        ><font-awesome-icon icon="calendar-days" /> Due:
+        {{ item.dueDate }}</span
+      >
+    </div>
+
+    <div v-if="type === 'task'">
+      <hr class="my-3 border-gray-200" />
+      <div class="flex justify-between items-center text-sm text-gray-600">
+        <!-- Left: Assigned users' initials -->
+        <div v-if="item.assignedTo.length > 0" class="flex -space-x-2">
+          <div
+            v-for="member in item?.assignedTo"
+            :key="member._id"
+            class="cursor-pointer w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold border-2 border-white hover:scale-105 transition"
+            :title="member"
+          >
+            {{ getInitials(member) }}
+          </div>
+        </div>
+        <div v-else>No Assignees Yet</div>
+        <!-- <div class="flex -space-x-2">
+          <div
+            v-for="(user, index) in item?.assignedTo"
+            :key="index"
+            class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-semibold"
+            :title="user.name"
+          >
+            {{
+              user.name
+                ?.split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+            }}
+          </div>
+        </div> -->
+
+        <!-- Right: Attachments and comments -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1">
+            <font-awesome-icon icon="paperclip" />
+            <span>{{ item.attachments?.length || 0 }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <font-awesome-icon icon="comment" />
+            <span>{{ item.comments?.length || 0 }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -119,6 +177,11 @@ import { inject, ref, onMounted, onBeforeUnmount, computed } from "vue";
 const props = defineProps({
   item: {
     type: Object,
+    required: true,
+  },
+  type: {
+    type: String,
+    default: "project",
     required: true,
   },
   statusList: {
@@ -157,7 +220,11 @@ const handleEditProject = (item) => {
 };
 
 const goToDetails = () => {
-  router.push(`/project-details/${props.item._id}`);
+  if (props.type === "project") {
+    router.push(`/project-details/${props.item._id}`);
+  } else {
+    router.push(`/task-details/${props.item._id}`);
+  }
 };
 
 const truncate = (text, length = 20) => {
@@ -169,14 +236,12 @@ const getFirstName = (fullName) => {
   return fullName.trim().split(" ")[0];
 };
 
-const getInitials = (fullName) => {
-  const nameParts = fullName.trim().split(" ");
-  const initials =
-    nameParts.length === 1
-      ? nameParts[0][0].toUpperCase()
-      : nameParts[0][0].toUpperCase() +
-        nameParts[nameParts.length - 1][0].toUpperCase();
-  return initials;
+const getInitials = (name) => {
+  return name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
 };
 // Handle click outside
 const handleClickOutside = (event) => {
@@ -205,6 +270,7 @@ const progressPercentage = computed(() => {
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  console.log("props.type", props.type);
 });
 
 onBeforeUnmount(() => {
