@@ -9,6 +9,7 @@ import ToastContainer from "../components/Task/ToastContainer.vue";
 import Projects from "../pages/Projects.vue";
 import CardViewBoard from "../components/Task/CardViewBoard.vue";
 import ProjectDetails from "../components/ProjectDetails.vue";
+import TaskDetails from "../components/TaskDetails/TaskDetails.vue";
 import Settings from "../pages/Settings.vue";
 import Tasks from "../pages/Tasks.vue";
 
@@ -54,6 +55,12 @@ const routes = [
     path: "/project-details/:id",
     name: "projectDetails",
     component: ProjectDetails,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/task-details/:id",
+    name: "taskDetails",
+    component: TaskDetails,
     meta: { hideLayout: true },
   },
   {
