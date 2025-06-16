@@ -31,7 +31,9 @@
           <div class="flex justify-between">
             <h1 class="text-xl font-bold text-gray-800">
               {{ task.title }}
+              <input v-model="task.title" class="input" />
             </h1>
+
             <div class="flex gap-2">
               <button
                 @click="showModal = true"
@@ -44,6 +46,10 @@
 
           <div class="text-sm text-gray-600">
             <span class="font-medium">{{ task.description }}</span>
+            <textarea
+              v-model="task.description"
+              class="textarea mt-2"
+            ></textarea>
           </div>
           <div class="flex w-full justify-between my-2">
             <div class="text-sm text-gray-600">
@@ -54,6 +60,18 @@
               >
                 {{ task.status }}
               </span>
+              <select
+                v-model="task.status"
+                class="border rounded px-3 py-2 w-full bg-white text-sm cursor-pointer"
+              >
+                <option
+                  v-for="option in taskStatuses"
+                  :key="option._id"
+                  :value="option.name"
+                >
+                  {{ option.name }}
+                </option>
+              </select>
             </div>
 
             <div class="flex gap-1 items-center">
@@ -82,7 +100,52 @@
               Due Date: {{ task.dueDate }}
             </div>
           </div>
+
+          <!-- Assignees Dropdown -->
+          <div class="relative mt-4">
+            <label class="block mb-1 font-semibold">Assigned To</label>
+            <div
+              @click="toggleDropdown"
+              class="border rounded px-3 py-2 cursor-pointer bg-white shadow-sm"
+            >
+              <span v-if="task.assignedTo.length === 0">Select assignees</span>
+              <span v-else>{{ getSelectedNames().join(", ") }}</span>
+            </div>
+
+            <!-- Dropdown Menu -->
+            <div
+              v-if="dropdownOpen"
+              class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-48 overflow-y-auto"
+            >
+              <label
+                v-for="user in users"
+                :key="user._id"
+                class="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  class="mr-2"
+                  :checked="isUserSelected(user)"
+                  :value="{
+                    id: user._id,
+                    fullName: user.username,
+                    department: user.department,
+                  }"
+                  v-model="task.assignedTo"
+                />
+                {{ user.username }}
+              </label>
+            </div>
+          </div>
+
+          <!-- Attachments -->
+          <label class="block mt-4">Attachments</label>
+          <input type="file" multiple @change="handleFiles" />
         </div>
+        <!-- Save Button -->
+        <button class="btn btn-primary mt-4" @click="updateTask">
+          Update Task
+        </button>
       </div>
       <div v-if="task.id">
         <CommentSection :taskId="task.id" :userId="currentUser.id" />
@@ -116,6 +179,9 @@ const route = useRoute();
 const router = useRouter();
 const goBack = () => router.back();
 const { success, error } = useToast();
+const files = ref([]);
+const selectedUsers = ref([]);
+const dropdownOpen = ref(false);
 
 const task = ref({
   id: "",
@@ -150,7 +216,9 @@ const groupedUsers = computed(() => {
   });
   return map;
 });
-
+const isUserSelected = (user) => {
+  return task.value.assignedTo.some((u) => u._id === user._id);
+};
 const toggleDept = (dept) => {
   if (expandedDepts.value.includes(dept)) {
     expandedDepts.value = expandedDepts.value.filter((d) => d !== dept);
@@ -180,6 +248,25 @@ const toggleSelectAll = (users) => {
         newTask.value.assignedTo.push(user);
       }
     });
+  }
+};
+
+const toggleDropdown = () => {
+  dropdownOpen.value = !dropdownOpen.value;
+};
+
+const getSelectedNames = () => {
+  console.log(users.value);
+  console.log(task.value.assignedTo);
+  return users.value
+    .filter((u) => task.value.assignedTo.includes(u._id))
+    .map((u) => u.username);
+};
+
+// Optional: Close dropdown on outside click
+const closeDropdownOnOutsideClick = (e) => {
+  if (!e.target.closest(".relative")) {
+    dropdownOpen.value = false;
   }
 };
 
@@ -214,6 +301,30 @@ const getStatusColor = (statusName) => {
   return matchedStatus ? matchedStatus.color : "#d1d5db"; // fallback color if not found
 };
 
+const handleFiles = (e) => {
+  files.value = [...e.target.files];
+};
+
+const updateTask = async () => {
+  console.log("assignedTo", task.value.assignedTo);
+  const formData = new FormData();
+  formData.append("title", task.value.title);
+  formData.append("description", task.value.description);
+  formData.append("status", task.value.status);
+  formData.append("assignedTo", JSON.stringify(task.value.assignedTo));
+  files.value.forEach((file) => formData.append("attachments", file));
+  console.log("formData", formData);
+  console.log("task value", task.value);
+  await axios.put(
+    `http://localhost:5000/api/tasks/${route.params.id}`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+  alert("Task updated");
+};
+
 const fetchUsers = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -242,6 +353,7 @@ const fetchTask = async () => {
 
     const t = res.data;
     console.log("task", t);
+    selectedUsers.value = res.data.assignedTo.map((u) => u._id);
     task.value = {
       ...t,
       id: t._id,
@@ -272,15 +384,14 @@ const fetchStatuses = async () => {
 onMounted(() => {
   fetchStatuses();
   fetchUsers();
-  // document.addEventListener("click", handleClickOutside);
+  document.addEventListener("click", closeDropdownOnOutsideClick);
 });
 onBeforeMount(() => {
   fetchTask();
-  // currentUser.value = localStorage.getItem("current-user");
 });
 
 onBeforeUnmount(() => {
-  // document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("click", closeDropdownOnOutsideClick);
 });
 defineExpose({ fetchUsers });
 </script>
@@ -288,5 +399,21 @@ defineExpose({ fetchUsers });
 <style scoped>
 body {
   font-family: "Inter", sans-serif;
+}
+.input,
+.textarea,
+.select {
+  border: 1px solid #ccc;
+  padding: 8px;
+  width: 100%;
+  border-radius: 6px;
+}
+.btn {
+  padding: 10px 20px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>

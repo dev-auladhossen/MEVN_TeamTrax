@@ -127,10 +127,10 @@
       <hr class="my-3 border-gray-200" />
       <div class="flex justify-between items-center text-sm text-gray-600">
         <!-- Left: Assigned users' initials -->
-        <div v-if="item.assignedTo.length > 0" class="flex -space-x-2">
+        <div v-if="item.assignedTo?.length > 0" class="flex -space-x-2">
           <div
             v-for="member in item?.assignedTo"
-            :key="member._id"
+            :key="member?._id"
             class="cursor-pointer w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold border-2 border-white hover:scale-105 transition"
             :title="member"
           >

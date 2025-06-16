@@ -328,7 +328,7 @@
                       <!-- Users -->
                       <label
                         v-for="user in users"
-                        :key="user.id"
+                        :key="user._id"
                         class="flex items-center px-4 py-2 hover:bg-gray-50 text-sm cursor-pointer"
                       >
                         <input
@@ -337,7 +337,7 @@
                           v-model="newTask.assignedTo"
                           class="mr-4 p-2 cursor-pointer border rounded-sm focus:ring-0"
                         />
-                        {{ user.fullName }}
+                        {{ user.username }}
                       </label>
                     </div>
                   </div>
@@ -460,6 +460,7 @@ const showAssigneeDropdown = ref(false);
 const mode = ref("add");
 const expandedDepts = ref([]);
 const statuses = ref([]);
+const users = ref([]);
 const message = ref("");
 const currentProjectId = route.params.id;
 
@@ -470,7 +471,7 @@ const toggleAssigneeDropdown = () => {
 
 const groupedUsers = computed(() => {
   const map = {};
-  dummyUsers.forEach((user) => {
+  users.value.forEach((user) => {
     if (!map[user.department]) map[user.department] = [];
     map[user.department].push(user);
   });
@@ -543,9 +544,25 @@ const fetchProject = async () => {
   }
 };
 
+const fetchUsers = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get("http://localhost:5000/api/users", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    users.value = res.data;
+    console.log("users.value", users.value);
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+  }
+};
+
 onMounted(() => {
   fetchProject();
   fetchStatuses();
+  fetchUsers();
   if (currentProjectId) {
     fetchTasks(currentProjectId);
   }
