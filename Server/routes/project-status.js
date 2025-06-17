@@ -1,16 +1,16 @@
 // routes/statusRoutes.js
 const express = require("express");
 const router = express.Router();
-const Status = require("../models/Status");
+const Status = require("../models/ProjectStatus");
 
-// Get all statuses
-router.get("/status", async (req, res) => {
+// Get all project statuses
+router.get("/project/status", async (req, res) => {
   const statuses = await Status.find().sort({ order: 1 });
   res.json(statuses);
 });
 
-// Add a new status
-router.post("/status", async (req, res) => {
+// Add a new project status
+router.post("/project/status", async (req, res) => {
   try {
     const { name, color, order } = req.body;
     const newStatus = new Status({ name, color, order });
@@ -22,8 +22,8 @@ router.post("/status", async (req, res) => {
   }
 });
 
-// Update multiple statuses (for drag order)
-router.put("/status-reorder", async (req, res) => {
+// Update multiple project statuses (for drag order)
+router.put("/project/status-reorder", async (req, res) => {
   const updates = req.body;
   const bulkOps = updates.map(({ _id, name, color, order }) => ({
     updateOne: {
@@ -35,8 +35,8 @@ router.put("/status-reorder", async (req, res) => {
   res.json({ message: "Statuses reordered successfully" });
 });
 
-// Delete a single status by ID
-router.delete("/status/:id", async (req, res) => {
+// Delete a single project status by ID
+router.delete("/project/status/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const deletedStatus = await Status.findByIdAndDelete(id);

@@ -1,6 +1,9 @@
 // routes/tasks.js
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const upload = multer({ dest: "uploads/" });
 const Task = require("../models/Task");
 
 // Create task
@@ -16,7 +19,9 @@ router.post("/create-task", async (req, res) => {
 
 // Get all tasks (with project info)
 router.get("/get-tasks", async (req, res) => {
-  const tasks = await Task.find().populate("projectId", "name");
+  const tasks = await Task.find()
+    .sort({ createdAt: -1 })
+    .populate("projectId", "name");
   res.json(tasks);
 });
 
@@ -27,6 +32,44 @@ router.get("/tasks/project/:projectId", async (req, res) => {
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/task-details/:id", async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(400).json({ message: "Task not found!" });
+    }
+    res.json(task);
+  } catch (err) {
+    console.error("Error fetching project by ID:", err.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+router.put("/tasks/:id", upload.array("attachments", 5), async (req, res) => {
+  const taskId = req.params.id;
+  const { title, description, status, assignedTo } = req.body;
+  const attachments = req.files?.map((file) => file.filename) || [];
+
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      {
+        title,
+        description,
+        status,
+        assignedTo: JSON.parse(assignedTo),
+        $push: { attachments: { $each: attachments } },
+      },
+      { new: true }
+    );
+
+    res.json(updatedTask);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Update failed" });
   }
 });
 

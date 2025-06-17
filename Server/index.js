@@ -6,16 +6,20 @@ const app = express();
 
 const authRoutes = require("./routes/auth");
 const projectRoutes = require("./routes/project");
-const statusRoutes = require("./routes/status");
+const projectStatusRoutes = require("./routes/project-status");
+const taskStatusRoutes = require("./routes/task-status");
 const taskRoutes = require("./routes/task");
-
+const commentRoutes = require("./routes/comment");
 const User = require("./models/User");
 
 app.use(cors());
+app.use("/uploads", express.static("uploads"));
 app.use(express.json());
-app.use("/api", taskRoutes);
-app.use("/api", statusRoutes);
+app.use("/api", commentRoutes);
 app.use("/api", projectRoutes);
+app.use("/api", taskRoutes);
+app.use("/api", projectStatusRoutes);
+app.use("/api", taskStatusRoutes);
 app.use("/api", authRoutes);
 
 mongoose
