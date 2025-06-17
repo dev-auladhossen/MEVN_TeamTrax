@@ -39,13 +39,13 @@
                 >
                   <span>Progress: </span>
                   <span class="text-black font-semibold"
-                    >{{ progressPercentage }}%</span
+                    >{{ project.progress }}%</span
                   >
                 </div>
                 <div class="w-full bg-gray-200 rounded h-2 overflow-hidden">
                   <div
                     class="bg-blue-500 h-full"
-                    :style="{ width: progressPercentage + '%' }"
+                    :style="{ width: project.progress + '%' }"
                   ></div>
                 </div>
               </div>
@@ -81,7 +81,7 @@
                 <span
                   class="cursor-pointer text-xs w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold hover:scale-105 transition"
                 >
-                  {{ getInitials(project.createdBy.username) }}
+                  {{ getInitials(project?.createdBy?.username) }}
                 </span>
                 <span>{{ project.createdBy.username }}</span>
               </div>
@@ -149,12 +149,14 @@
       </div>
 
       <!-- Task Cards by Statuses -->
-      <div class="grid md:grid-cols-3 gap-6">
+      <div
+        class="flex gap-2 overflow-x-auto space-x-1 max-w-5xl mx-auto max-h-96"
+      >
         <div
           v-for="status in filteredColumns"
           :key="status"
           v-show="selectedStatus === 'All Tasks' || selectedStatus === status"
-          class="bg-gray-50 rounded-2xl p-4 shadow"
+          class="bg-gray-50 rounded-2xl p-2 shadow min-w-[250px] flex flex-col space-y-2 overflow-y-auto"
           :data-status="status"
         >
           <h2 class="text-lg font-semibold mb-4 text-gray-700">{{ status }}</h2>
@@ -197,9 +199,9 @@
                     :key="member.id"
                     @click="openMemberModal(member)"
                     class="cursor-pointer w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold border-2 border-white hover:scale-105 transition"
-                    :title="member.fullName"
+                    :title="member.username"
                   >
-                    {{ getInitials(member.fullName) }}
+                    {{ getInitials(member?.username) }}
                   </div>
                 </div>
               </div>
@@ -292,7 +294,7 @@
                 >
                   <span v-if="newTask.assignedTo.length">
                     {{
-                      newTask.assignedTo.map((user) => user.fullName).join(", ")
+                      newTask.assignedTo.map((user) => user.username).join(", ")
                     }}
                   </span>
                   <span v-else class="text-gray-400">Select users</span>
@@ -303,13 +305,13 @@
                   v-if="showAssigneeDropdown"
                   class="absolute bottom-full mb-1 z-10 bg-white border border-gray-200 rounded-md shadow w-full max-h-64 overflow-y-auto"
                 >
-                  <div v-for="(users, dept) in groupedUsers" :key="dept">
+                  <div v-for="(members, dept) in groupedUsers" :key="dept">
                     <div class="flex bg-gray-100 hover:bg-gray-200">
                       <span>
                         <input
                           type="checkbox"
-                          :checked="isAllSelected(users)"
-                          @change="toggleSelectAll(users)"
+                          :checked="isAllSelected(members)"
+                          @change="toggleSelectAll(members)"
                           class="mx-4 my-2 p-2 cursor-pointer border rounded-sm outline-none focus:ring-0"
                       /></span>
                       <button
@@ -327,7 +329,7 @@
                     <div v-if="expandedDepts.includes(dept)">
                       <!-- Users -->
                       <label
-                        v-for="user in users"
+                        v-for="user in members"
                         :key="user._id"
                         class="flex items-center px-4 py-2 hover:bg-gray-50 text-sm cursor-pointer"
                       >
@@ -394,7 +396,7 @@
             {{ selectedMember.username }}
           </h3>
           <p class="text-sm text-gray-600">
-            Name: {{ selectedMember.fullName }}
+            Name: {{ selectedMember.username }}
           </p>
           <p class="text-sm text-gray-600">
             Department: {{ selectedMember.department }}
@@ -451,7 +453,7 @@ const initialForm = {
 
 const form = reactive({ ...initialForm });
 
-const taskStatuses = ["Todo", "In Progress", "Review", "Done"];
+const taskStatuses = ["Todo", "In Progress", "Review", "Completed"];
 const selectedStatus = ref("All Tasks");
 const filterPriority = ref("");
 const filterDueDate = ref("");
@@ -487,7 +489,6 @@ const toggleDept = (dept) => {
 };
 
 const isAllSelected = (users) => {
-  console.log("newTask.value.assignedTo", newTask.value.assignedTo);
   return users.every((user) =>
     newTask.value.assignedTo.some((u) => u.id === user.id)
   );
@@ -552,7 +553,11 @@ const fetchUsers = async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    users.value = res.data;
+    users.value = res.data.map((u) => ({
+      id: u._id,
+      username: u.username,
+      department: u.department,
+    }));
     console.log("users.value", users.value);
   } catch (error) {
     console.error("Failed to fetch users:", error);
@@ -591,6 +596,7 @@ const openMemberModal = (member) => {
 };
 
 const getInitials = (name) => {
+  if (!name || typeof name !== "string") return "";
   return name
     .split(" ")
     .map((n) => n[0])
@@ -604,7 +610,23 @@ const filteredColumns = computed(() => {
 });
 
 const filteredTasksByStatus = (status) => {
-  return tasks.value.filter((task) => task.status === status);
+  return tasks.value
+    .filter((task) => task.status === status)
+    .filter((task) => {
+      if (filterPriority.value && task.priority !== filterPriority.value) {
+        return false;
+      }
+      if (
+        filterDueDate.value &&
+        task.dueDate.slice(0, 10) !== filterDueDate.value
+      ) {
+        console.log("filterDueDate.value", filterDueDate.value);
+        console.log("task.dueDate", task.dueDate);
+        return false;
+      }
+      return true;
+    });
+  // return tasks.value.filter((task) => task.status === status);
 };
 
 const newTask = ref({
@@ -618,6 +640,7 @@ const newTask = ref({
 });
 
 const createTask = async () => {
+  console.log("newTask.value", newTask.value);
   try {
     const token = localStorage.getItem("token");
     const payLoad = { ...newTask.value, projectId: project.value._id };
@@ -641,7 +664,7 @@ const createTask = async () => {
       success(message.value, { title: "Success" });
     }
     mode.value = "add";
-    // refreshProjectList();
+
     showModal.value = false;
     Object.assign(form, initialForm);
   } catch (error) {
@@ -652,6 +675,7 @@ const createTask = async () => {
   //   id: tasks.value.length + 1,
   //   ...newTask.value,
   // });
+  refreshProjectList();
   newTask.value = {
     title: "",
     description: "",
@@ -662,6 +686,12 @@ const createTask = async () => {
     projectId: "",
   };
   showModal.value = false;
+};
+
+const refreshProjectList = () => {
+  if (currentProjectId) {
+    fetchTasks(currentProjectId);
+  }
 };
 
 const onTaskDrop = (event, newStatus) => {
@@ -676,16 +706,6 @@ const onTaskDrop = (event, newStatus) => {
   }
 };
 
-// Progress Percentage
-const progressPercentage = computed(() => {
-  const tasks = project.tasks || [];
-  const total = tasks.length;
-  if (total === 0) return 0;
-
-  const completed = tasks.filter((task) => task.isCompleted).length;
-  return Math.round((completed / total) * 100);
-});
-
 const updateTaskStatus = (task) => {
   console.log(`Task ID ${task.id} status updated to ${task.status}`);
 };
@@ -693,7 +713,7 @@ const updateTaskStatus = (task) => {
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/status", {
+    const res = await axios.get("http://localhost:5000/api/project/status", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -737,5 +757,24 @@ const getStatusColor = (statusName) => {
 <style scoped>
 body {
   font-family: "Inter", sans-serif;
+}
+::-webkit-scrollbar {
+  width: 5px;
+  height: 6px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: #e4e4e4;
+  border-radius: 0px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b1b1b1;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 </style>

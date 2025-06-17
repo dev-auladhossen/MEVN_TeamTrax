@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center gap-2 p-2 border rounded cursor-move"
+    class="flex items-center gap-2 py-1 px-2 border rounded cursor-move bg-blue-50 mr-1"
     draggable="true"
     @dragstart="onDragStart"
     @dragover.prevent
@@ -12,7 +12,7 @@
       class="w-4 h-4 rounded-full"
     ></div>
     <input
-      class="flex-1 border-b outline-none"
+      class="flex-1 border-0 rounded outline-none bg-transparent text-sm"
       v-model="editableStatus.name"
       @change="emitUpdate"
     />
@@ -20,11 +20,11 @@
       type="color"
       v-model="editableStatus.color"
       @change="emitUpdate"
-      class="w-6 h-6 p-0 border-none bg-transparent"
+      class="w-5 h-6 p-0 border-none bg-transparent"
     />
     <button
       @click="$emit('delete', status._id)"
-      class="ml-2 text-red-600 hover:underline"
+      class="ml-1 text-red-600 hover:underline"
     >
       <font-awesome-icon icon="trash-can" />
     </button>

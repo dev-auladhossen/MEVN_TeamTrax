@@ -14,7 +14,7 @@ const statuses = ref(["To Do", "Pending", "In Progress", "Completed"]);
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/status", {
+    const res = await axios.get("http://localhost:5000/api/task/status", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -44,7 +44,7 @@ const fetchTasks = async () => {
         return user.fullName;
       }),
     }));
-    console.log("tasks", tasks.value);
+    console.log("tasks from board", tasks.value);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
   }
@@ -77,6 +77,6 @@ onMounted(() => {
   fetchStatuses();
 });
 
-defineExpose({ fetchProjects, fetchStatuses });
+defineExpose({ fetchProjects, fetchStatuses, fetchTasks });
 </script>
 <style lang=""></style>

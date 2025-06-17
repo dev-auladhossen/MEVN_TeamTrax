@@ -219,11 +219,20 @@
 <script setup>
 import Layout from "../components/Layout.vue";
 import Dialog from "../components/Task/Dialog.vue";
-import { ref, reactive, onMounted, computed, onBeforeUnmount } from "vue";
+import {
+  ref,
+  reactive,
+  provide,
+  onMounted,
+  computed,
+  onBeforeUnmount,
+} from "vue";
 import axios from "axios";
 import { useToast } from "../components/Composables/useToast.js";
 import TaskList from "../components/TaskList.vue";
 import TaskBoard from "../components/TaskBoard.vue";
+import { useFetchStatus } from "../components/Composables/useFetchStatus";
+const { taskStatusList, loading, fetchTaskStatus } = useFetchStatus();
 
 const showModal = ref(false);
 const showAssigneeDropdown = ref(false);
@@ -232,7 +241,9 @@ const expandedDepts = ref([]);
 const message = ref("");
 const mode = ref("add");
 const currentView = ref("board");
-const taskStatuses = ["Todo", "In Progress", "Review", "Done"];
+const taskStatuses = ["Todo", "In Progress", "Review", "Complete"];
+const taskListRef = ref(null);
+const taskBoardRef = ref(null);
 const projects = ref([]);
 const users = ref([]);
 const { success, error } = useToast();
@@ -271,6 +282,7 @@ async function submitTask() {
       message.value = "Task updated successfully!";
       success(message.value, { title: "Success" });
     }
+    refreshTaskList();
     mode.value = "add";
     showModal.value = false;
     Object.assign(newTask, initialTask);
@@ -368,11 +380,37 @@ const fetchUsers = async () => {
 };
 
 const refreshTaskList = () => {
-  taskListRef.value?.fetchProjects?.();
-  taskBoardRef.value?.fetchProjects?.();
+  taskListRef.value?.fetchTasks?.();
+  taskBoardRef.value?.fetchTasks?.();
+};
+const handleAddTask = (status) => {
+  console.log("status", status);
+  console.log("newTask", newTask);
+  mode.value = "add";
+
+  initialTask.status = status;
+
+  console.log("initialForm.status", initialTask.status);
+
+  showModal.value = true;
+  Object.assign(newTask, initialTask);
+  refreshTaskList();
 };
 
+const handleDelete = () => {
+  console.log("clicked delete");
+};
+const handleEdit = () => {
+  console.log("clicked edit");
+};
+
+// Provide & Inject Process
+provide("openTaskCreateModal", handleAddTask);
+provide("deleteTask", handleDelete);
+provide("editTask", handleEdit);
+
 onMounted(() => {
+  fetchTaskStatus();
   fetchProjects();
   fetchUsers();
   document.addEventListener("click", handleClickOutside);

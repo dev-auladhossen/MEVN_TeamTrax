@@ -17,7 +17,7 @@
           <h3 class="text-md font-bold bg-white p-2">{{ status.name }}</h3>
         </div>
         <font-awesome-icon
-          @click="createNewProject(status.name)"
+          @click="createNewItem(status.name)"
           class="mx-1 text-xs text-gray-500 hover:text-gray-800 cursor-pointer"
           icon="add"
         />
@@ -69,11 +69,16 @@ const filteredItems = (status) => {
   return props.items.filter((item) => item.status === status.name);
 };
 
-const createNewProject = (status) => {
-  openModal(status);
+const createNewItem = (status) => {
+  if (props.type === "project") {
+    openProjectModal(status);
+  } else {
+    openTaskModal(status);
+  }
 };
 
-const openModal = inject("openCreateModal");
+const openProjectModal = inject("openProjectCreateModal");
+const openTaskModal = inject("openTaskCreateModal");
 </script>
 <style scoped>
 ::-webkit-scrollbar {

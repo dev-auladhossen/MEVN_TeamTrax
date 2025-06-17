@@ -368,7 +368,7 @@ const fetchTask = async () => {
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/status", {
+    const res = await axios.get("http://localhost:5000/api/task/status", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

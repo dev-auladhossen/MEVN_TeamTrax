@@ -5,7 +5,7 @@
         <span>Projects</span>
       </div>
       <button
-        @click="handleAddProject('Planning')"
+        @click="handleAddProject(projectStatusList[0].name)"
         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         <font-awesome-icon class="mr-2" icon="add" />
@@ -72,7 +72,7 @@
               class="border rounded px-3 py-2 w-full bg-white text-sm cursor-pointer"
             >
               <option
-                v-for="option in statusList"
+                v-for="option in projectStatusList"
                 :key="option._id"
                 :value="option.name"
               >
@@ -185,7 +185,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, provide, onMounted } from "vue";
+import { reactive, ref, provide, watch, onMounted } from "vue";
 import axios from "axios";
 import Layout from "../components/Layout.vue";
 import ProjectList from "../components/ProjectList.vue";
@@ -196,7 +196,7 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
 import { useFetchStatus } from "../components/Composables/useFetchStatus";
-const { statusList, loading, fetchStatus } = useFetchStatus();
+const { projectStatusList, loading, fetchProjectStatus } = useFetchStatus();
 
 // Using the composable
 const { success, error } = useToast();
@@ -208,6 +208,7 @@ const message = ref("");
 const projectListRef = ref(null);
 const projectBoardRef = ref(null);
 const selectedProjectId = ref(null);
+const projectStatuses = ref([]);
 
 const user = JSON.parse(localStorage.getItem("current-user"));
 const projectCreatorId = user.id;
@@ -218,24 +219,19 @@ const initialForm = {
   startDate: "",
   endDate: "",
   teams: [],
-  status: "Planning",
+  status: "",
   createdBy: projectCreatorId, // Replace with logged-in user ID
 };
 
 const form = reactive({ ...initialForm });
 
 const handleAddProject = (status) => {
-  console.log("status", status);
-  console.log("form", form);
   mode.value = "add";
 
   initialForm.status = status;
   const startDate = new Date();
   const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
   dateRange.value = [startDate, endDate];
-
-  console.log("initialForm.status", initialForm.status);
-
   showModal.value = true;
   Object.assign(form, initialForm);
 };
@@ -333,15 +329,16 @@ const buttonClass = (view) => {
 };
 
 // Provide & Inject Process
-provide("openCreateModal", handleAddProject);
+provide("openProjectCreateModal", handleAddProject);
 provide("deleteProject", handleDelete);
 provide("editProject", handleEdit);
+
 onMounted(() => {
   const startDate = new Date();
   const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
 
   dateRange.value = [startDate, endDate];
-  fetchStatus();
+  fetchProjectStatus();
 });
 </script>
 <style>

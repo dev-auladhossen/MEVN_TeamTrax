@@ -47,14 +47,14 @@
             Open
           </button>
           <button
-            @click="handleEditProject(item)"
+            @click="handleEditItem(item)"
             class="w-full px-4 py-2 text-left hover:bg-gray-100"
           >
             <font-awesome-icon class="text-black mr-2" icon="pencil" />
             Edit
           </button>
           <button
-            @click="handleDeleteProject(item)"
+            @click="handleDeleteItem(item)"
             class="w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600"
           >
             <font-awesome-icon class="mr-2" icon="trash-can" />
@@ -81,27 +81,16 @@
       </span>
     </div>
 
-    <!-- <div class="flex gap-1 justify-between items-center my-2">
-      <div class="flex gap-1 items-center">
-        <button
-          @click=""
-          class="rounded-full bg-blue-600 text-white w-6 h-6 text-xs flex items-center justify-center"
-        >
-          {{ getInitials(item.createdBy) }}
-        </button>
-        <span>{{ getFirstName(item.createdBy) }}</span>
-      </div>
-    </div> -->
     <div v-if="type === 'project'">
       <div class="progress-section">
         <div class="flex justify-between text-xs text-gray-600 mb-1">
           <span>Progress</span>
-          <span>{{ progressPercentage }}%</span>
+          <span>{{ item.progress }}%</span>
         </div>
         <div class="w-full bg-gray-200 rounded h-2 overflow-hidden">
           <div
             class="bg-blue-500 h-full"
-            :style="{ width: progressPercentage + '%' }"
+            :style="{ width: item.progress + '%' }"
           ></div>
         </div>
       </div>
@@ -207,16 +196,26 @@ const toggleDropdown = (projectId) => {
   openMenuId.value = openMenuId.value === projectId ? null : projectId;
 };
 
-// Injecting delete function
+// Injecting Edit & delete function
 const deleteProject = inject("deleteProject");
+const deleteTask = inject("deleteTask");
 const editProject = inject("editProject");
+const editTask = inject("editTask");
 
-const handleDeleteProject = (item) => {
-  deleteProject(item);
+const handleDeleteItem = (item) => {
+  if (props.type === "project") {
+    deleteProject(item);
+  } else {
+    deleteTask(item);
+  }
 };
 
-const handleEditProject = (item) => {
-  editProject(item);
+const handleEditItem = (item) => {
+  if (props.type === "project") {
+    editProject(item);
+  } else {
+    editTask(item);
+  }
 };
 
 const goToDetails = () => {
@@ -249,24 +248,6 @@ const handleClickOutside = (event) => {
     openMenuId.value = null;
   }
 };
-
-// Progress Percentage
-const progressPercentage = computed(() => {
-  const total = props.statusList.length;
-  console.log("total", total);
-
-  const currentIndex = props.statusList.findIndex(
-    (status) => status.name === props.item.status
-  );
-  console.log("currentIndex", currentIndex);
-  console.log("props.statusList", props.statusList);
-  console.log("props.item.status", props.item.status);
-
-  if (currentIndex === -1 || total <= 1) return 0;
-
-  const percentage = (currentIndex / (total - 1)) * 100;
-  return Math.round(percentage);
-});
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
