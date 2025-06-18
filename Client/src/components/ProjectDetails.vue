@@ -258,11 +258,11 @@
                   class="w-32 px-4 py-1 border rounded text-sm cursor-pointer"
                 >
                   <option
-                    v-for="status in taskStatuses"
+                    v-for="status in taskStatusList"
                     :key="status"
-                    :value="status"
+                    :value="status.name"
                   >
-                    {{ status }}
+                    {{ status.name }}
                   </option>
                 </select>
               </div>
@@ -426,6 +426,14 @@ import Layout from "../components/Layout.vue";
 import { useToast } from "../components/Composables/useToast.js";
 import axios from "axios";
 import moment from "moment";
+import { useFetchStatus } from "../components/Composables/useFetchStatus";
+const {
+  taskStatusList,
+  projectStatusList,
+  loading,
+  fetchProjectStatus,
+  fetchTaskStatus,
+} = useFetchStatus();
 
 const route = useRoute();
 const router = useRouter();
@@ -565,6 +573,7 @@ const fetchUsers = async () => {
 };
 
 onMounted(() => {
+  fetchTaskStatus();
   fetchProject();
   fetchStatuses();
   fetchUsers();

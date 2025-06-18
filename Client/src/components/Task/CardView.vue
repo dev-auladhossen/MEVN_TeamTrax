@@ -236,8 +236,9 @@ const getFirstName = (fullName) => {
 };
 
 const getInitials = (name) => {
+  if (!name || typeof name !== "string") return "";
   return name
-    ?.split(" ")
+    .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase();

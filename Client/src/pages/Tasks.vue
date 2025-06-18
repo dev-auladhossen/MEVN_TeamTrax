@@ -5,7 +5,7 @@
         <span>Tasks</span>
       </div>
       <button
-        @click="showModal = true"
+        @click="handleAddTask(taskStatusList[0].name)"
         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         + Add New Task
@@ -72,11 +72,11 @@
                 class="w-40 px-4 py-1 border rounded text-sm cursor-pointer"
               >
                 <option
-                  v-for="status in taskStatuses"
+                  v-for="status in taskStatusList"
                   :key="status"
-                  :value="status"
+                  :value="status.name"
                 >
-                  {{ status }}
+                  {{ status.name }}
                 </option>
               </select>
             </div>
@@ -383,6 +383,7 @@ const refreshTaskList = () => {
   taskListRef.value?.fetchTasks?.();
   taskBoardRef.value?.fetchTasks?.();
 };
+
 const handleAddTask = (status) => {
   console.log("status", status);
   console.log("newTask", newTask);
