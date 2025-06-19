@@ -65,7 +65,18 @@
     >
 
     <div class="text-xs flex justify-between gap-2 mb-2 items-center">
-      <span>{{ item?.startDate }}</span>
+      <span v-if="item.startDate">{{ item?.startDate }}</span>
+      <span
+        v-else
+        class="text-xs px-2 py-0.5 rounded"
+        :class="{
+          'bg-red-100 text-red-600': item.priority === 'High',
+          'bg-yellow-50 text-yellow-500': item.priority === 'Medium',
+          'bg-green-100 text-green-600': item.priority === 'Low',
+        }"
+      >
+        {{ item.priority }}
+      </span>
       <span
         :class="[
           'py-0.5 px-2 border rounded-full text-xs',
@@ -197,33 +208,38 @@ const toggleDropdown = (projectId) => {
 };
 
 // Injecting Edit & delete function
-const deleteProject = inject("deleteProject");
-const deleteTask = inject("deleteTask");
-const editProject = inject("editProject");
-const editTask = inject("editTask");
+const deleteProject = inject("deleteProject", () => null);
+const deleteTask = inject("deleteTask", () => null);
+const editProject = inject("editProject", () => null);
+const editTask = inject("editTask", () => null);
+
+const deleteHandler = computed(() =>
+  props.type === "project" ? deleteProject : deleteTask
+);
+
+const editHandler = computed(() =>
+  props.type === "project" ? editProject : editTask
+);
 
 const handleDeleteItem = (item) => {
-  if (props.type === "project") {
-    deleteProject(item);
+  if (deleteHandler.value) {
+    deleteHandler.value(item);
   } else {
-    deleteTask(item);
+    console.warn("Delete handler not provided for type:", props.type);
   }
 };
 
 const handleEditItem = (item) => {
-  if (props.type === "project") {
-    editProject(item);
+  if (editHandler.value) {
+    editHandler.value(item);
   } else {
-    editTask(item);
+    console.warn("Edit handler not provided for type:", props.type);
   }
 };
 
 const goToDetails = () => {
-  if (props.type === "project") {
-    router.push(`/project-details/${props.item._id}`);
-  } else {
-    router.push(`/task-details/${props.item._id}`);
-  }
+  const routePrefix = props.type === "project" ? "project" : "task";
+  router.push(`/${routePrefix}-details/${props.item._id}`);
 };
 
 const truncate = (text, length = 20) => {

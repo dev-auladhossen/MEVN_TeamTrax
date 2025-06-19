@@ -20,6 +20,7 @@
     ]"
     :data="projects"
     :items-per-page="5"
+    :type="'project'"
   />
 </template>
 

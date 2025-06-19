@@ -20,6 +20,7 @@
     ]"
     :data="tasks"
     :items-per-page="5"
+    :type="'task'"
   />
 </template>
 

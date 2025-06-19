@@ -58,10 +58,13 @@
                 >
                   {{ getInitials(row[key]) }}
                 </span>
-                <span> {{ row[key] }} </span>
+                <span>tt {{ row[key] }} </span>
               </div>
 
-              <div class="flex flex-row gap-2" v-if="Array.isArray(row[key])">
+              <div
+                class="flex flex-row gap-2"
+                v-if="key === 'teams' && Array.isArray(row[key])"
+              >
                 <!-- <span> {{ row[key].join(", ") }} </span> -->
                 <span
                   v-for="(value, idx) in row[key]"
@@ -81,6 +84,19 @@
                 }"
               >
                 {{ row[key] }}
+              </div>
+
+              <div
+                class="flex flex-row gap-2"
+                v-if="key === 'assignedTo' && Array.isArray(row[key])"
+              >
+                <span
+                  v-for="(value, idx) in row[key]"
+                  :key="idx"
+                  class="bg-gray-100 text-gray-800 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
+                >
+                  {{ value.username }}
+                </span>
               </div>
               <div
                 v-if="
@@ -158,13 +174,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 const props = defineProps({
   headers: Array,
   headerKeys: Array,
   data: Array,
+  type: String,
   itemsPerPage: {
     type: Number,
     default: 5,
@@ -215,12 +232,13 @@ const sortBy = (key) => {
   }
 };
 
-const truncate = (text, length = 60) => {
-  return text.length > length ? text.slice(0, length) + "..." : text;
+const truncate = (text, length = 40) => {
+  return text?.length > length ? text?.slice(0, length) + "..." : text;
 };
 
 const goToDetails = (item) => {
-  router.push(`/project-details/${item._id}`);
+  const routePrefix = props.type === "project" ? "project" : "task";
+  router.push(`/${routePrefix}-details/${item._id}`);
 };
 
 const goToPage = (page) => {

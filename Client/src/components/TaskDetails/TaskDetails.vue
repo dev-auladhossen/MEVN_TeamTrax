@@ -30,86 +30,110 @@
         <div class="w-full space-y-3">
           <div class="flex justify-between">
             <h1 class="text-xl font-bold text-gray-800">
-              {{ task.title }}
-              <input v-model="task.title" class="input" />
+              <template v-if="!editMode">{{ task.title }}</template>
+              <template v-else>
+                <input v-model="task.title" class="input" />
+              </template>
             </h1>
 
-            <div class="flex gap-2">
+            <div class="flex gap-1">
+              <button v-if="editMode" @click="editMode = false" class="w-8 h-8">
+                <font-awesome-icon class="text-black font-xl" icon="xmark" />
+              </button>
               <button
-                @click="showModal = true"
-                class="mt-4 md:mt-0 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition"
+                @click="toggleEditMode"
+                class="bg-blue-600 text-white w-14 h-7 hover:bg-blue-700 border rounded-lg px-3"
               >
-                + Add Task
+                {{ editMode ? "Save" : "Edit" }}
+              </button>
+              <!-- Save Button -->
+              <button
+                class="bg-red-600 text-white h-7 hover:bg-red-500 border rounded-lg px-2"
+                @click="updateTask"
+              >
+                Delete task
               </button>
             </div>
           </div>
-
+          <!-- Description  -->
           <div class="text-sm text-gray-600">
-            <span class="font-medium">{{ task.description }}</span>
-            <textarea
-              v-model="task.description"
-              class="textarea mt-2"
-            ></textarea>
+            <template v-if="!editMode">
+              <span class="font-medium">{{ task.description }}</span>
+            </template>
+            <template v-else>
+              <textarea
+                v-model="task.description"
+                class="textarea mt-2"
+              ></textarea>
+            </template>
           </div>
+          <!-- Project  -->
+          <div class="flex gap-1 items-center">
+            <span class="text-sm text-gray-600">Project:</span>
+            <div
+              class="flex justify-between gap-1 items-center border rounded-full pr-3 bg-gray-200 cursor-pointer"
+            >
+              <span>{{ task.projectId.name }}</span>
+            </div>
+          </div>
+          <!-- Status -->
           <div class="flex w-full justify-between my-2">
             <div class="text-sm text-gray-600">
               Status:
-              <span
-                class="px-2 py-1 rounded text-white text-sm"
-                :style="{ backgroundColor: getStatusColor(task.status) }"
-              >
-                {{ task.status }}
-              </span>
-              <select
-                v-model="task.status"
-                class="border rounded px-3 py-2 w-full bg-white text-sm cursor-pointer"
-              >
-                <option
-                  v-for="option in taskStatuses"
-                  :key="option._id"
-                  :value="option.name"
+              <template v-if="!editMode">
+                <span
+                  class="px-2 py-1 rounded text-white text-sm"
+                  :style="{ backgroundColor: getStatusColor(task.status) }"
                 >
-                  {{ option.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="flex gap-1 items-center">
-              <span class="text-sm text-gray-600">Project:</span>
-              <div
-                class="flex justify-between gap-1 items-center border rounded-full pr-3 bg-gray-200 cursor-pointer"
-              >
-                <span>{{ task.projectId }}</span>
-              </div>
+                  {{ task.status }}
+                </span>
+              </template>
+              <template v-else>
+                <select
+                  v-model="task.status"
+                  class="border rounded px-3 py-2 w-full bg-white text-sm cursor-pointer"
+                >
+                  <option
+                    v-for="option in taskStatuses"
+                    :key="option._id"
+                    :value="option.name"
+                  >
+                    {{ option.name }}
+                  </option>
+                </select>
+              </template>
             </div>
           </div>
-
-          <div class="flex gap-4 justify-between">
-            <div class="flex gap-1 text-sm text-gray-600">
-              Assigned to:
+          <!-- Assignees Dropdown -->
+          <div class="relative mt-4 w-full">
+            <label class="block mb-1 font-semibold">Assigned To</label>
+            <div v-if="!editMode">
               <span
                 v-for="(value, idx) in task.assignedTo"
                 :key="idx"
                 class="bg-gray-100 text-gray-800 h-6 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
               >
-                {{ value.fullName }}
+                {{ value.username }}
               </span>
             </div>
-            <div class="text-sm text-gray-600">
-              <font-awesome-icon class="text-gray-500" icon="calendar-days" />
-              Due Date: {{ task.dueDate }}
-            </div>
-          </div>
-
-          <!-- Assignees Dropdown -->
-          <div class="relative mt-4">
-            <label class="block mb-1 font-semibold">Assigned To</label>
             <div
+              v-else
               @click="toggleDropdown"
               class="border rounded px-3 py-2 cursor-pointer bg-white shadow-sm"
             >
-              <span v-if="task.assignedTo.length === 0">Select assignees</span>
-              <span v-else>{{ getSelectedNames().join(", ") }}</span>
+              <div v-if="task.assignedTo.length === 0">
+                <span>Select assignees</span>
+              </div>
+
+              <div v-else class="flex overflow-x-scroll">
+                <span
+                  v-for="(user, idx) in task.assignedTo"
+                  :key="idx"
+                  class="bg-gray-100 text-nowrap text-gray-800 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
+                >
+                  {{ user.username }}
+                </span>
+              </div>
             </div>
 
             <!-- Dropdown Menu -->
@@ -128,7 +152,7 @@
                   :checked="isUserSelected(user)"
                   :value="{
                     id: user._id,
-                    fullName: user.username,
+                    username: user.username,
                     department: user.department,
                   }"
                   v-model="task.assignedTo"
@@ -137,15 +161,38 @@
               </label>
             </div>
           </div>
-
-          <!-- Attachments -->
-          <label class="block mt-4">Attachments</label>
-          <input type="file" multiple @change="handleFiles" />
+          <!-- Deadline-->
+          <div class="text-sm text-gray-600">
+            <font-awesome-icon class="text-gray-500" icon="calendar-days" />
+            Deadline: {{ task.dueDate }}
+          </div>
+          <div class="flex-col justify-between">
+            <!-- Priority  -->
+            <div class="w-full">
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Priority</label
+              >
+              <div v-if="!editMode">
+                {{ task.priority }}
+              </div>
+              <div v-else>
+                <select
+                  v-model="task.priority"
+                  class="w-full px-4 py-1 border rounded text-sm cursor-pointer"
+                >
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+            </div>
+            <!-- Attachments -->
+            <div>
+              <label class="block mt-4">Attachments</label>
+              <input type="file" multiple @change="handleFiles" />
+            </div>
+          </div>
         </div>
-        <!-- Save Button -->
-        <button class="btn btn-primary mt-4" @click="updateTask">
-          Update Task
-        </button>
       </div>
       <div v-if="task.id">
         <CommentSection :taskId="task.id" :userId="currentUser.id" />
@@ -194,12 +241,8 @@ const task = ref({
 });
 
 const taskStatuses = ref(["To Do", "In Progress"]);
-const selectedStatus = ref("All Tasks");
-const filterPriority = ref("");
-const filterDueDate = ref("");
-const showModal = ref(false);
-const showAssigneeDropdown = ref(false);
-const mode = ref("add");
+const mode = ref("edit");
+const editMode = ref(false);
 const expandedDepts = ref([]);
 const statuses = ref([]);
 const message = ref("");
@@ -218,6 +261,13 @@ const groupedUsers = computed(() => {
 });
 const isUserSelected = (user) => {
   return task.value.assignedTo.some((u) => u._id === user._id);
+};
+
+const toggleEditMode = async () => {
+  if (editMode.value) {
+    await updateTask(); // Call your existing update logic
+  }
+  editMode.value = !editMode.value;
 };
 const toggleDept = (dept) => {
   if (expandedDepts.value.includes(dept)) {
@@ -301,28 +351,43 @@ const getStatusColor = (statusName) => {
   return matchedStatus ? matchedStatus.color : "#d1d5db"; // fallback color if not found
 };
 
+const refreshTask = () => {
+  fetchTask();
+};
+
 const handleFiles = (e) => {
   files.value = [...e.target.files];
 };
 
+const editTask = () => {
+  mode.value = "edit";
+};
+
 const updateTask = async () => {
+  toggleEditMode();
+  console.log("task", task.value);
   console.log("assignedTo", task.value.assignedTo);
   const formData = new FormData();
   formData.append("title", task.value.title);
   formData.append("description", task.value.description);
   formData.append("status", task.value.status);
+  formData.append("priority", task.value.priority);
   formData.append("assignedTo", JSON.stringify(task.value.assignedTo));
-  files.value.forEach((file) => formData.append("attachments", file));
-  console.log("formData", formData);
+  // files.value.forEach((file) => formData.append("attachments", file));
   console.log("task value", task.value);
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value);
+  }
   await axios.put(
-    `http://localhost:5000/api/tasks/${route.params.id}`,
+    `http://localhost:5000/api/task/${route.params.id}`,
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
     }
   );
-  alert("Task updated");
+  success("Task edited successfully!", { title: "Success" });
+  editMode.value = false;
+  refreshTask();
 };
 
 const fetchUsers = async () => {
@@ -415,5 +480,24 @@ body {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+::-webkit-scrollbar {
+  width: 5px;
+  height: 6px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: #e4e4e4;
+  border-radius: 0px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b1b1b1;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 </style>

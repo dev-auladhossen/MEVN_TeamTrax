@@ -36,10 +36,11 @@ const fetchTasks = async () => {
       },
     });
     tasks.value = res.data;
+    console.log("res.data", res.data);
     tasks.value = res.data.map((task) => ({
       ...task,
       dueDate: moment(task.dueDate).format("LL"),
-      project: task.projectId.name,
+      project: task.projectId?.name,
       assignedTo: task.assignedTo.map((user) => {
         return user.fullName;
       }),

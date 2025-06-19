@@ -39,7 +39,7 @@
 
 <script setup>
 import CardView from "./CardView.vue";
-import { defineEmits, inject } from "vue";
+import { defineEmits, inject, computed } from "vue";
 
 const emit = defineEmits(["create"]);
 
@@ -69,16 +69,20 @@ const filteredItems = (status) => {
   return props.items.filter((item) => item.status === status.name);
 };
 
+const openProjectModal = inject("openProjectCreateModal", () => null);
+const openTaskModal = inject("openTaskCreateModal", () => null);
+
+const openModal = computed(() => {
+  return props.type === "project" ? openProjectModal : openTaskModal;
+});
+
 const createNewItem = (status) => {
-  if (props.type === "project") {
-    openProjectModal(status);
+  if (openModal.value) {
+    openModal.value(status);
   } else {
-    openTaskModal(status);
+    console.warn("Modal function not available for type:", props.type);
   }
 };
-
-const openProjectModal = inject("openProjectCreateModal");
-const openTaskModal = inject("openTaskCreateModal");
 </script>
 <style scoped>
 ::-webkit-scrollbar {

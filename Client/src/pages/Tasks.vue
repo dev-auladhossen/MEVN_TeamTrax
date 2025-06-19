@@ -129,12 +129,13 @@
                   @click="showAssigneeDropdown = !showAssigneeDropdown"
                   class="w-full border border-gray-300 bg-white px-4 py-1 rounded-md shadow-sm text-left text-sm"
                 >
-                  <span v-if="newTask.assignedTo?.length">
+                  <!-- <span v-if="newTask.assignedTo.length">
                     {{
-                      newTask.assignedTo.map((user) => user.fullName).join(", ")
+                      newTask.assignedTo.map((user) => user.username).join(", ")
                     }}
-                  </span>
-                  <span v-else class="text-gray-400">Select users</span>
+                    {{ newTask.assignedTo }}
+                  </span> -->
+                  <!-- <span v-else class="text-gray-400">Select users</span> -->
                 </button>
 
                 <!-- Dropdown above the button -->
@@ -142,13 +143,13 @@
                   v-if="showAssigneeDropdown"
                   class="absolute bottom-full mb-1 z-10 bg-white border border-gray-200 rounded-md shadow w-full max-h-64 overflow-y-auto"
                 >
-                  <div v-for="(users, dept) in groupedUsers" :key="dept">
+                  <div v-for="(members, dept) in groupedUsers" :key="dept">
                     <div class="flex bg-gray-100 hover:bg-gray-200">
                       <span>
                         <input
                           type="checkbox"
-                          :checked="isAllSelected(users)"
-                          @change="toggleSelectAll(users)"
+                          :checked="isAllSelected(members)"
+                          @change="toggleSelectAll(members)"
                           class="mx-4 my-2 p-2 cursor-pointer border rounded-sm outline-none focus:ring-0"
                       /></span>
                       <button
@@ -166,7 +167,7 @@
                     <div v-if="expandedDepts.includes(dept)">
                       <!-- Users -->
                       <label
-                        v-for="user in users"
+                        v-for="user in members"
                         :key="user.id"
                         class="flex items-center px-4 py-2 hover:bg-gray-50 text-sm cursor-pointer"
                       >
@@ -176,7 +177,7 @@
                           v-model="newTask.assignedTo"
                           class="mr-4 p-2 cursor-pointer border rounded-sm focus:ring-0"
                         />
-                        {{ user.fullName }}
+                        {{ user.username }}
                       </label>
                     </div>
                   </div>
@@ -244,6 +245,7 @@ const currentView = ref("board");
 const taskStatuses = ["Todo", "In Progress", "Review", "Complete"];
 const taskListRef = ref(null);
 const taskBoardRef = ref(null);
+const selectedTaskId = ref(null);
 const projects = ref([]);
 const users = ref([]);
 const { success, error } = useToast();
@@ -261,6 +263,7 @@ const initialTask = {
 const newTask = reactive({ ...initialTask });
 
 async function submitTask() {
+  console.log("mode", mode.value);
   try {
     const token = localStorage.getItem("token");
     const payLoad = { ...newTask };
@@ -272,13 +275,13 @@ async function submitTask() {
       message.value = "Task Created Successfully!";
       success(message.value, { title: "Success" });
     } else if (mode.value === "edit") {
-      // await axios.put(
-      //   `http://localhost:5000/task/${}`,
-      //   form,
-      //   {
-      //     headers: { Authorization: `Bearer ${token}` },
-      //   }
-      // );
+      await axios.put(
+        `http://localhost:5000/api/task/${selectedTaskId.value}`,
+        payLoad,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       message.value = "Task updated successfully!";
       success(message.value, { title: "Success" });
     }
@@ -292,11 +295,11 @@ async function submitTask() {
   }
 }
 const dummyUsers = [
-  { id: 1, fullName: "Alice", department: "Design" },
-  { id: 2, fullName: "Bob Johnson", department: "Design" },
-  { id: 3, fullName: "Charlie Brown", department: "Development" },
-  { id: 4, fullName: "David Lee", department: "Development" },
-  { id: 5, fullName: "Eva Green", department: "QA" },
+  { id: 1, username: "Alice", department: "Design" },
+  { id: 2, username: "Bob Johnson", department: "Design" },
+  { id: 3, username: "Charlie Brown", department: "Development" },
+  { id: 4, username: "David Lee", department: "Development" },
+  { id: 5, username: "Eva Green", department: "QA" },
 ];
 
 const buttonClass = (view) => {
@@ -310,7 +313,7 @@ const buttonClass = (view) => {
 
 const groupedUsers = computed(() => {
   const map = {};
-  dummyUsers.forEach((user) => {
+  users.value.forEach((user) => {
     if (!map[user.department]) map[user.department] = [];
     map[user.department].push(user);
   });
@@ -325,25 +328,25 @@ const toggleDept = (dept) => {
   }
 };
 
-const isAllSelected = (users) => {
-  console.log("newTask", newTask);
+const isAllSelected = (members) => {
+  console.log("newTask", newTask.value);
+  console.log("newTask.value.assignedTo", newTask.value.assignedTo);
   console.log("users", users);
-  console.log("newTask.value.assignedTo", newTask);
-  return users.every((user) =>
-    newTask.assignedTo.some((u) => u.id === user.id)
+  return members.every((user) =>
+    newTask.value.assignedTo.some((u) => u.id === user.id)
   );
 };
 
-const toggleSelectAll = (users) => {
-  const allSelected = isAllSelected(users);
+const toggleSelectAll = (members) => {
+  const allSelected = isAllSelected(members);
   if (allSelected) {
     // Remove all users from that dept
     newTask.value.assignedTo = newTask.value.assignedTo.filter(
-      (u) => !users.some((depUser) => depUser.id === u.id)
+      (u) => !members.some((depUser) => depUser.id === u.id)
     );
   } else {
     // Add missing users
-    users.forEach((user) => {
+    members.forEach((user) => {
       if (!newTask.value.assignedTo.some((u) => u.id === user.id)) {
         newTask.value.assignedTo.push(user);
       }
@@ -372,8 +375,13 @@ const fetchUsers = async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    users.value = res.data;
+    users.value = res.data.map((u) => ({
+      id: u._id,
+      username: u.username,
+      department: u.department,
+    }));
     console.log(users.value);
+    console.log("groupedUsers", groupedUsers.value);
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }
@@ -398,11 +406,48 @@ const handleAddTask = (status) => {
   refreshTaskList();
 };
 
-const handleDelete = () => {
-  console.log("clicked delete");
+const handleDelete = async (row) => {
+  const taskId = row._id;
+  try {
+    const token = localStorage.getItem("token");
+
+    const confirmed = await $confirm({
+      title: "Delete Item",
+      message: "Are you sure you want to delete the selected record?",
+    });
+
+    if (!confirmed) {
+      return;
+    } else {
+      await axios.delete(`http://localhost:5000/api/task/${taskId}`, {
+        headers: {
+          Authorization: `Berear${token}`,
+        },
+      });
+      refreshTaskList();
+      success("Deleted Succeussfully!", { title: "Success" });
+    }
+  } catch (err) {
+    console.error("Error deleting task:", err.message);
+  }
 };
-const handleEdit = () => {
-  console.log("clicked edit");
+
+const handleEdit = (row) => {
+  console.log("row", row);
+  mode.value = "edit";
+  selectedTaskId.value = row._id;
+  const dueDate = new Date(row.dueDate);
+  Object.assign(newTask, {
+    title: row.title,
+    description: row.description,
+    dueDate: new Date(row.dueDate),
+    teams: row.teams,
+    status: row.status,
+    assignedTo: row.assignedTo,
+    priority: row.priority,
+    projectId: row.projectId._id,
+  });
+  showModal.value = true;
 };
 
 // Provide & Inject Process
