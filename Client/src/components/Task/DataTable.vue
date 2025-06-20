@@ -58,7 +58,7 @@
                 >
                   {{ getInitials(row[key]) }}
                 </span>
-                <span>tt {{ row[key] }} </span>
+                <span> {{ row[key] }} </span>
               </div>
 
               <div

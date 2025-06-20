@@ -393,14 +393,8 @@ const refreshTaskList = () => {
 };
 
 const handleAddTask = (status) => {
-  console.log("status", status);
-  console.log("newTask", newTask);
   mode.value = "add";
-
   initialTask.status = status;
-
-  console.log("initialForm.status", initialTask.status);
-
   showModal.value = true;
   Object.assign(newTask, initialTask);
   refreshTaskList();
