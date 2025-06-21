@@ -15,7 +15,8 @@ const projectSchema = new mongoose.Schema(
     },
     teams: [String],
     tasks: [Object],
-    // tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
+    repoUrl: { type: String },
+    githubRepo: { type: String },
   },
   { timestamps: true }
 );
