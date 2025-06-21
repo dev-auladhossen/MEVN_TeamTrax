@@ -1,5 +1,9 @@
 <template>
-  <div class="h-[500px] flex flex-col border rounded-md overflow-hidden">
+  <div
+    :class="
+      computedHeightClass + ' flex flex-col border rounded-md overflow-hidden'
+    "
+  >
     <!-- Scrollable Comment Area -->
     <div
       ref="scrollContainer"
@@ -153,14 +157,21 @@
   </transition>
 </template>
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, computed } from "vue";
 import axios from "axios";
 import { useToast } from "../Composables/useToast.js";
 
 const props = defineProps({
   taskId: String,
   userId: String,
+  height: {
+    type: Number,
+    default: 500,
+  },
 });
+
+const computedHeightClass = computed(() => `h-[${props.height}px]`);
+
 const { success, error } = useToast();
 const users = ref([]);
 const comments = ref([]);

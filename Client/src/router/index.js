@@ -12,6 +12,7 @@ import ProjectDetails from "../components/ProjectDetails.vue";
 import TaskDetails from "../components/TaskDetails/TaskDetails.vue";
 import Settings from "../pages/Settings.vue";
 import Tasks from "../pages/Tasks.vue";
+import DevTasks from "../pages/DevTasks.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -67,6 +68,12 @@ const routes = [
     path: "/tasks",
     name: "tasks",
     component: Tasks,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/dev-tasks",
+    name: "dev-tasks",
+    component: DevTasks,
     meta: { hideLayout: true },
   },
   {

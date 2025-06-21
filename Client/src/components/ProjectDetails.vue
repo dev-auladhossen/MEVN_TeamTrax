@@ -23,6 +23,10 @@
         Back
       </button>
 
+      <div>
+        <GithubRepoInfo :project="testProj"></GithubRepoInfo>
+      </div>
+
       <!-- Top Section: Project Info -->
       <div
         class="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row md:justify-between items-start md:items-center"
@@ -420,6 +424,7 @@ import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
 import Dialog from "../components/Task/Dialog.vue";
+import GithubRepoInfo from "./GithubRepoInfo.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import Layout from "../components/Layout.vue";
@@ -439,6 +444,14 @@ const route = useRoute();
 const router = useRouter();
 const goBack = () => router.back();
 const { success, error } = useToast();
+const testProj = reactive({
+  _id: "project123",
+  name: "TeamTrax",
+  githubRepo: {
+    owner: "dev-auladhossen",
+    repo: "MEVN_TeamTrax",
+  },
+});
 
 const project = ref({
   name: "",

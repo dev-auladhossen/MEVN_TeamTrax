@@ -2,7 +2,7 @@
   <div>
     <nav
       id="topNav"
-      class="navbar top-navbar fixed flex justify-between top-0 left-0 right-0 z-50 px-4 py-3 items-center"
+      class="navbar top-navbar fixed flex justify-between top-0 left-0 right-0 z-40 px-4 py-3 items-center"
     >
       <div class="container-fluid">
         <a
@@ -67,6 +67,9 @@
       </div>
 
       <router-link
+        v-if="
+          loggedUser.role == 'admin' || loggedUser.role == 'project manager'
+        "
         to="/admindashboard"
         class="side-bar-item rounded-full"
         :class="isActive('/admindashboard')"
@@ -114,7 +117,25 @@
               route.path === '/tasks' ? 'animate-bounce' : '',
             ]"
         /></span>
-        <span class="side-bar-item-caption">Tasks</span>
+        <span class="side-bar-item-caption">All Tasks</span>
+      </router-link>
+
+      <router-link
+        v-if="loggedUser.role == 'developer'"
+        to="/dev-tasks"
+        class="side-bar-item rounded-full"
+        :class="isActive('/dev-tasks')"
+      >
+        <span class="side-bar-item-icon"
+          ><font-awesome-icon
+            class="text-sm"
+            icon="tasks"
+            :class="[
+              'text-sm',
+              route.path === '/dev-tasks' ? 'animate-bounce' : '',
+            ]"
+        /></span>
+        <span class="side-bar-item-caption">My Tasks</span>
       </router-link>
 
       <router-link
@@ -150,6 +171,9 @@
       </router-link>
 
       <router-link
+        v-if="
+          loggedUser.role == 'admin' || loggedUser.role == 'project manager'
+        "
         to="/add-user"
         class="side-bar-item rounded-full"
         :class="isActive('/add-user')"
@@ -166,6 +190,9 @@
       </router-link>
 
       <router-link
+        v-if="
+          loggedUser.role == 'admin' || loggedUser.role == 'project manager'
+        "
         to="/settings"
         class="side-bar-item rounded-full"
         :class="isActive('/settings')"
@@ -193,11 +220,19 @@
 </template>
 <script setup>
 import { useAuth } from "../utils/auth";
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
-
 const route = useRoute();
 const { logout } = useAuth();
+const loggedUser = JSON.parse(localStorage.getItem("current-user"));
+console.log("current role", loggedUser.role);
+
+// const show = (...roles) => {
+//   console.log("roles", ...roles);
+//   console.log("true or false", roles.includes(loggedUser.role));
+//   if (roles.includes("all")) return true;
+//   return roles.includes(loggedUser.role);
+// };
 
 const isActive = (path) =>
   route.path === path ? "bg-blue-500 text-white" : "";

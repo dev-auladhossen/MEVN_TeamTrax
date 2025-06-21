@@ -176,7 +176,7 @@
             <label class="block mb-1 font-semibold">Assigned To</label>
             <div
               v-if="!editMode"
-              class="border rounded px-3 py-2 cursor-pointer bg-white shadow-sm"
+              class="px-3 py-2 cursor-pointer bg-white shadow-sm"
             >
               <span
                 v-for="(value, idx) in task.assignedTo"
@@ -263,6 +263,7 @@
                   />Attachments</label
                 >
                 <label
+                  v-if="editMode"
                   class="block font-bold cursor-pointer hover:text-gray-400"
                   @click="addAttachment = !addAttachment"
                   ><font-awesome-icon
@@ -272,21 +273,77 @@
                 >
               </div>
 
-              <!-- <input type="file" multiple @change="handleFiles" /> -->
-
               <FileUpload
-                v-if="addAttachment"
+                v-if="addAttachment && editMode"
                 :multiple="true"
                 accept=""
                 @files-selected="handleFileUpload"
               />
-              <div class="text-gray-400 tex-sm my-2" v-if="!task.attatchment">
-                <span>No attachments yet</span>
+              <div v-else>
+                <div v-if="task.files.length" class="attachments flex gap-2">
+                  <div
+                    v-for="file in task.attachments"
+                    :key="file"
+                    class="attachment-item flex items-center gap-2 p-2 rounded bg-gray-100"
+                  >
+                    <img
+                      v-if="isImage(file)"
+                      :src="getFileUrl(file)"
+                      alt="preview"
+                      class="w-12 h-12 object-cover rounded cursor-pointer"
+                      @click="
+                        openImageModal(`http://localhost:5000/uploads/${file}`)
+                      "
+                    />
+                    <a
+                      v-else
+                      :href="`http://localhost:5000/uploads/${file}`"
+                      target="_blank"
+                      class="text-blue-600 underline"
+                    >
+                      <img
+                        :src="`/src/assets/${getFileIcon(file)}`"
+                        alt="preview"
+                        class="w-12 h-12 object-cover rounded cursor-pointer"
+                    /></a>
+
+                    <button
+                      @click="deleteAttachment(file)"
+                      class="text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+                <div v-else class="text-gray-400 tex-sm my-2">
+                  <span>No attachments yet</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- Image Modal -->
+      <transition name="fade-zoom">
+        <div
+          v-if="showImageModal"
+          class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
+          @click.self="closeImageModal"
+        >
+          <img
+            v-if="previewImageUrl"
+            :src="previewImageUrl"
+            class="max-w-[90%] max-h-[90%] rounded shadow-lg"
+          />
+
+          <button
+            @click="closeImageModal"
+            class="absolute top-4 right-4 bg-white text-black px-3 py-1 rounded shadow"
+          >
+            ✕
+          </button>
+        </div>
+      </transition>
       <!-- Right Section: Comment Box -->
       <div v-if="task.id" class="w-full">
         <CommentSection :taskId="task.id" :userId="currentUser.id" />
@@ -320,10 +377,12 @@ import moment from "moment";
 const route = useRoute();
 const router = useRouter();
 const goBack = () => router.back();
-const { success, error } = useToast();
+const { success, error, info } = useToast();
 const files = ref([]);
 const selectedUsers = ref([]);
 const dropdownOpen = ref(false);
+const showImageModal = ref(false);
+const previewImageUrl = ref("");
 
 const task = ref({
   id: "",
@@ -332,6 +391,7 @@ const task = ref({
   startDate: "",
   dueDate: "",
   projectId: "",
+  files: [],
   assignedTo: [],
 });
 const addAttachment = ref(false);
@@ -345,11 +405,6 @@ const currentTaskId = route.params.id;
 const users = ref([]);
 const selectedMember = ref(null);
 const currentUser = JSON.parse(localStorage.getItem("current-user") || "{}");
-
-const handleFileUpload = (files) => {
-  console.log("files", files); // You can now send to backend or handle preview
-  files.value = files;
-};
 
 const groupedUsers = computed(() => {
   const map = {};
@@ -374,23 +429,24 @@ const toggleDept = (dept) => {
   }
 };
 
-const isAllSelected = (members) => {
-  console.log("task.value.assignedTo", task.value.assignedTo);
-  return members.every((user) =>
+const isAllSelected = (users) => {
+  console.log("users", users);
+  return users.every((user) =>
     task.value.assignedTo.some((u) => u.id === user.id)
   );
 };
 
-const toggleSelectAll = (members) => {
-  const allSelected = isAllSelected(members);
+const toggleSelectAll = (users) => {
+  console.log("users", users);
+  const allSelected = isAllSelected(users);
   if (allSelected) {
     // Remove all users from that dept
     task.value.assignedTo = task.value.assignedTo.filter(
-      (u) => !members.some((depUser) => depUser.id === u.id)
+      (u) => !users.some((depUser) => depUser.id === u.id)
     );
   } else {
     // Add missing users
-    members.forEach((user) => {
+    users.forEach((user) => {
       if (!task.value.assignedTo.some((u) => u.id === user.id)) {
         task.value.assignedTo.push(user);
       }
@@ -460,6 +516,12 @@ const editTask = () => {
   mode.value = "edit";
 };
 
+const handleFileUpload = (files) => {
+  console.log("files", files); // You can now send to backend or handle preview
+  task.value.files = files;
+  console.log("Files before upload", task.value.files);
+};
+
 const updateTask = async () => {
   if (editMode.value) {
     console.log("task", task.value);
@@ -471,7 +533,7 @@ const updateTask = async () => {
     formData.append("priority", task.value.priority);
     formData.append("dueDate", new Date(task.value.dueDate).toISOString());
     formData.append("assignedTo", JSON.stringify(task.value.assignedTo));
-    files.value.forEach((file) => formData.append("attachments", file));
+    task.value?.files?.forEach((file) => formData.append("attachments", file));
     console.log("task value", task.value);
     for (let [key, value] of formData.entries()) {
       console.log("key value ", key, value);
@@ -485,6 +547,7 @@ const updateTask = async () => {
     );
     success("Task edited successfully!", { title: "Success" });
     editMode.value = false;
+    addAttachment.value = false;
     refreshTask();
   }
 };
@@ -523,7 +586,11 @@ const fetchUsers = async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    users.value = res.data;
+    users.value = res.data.map((u) => ({
+      id: u._id,
+      username: u.username,
+      department: u.department,
+    }));
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }
@@ -546,6 +613,7 @@ const fetchTask = async () => {
     task.value = {
       ...t,
       id: t._id,
+      files: t.attachments,
       dueDate: moment(t.dueDate).format("LL"),
     };
   } catch (error) {
@@ -568,7 +636,82 @@ const fetchStatuses = async () => {
   }
 };
 
+const openImageModal = (url) => {
+  previewImageUrl.value = url;
+  showImageModal.value = true;
+};
+
+const closeImageModal = () => {
+  showImageModal.value = false;
+  previewImageUrl.value = "";
+};
+
+const getFileUrl = (filename) => {
+  return `http://localhost:5000/uploads/${filename}`;
+};
+
+const isImage = (filename) => {
+  return /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
+};
+const isPdf = (filename) => {
+  return /\.pdf$/i.test(filename);
+};
+
+const getFileIcon = (filename) => {
+  const ext = filename.split(".").pop().toLowerCase();
+  switch (ext) {
+    case "pdf":
+      return "pdf-icon.webp";
+    case "doc":
+    case "docx":
+      return "doc-icon.webp";
+    case "xls":
+    case "xlsx":
+      return "doc-icon.png";
+    case "zip":
+    case "rar":
+      return "zip-icon.png";
+    case "mp4":
+    case "mov":
+      return "mp4-icon.png";
+    case "mp3":
+      return "mp3-icon.png";
+    default:
+      return "file-icon.png";
+  }
+};
+
+const deleteAttachment = async (filename) => {
+  try {
+    await axios.delete(
+      `http://localhost:5000/api/task/${task.value._id}/attachment/${filename}`
+    );
+    task.value.attachments = task.value.attachments.filter(
+      (f) => f !== filename
+    );
+    info("Attachment deleted successfully!", { title: "Deleted" });
+  } catch (error) {
+    console.error("Failed to delete", error);
+  }
+};
+
+const userSpecificTasks = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get("http://localhost:5000/api/dev/tasks", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("userSpecificTasks", res.data);
+  } catch (error) {
+    console.error("Failed to fetch statuses:", error);
+  }
+};
+
 onMounted(() => {
+  userSpecificTasks();
   fetchStatuses();
   fetchUsers();
   document.addEventListener("click", closeDropdownOnOutsideClick);
@@ -594,6 +737,17 @@ body {
   padding: 4px;
   width: 100%;
   border-radius: 6px;
+}
+
+.fade-zoom-enter-active,
+.fade-zoom-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-zoom-enter-from,
+.fade-zoom-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
 }
 .btn {
   padding: 10px 20px;
