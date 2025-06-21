@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../models/Project");
 const Task = require("../models/Task");
+const { getRepoDetails } = require("../services/github");
 
 // Create Project
 router.post("/projects", async (req, res) => {
@@ -152,6 +153,18 @@ router.delete("/projects/:id", async (req, res) => {
   } catch (err) {
     console.error("Delete Error:", err.message);
     res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Route to fetch repo info for a project
+router.get("/github/:owner/:repo", async (req, res) => {
+  const { owner, repo } = req.params;
+  try {
+    const data = await getRepoDetails(owner, repo);
+    res.json(data);
+  } catch (err) {
+    console.error("GitHub error:", err.message);
+    res.status(500).json({ message: "GitHub fetch failed" });
   }
 });
 

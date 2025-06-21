@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -5,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const User = require("../models/User");
 
-const JWT_SECRET = "your_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post("/add-user", async (req, res) => {
   const { username, password, role, email, title, status, color } = req.body;
@@ -39,6 +40,7 @@ router.post("/add-user", async (req, res) => {
 
 // Login route
 router.post("/login", async (req, res) => {
+  console.log("JWT_SECRET", JWT_SECRET);
   const { username, password } = req.body;
 
   try {

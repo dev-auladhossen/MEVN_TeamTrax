@@ -11,6 +11,7 @@ const taskStatusRoutes = require("./routes/task-status");
 const taskRoutes = require("./routes/task");
 const commentRoutes = require("./routes/comment");
 const User = require("./models/User");
+const authMiddleware = require("./middleware/authMiddleware");
 
 app.use(cors());
 app.use("/uploads", express.static("uploads"));
@@ -21,6 +22,7 @@ app.use("/api", taskRoutes);
 app.use("/api", projectStatusRoutes);
 app.use("/api", taskStatusRoutes);
 app.use("/api", authRoutes);
+app.use(express.urlencoded({ extended: true }));
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/project-tracker")

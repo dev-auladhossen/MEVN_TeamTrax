@@ -9,6 +9,7 @@ const taskSchema = new mongoose.Schema(
     priority: { type: String, default: "Medium" },
     dueDate: Date,
     assignedTo: { type: Array },
+    attachments: { type: Array },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
