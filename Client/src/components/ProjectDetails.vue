@@ -24,7 +24,9 @@
       </button>
 
       <div>
+        {{ project._id }}
         <GithubRepoInfo :project="testProj"></GithubRepoInfo>
+        <GithubRepoCreate :project="testProj"></GithubRepoCreate>
       </div>
 
       <!-- Top Section: Project Info -->
@@ -425,6 +427,7 @@ import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
 import Dialog from "../components/Task/Dialog.vue";
 import GithubRepoInfo from "./GithubRepoInfo.vue";
+import GithubRepoCreate from "./GithubRepoCreate.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import Layout from "../components/Layout.vue";
@@ -445,7 +448,7 @@ const router = useRouter();
 const goBack = () => router.back();
 const { success, error } = useToast();
 const testProj = reactive({
-  _id: "project123",
+  _id: "68400294e60819dd0104c4cc",
   name: "TeamTrax",
   githubRepo: {
     owner: "dev-auladhossen",
