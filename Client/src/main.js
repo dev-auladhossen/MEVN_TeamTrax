@@ -58,6 +58,11 @@ import {
   faXmark,
   faUpload,
   faArrowUpFromBracket,
+  faCodeBranch,
+  faCodeCommit,
+  faCode,
+  faDatabase,
+  faServer,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
@@ -65,6 +70,11 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPaste } from "@fortawesome/free-regular-svg-icons";
 import { faOpencart } from "@fortawesome/free-brands-svg-icons";
 library.add(
+  faServer,
+  faDatabase,
+  faCode,
+  faCodeCommit,
+  faCodeBranch,
   faArrowUpFromBracket,
   faUpload,
   faXmark,

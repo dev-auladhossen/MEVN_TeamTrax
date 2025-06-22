@@ -107,7 +107,7 @@
         </div>
       </div>
 
-      <div v-if="githubRepoData" class="space-y-2">
+      <div v-if="githubRepoData" class="space-y-2 mb-8">
         <h1 class="text-lg font-bold text-gray-800 mt-8 ms-2">
           Manage Project Repository
         </h1>
@@ -115,22 +115,45 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Repo Info -->
           <div class="bg-white shadow-md rounded-xl p-6 border">
-            <GithubRepoInfo :projectRepoInfo="githubRepoData" />
+            <GithubRepoInfo
+              :projectRepoInfo="githubRepoData"
+              :loading="isLoading"
+            />
           </div>
 
           <!-- Repo Creation + Branch Create -->
           <div class="bg-white shadow-md rounded-xl p-6 border">
             <GithubRepoCreate
               :projectRepoInfo="githubRepoData"
-              @refreshRepoInfo="fetchLatestRepoInfo"
+              @refreshRepoInfo="refreshGithubRepoInfo"
             />
           </div>
         </div>
       </div>
 
-      <div v-else class="text-center py-10 text-gray-500">
-        Loading project data...
+      <!-- ELSE Show prompt to create repo -->
+      <div
+        v-else
+        class="bg-white shadow rounded-xl p-6 border text-center space-y-4"
+      >
+        <h2 class="text-lg font-semibold text-gray-700">
+          📦 No GitHub Repository Linked Yet
+        </h2>
+        <p class="text-sm text-gray-500">
+          Creating a repository helps keep your project code up-to-date, track
+          commits, and collaborate with your team more effectively.
+        </p>
+
+        <div class="max-w-2xl mx-auto">
+          <!-- Show GithubRepoCreate with empty/default props -->
+          <!-- <GithubRepoCreate @refreshRepoInfo="refreshGithubRepoInfo" /> -->
+        </div>
       </div>
+
+      <!-- <div v-else class="flex items-center gap-2 text-gray-600">
+        <span class="loader"></span>
+        Loading latest GitHub data...
+      </div> -->
 
       <!-- Status Switch Bar -->
       <div class="flex justify-between gap-4 overflow-x-auto pb-2">
@@ -468,14 +491,27 @@ const route = useRoute();
 const router = useRouter();
 const goBack = () => router.back();
 const { success, error } = useToast();
-const testProj = reactive({
-  _id: "68400294e60819dd0104c4cc",
-  name: "TeamTrax",
-  githubRepo: {
-    owner: "dev-auladhossen",
-    repo: "MEVN_TeamTrax",
-  },
-});
+
+const taskStatuses = ["Todo", "In Progress", "Review", "Completed"];
+const selectedStatus = ref("All Tasks");
+const filterPriority = ref("");
+const filterDueDate = ref("");
+const showModal = ref(false);
+const showAssigneeDropdown = ref(false);
+const mode = ref("add");
+const expandedDepts = ref([]);
+const statuses = ref([]);
+const users = ref([]);
+const message = ref("");
+const currentProjectId = route.params.id;
+const isLoading = ref(false);
+const tasks = ref([]);
+const selectedMember = ref(null);
+const githubRepoData = ref(null);
+
+const openMemberModal = (member) => {
+  selectedMember.value = member;
+};
 
 const project = ref({
   name: "",
@@ -487,42 +523,14 @@ const project = ref({
   teams: [],
 });
 
-const githubInfo = computed(() => ({
-  _id: project._id,
-  name: project.name,
-  githubRepo: {
-    owner: project.githubRepo?.split("/")[0] || "",
-    repo: project.githubRepo?.split("/")[1] || "",
-  },
-}));
-
-const githubRepoData = ref(null);
-watch(
-  () => project.value?.githubRepo,
-  (newRepo) => {
-    if (!newRepo) return;
-    const [owner, repo] = newRepo.split("/");
-    githubRepoData.value = {
-      _id: project.value._id,
-      name: project.value.name,
-      githubRepo: { owner, repo },
-      branches: [],
-      commits: [],
-    };
-  },
-  { immediate: true }
-);
-
-const githubRepoInfo = computed(() => {
-  if (!project.value) return null;
-  return {
-    _id: project.value._id,
-    name: project.value.name,
-    githubRepo: {
-      owner: project.value.githubRepo?.split("/")[0] || "",
-      repo: project.value.githubRepo?.split("/")[1] || "",
-    },
-  };
+const newTask = ref({
+  title: "",
+  description: "",
+  status: taskStatuses[0],
+  priority: "Medium",
+  dueDate: "",
+  assignedTo: [],
+  projectId: project.value._id,
 });
 
 const initialForm = {
@@ -537,18 +545,21 @@ const initialForm = {
 
 const form = reactive({ ...initialForm });
 
-const taskStatuses = ["Todo", "In Progress", "Review", "Completed"];
-const selectedStatus = ref("All Tasks");
-const filterPriority = ref("");
-const filterDueDate = ref("");
-const showModal = ref(false);
-const showAssigneeDropdown = ref(false);
-const mode = ref("add");
-const expandedDepts = ref([]);
-const statuses = ref([]);
-const users = ref([]);
-const message = ref("");
-const currentProjectId = route.params.id;
+const getInitials = (name) => {
+  if (!name || typeof name !== "string") return "";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+};
+
+const getStatusColor = (statusName) => {
+  const matchedStatus = statuses.value.find(
+    (status) => status.name === statusName
+  );
+  return matchedStatus ? matchedStatus.color : "#d1d5db"; // fallback color if not found
+};
 
 const assigneeDropdownRef = ref(null);
 const toggleAssigneeDropdown = () => {
@@ -602,27 +613,33 @@ const handleClickOutside = (e) => {
     showAssigneeDropdown.value = false;
   }
 };
+
+const refreshGithubRepoInfo = () => {
+  console.log("refreshGithubRepoInfo", githubRepoData.value);
+  fetchProject();
+  fetchLatestRepoInfo();
+};
+
 const fetchLatestRepoInfo = async () => {
   console.log("githubRepoData", githubRepoData.value);
-  console.log("githubRepoInfo", githubRepoInfo.value);
-  // const fullName = `${githubRepoInfo.value.githubRepo.owner}/${githubRepoInfo.value.githubRepo.repo}`;
-  // console.log("fullName", fullName);
-  // const res = await fetch(
-  //   `http://localhost:5000/api/github/repo-info?fullName=${fullName}`
-  // );
-  // const data = await res.json();
-  // console.log("data", data);
-  // githubRepoInfo.value.githubRepo = { ...githubRepoInfo.value.githubRepo }; // trigger reactivity
-
   if (!githubRepoData.value) return;
-  const fullName = `${githubRepoData.value.githubRepo.owner}/${githubRepoData.value.githubRepo.repo}`;
-  const res = await fetch(
-    `http://localhost:5000/api/github/repo-info?fullName=${fullName}`
-  );
-  const data = await res.json();
 
-  githubRepoData.value.branches = data.branches;
-  githubRepoData.value.commits = data.commits;
+  isLoading.value = true;
+  try {
+    const fullName = `${githubRepoData.value.githubRepo.owner}/${githubRepoData.value.githubRepo.repo}`;
+    const res = await fetch(
+      `http://localhost:5000/api/github/repo-info?fullName=${fullName}`
+    );
+    const data = await res.json();
+
+    githubRepoData.value.branches = data.branches;
+    githubRepoData.value.commits = data.commits;
+    console.log("fetch new repo info", githubRepoData.value);
+  } catch (err) {
+    console.error("Error fetching repo info", err);
+  } finally {
+    isLoading.value = false; // Stop loading
+  }
 };
 
 const fetchProject = async () => {
@@ -646,7 +663,6 @@ const fetchProject = async () => {
       endDate: moment(p.endDate).format("LL"),
     };
     console.log("project.value", project.value);
-    console.log("githubInfo.value", githubInfo.value);
   } catch (error) {
     console.error("Failed to fetch project:", error);
   }
@@ -669,48 +685,6 @@ const fetchUsers = async () => {
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }
-};
-
-onMounted(() => {
-  fetchTaskStatus();
-  fetchProject();
-  fetchStatuses();
-  fetchUsers();
-  fetchLatestRepoInfo();
-  if (currentProjectId) {
-    fetchTasks(currentProjectId);
-  }
-
-  document.addEventListener("click", handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
-
-const dummyUsers = [
-  { id: 1, fullName: "Alice", department: "Design" },
-  { id: 2, fullName: "Bob Johnson", department: "Design" },
-  { id: 3, fullName: "Charlie Brown", department: "Development" },
-  { id: 4, fullName: "David Lee", department: "Development" },
-  { id: 5, fullName: "Eva Green", department: "QA" },
-];
-
-const tasks = ref([]);
-
-const selectedMember = ref(null);
-
-const openMemberModal = (member) => {
-  selectedMember.value = member;
-};
-
-const getInitials = (name) => {
-  if (!name || typeof name !== "string") return "";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
 };
 
 const filteredColumns = computed(() => {
@@ -737,16 +711,6 @@ const filteredTasksByStatus = (status) => {
     });
   // return tasks.value.filter((task) => task.status === status);
 };
-
-const newTask = ref({
-  title: "",
-  description: "",
-  status: taskStatuses[0],
-  priority: "Medium",
-  dueDate: "",
-  assignedTo: [],
-  projectId: project.value._id,
-});
 
 const createTask = async () => {
   console.log("newTask.value", newTask.value);
@@ -815,10 +779,6 @@ const onTaskDrop = (event, newStatus) => {
   }
 };
 
-const updateTaskStatus = (task) => {
-  console.log(`Task ID ${task.id} status updated to ${task.status}`);
-};
-
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -855,12 +815,41 @@ const fetchTasks = async (currentProjectId) => {
   }
 };
 
-const getStatusColor = (statusName) => {
-  const matchedStatus = statuses.value.find(
-    (status) => status.name === statusName
-  );
-  return matchedStatus ? matchedStatus.color : "#d1d5db"; // fallback color if not found
-};
+watch(
+  () => project.value?.githubRepo,
+  (newRepo) => {
+    console.log("newRepo", newRepo);
+    if (!newRepo) return;
+    const [owner, repo] = newRepo.split("/");
+    githubRepoData.value = {
+      _id: project.value._id,
+      name: project.value.name,
+      githubRepo: { owner, repo },
+      branches: [],
+      commits: [],
+    };
+    fetchLatestRepoInfo();
+  },
+  { immediate: true }
+);
+
+onMounted(() => {
+  fetchTaskStatus();
+  fetchProject();
+  fetchStatuses();
+  fetchUsers();
+  fetchLatestRepoInfo();
+
+  if (currentProjectId) {
+    fetchTasks(currentProjectId);
+  }
+
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <style scoped>
