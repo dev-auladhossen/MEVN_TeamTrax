@@ -7,8 +7,6 @@ const Project = require("../models/Project");
 const GITHUB_USERNAME = process.env.GITHUB_USERNAME; //  Replace with your GitHub username
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN; //  Use dotenv in real apps
 
-const REPO_NAME = "new_one";
-
 const githubAPI = axios.create({
   baseURL: "https://api.github.com",
   headers: {
@@ -81,7 +79,7 @@ router.get("/repo-info", async (req, res) => {
 
     res.json({
       branches: branches.data,
-      commits: commits.data.slice(0, 10), // last 10 commits
+      commits: commits.data.slice(0, 5), // last 5 commits
     });
   } catch (err) {
     console.error(err?.response?.data || err.message);
@@ -122,7 +120,7 @@ router.post("/create-branch", async (req, res) => {
     );
 
     res.json({
-      message: `✅ Branch '${newBranchName}' created from 'main'`,
+      message: `Branch '${newBranchName}' created from 'main'`,
       branchUrl: newBranchRes.data.url,
     });
   } catch (err) {

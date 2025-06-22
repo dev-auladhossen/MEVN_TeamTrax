@@ -121,4 +121,24 @@ router.delete("/users/:id", async (req, res) => {
   }
 });
 
+// GET GitHub settings
+router.get("/github-settings", async (req, res) => {
+  const userId = req.user.id;
+  const user = await User.findById(userId).select("githubUsername");
+  res.json(user);
+});
+
+// POST GitHub settings
+router.post("/github-settings", async (req, res) => {
+  const { githubUsername, githubToken } = req.body;
+  const userId = req.user.id;
+
+  await User.findByIdAndUpdate(userId, {
+    githubUsername,
+    githubToken,
+  });
+
+  res.json({ message: "GitHub credentials saved successfully." });
+});
+
 module.exports = router;

@@ -31,6 +31,8 @@ const userSchema = new mongoose.Schema({
     enum: ["admin", "manager", "leader", "developer", "tester", "designer"],
     default: "developer",
   },
+  githubUsername: { type: String, default: "" },
+  githubToken: { type: String, default: "" },
 });
 
 module.exports = mongoose.model("User", userSchema);
