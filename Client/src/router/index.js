@@ -13,6 +13,7 @@ import TaskDetails from "../components/TaskDetails/TaskDetails.vue";
 import Settings from "../pages/Settings.vue";
 import Tasks from "../pages/Tasks.vue";
 import DevTasks from "../pages/DevTasks.vue";
+import AccessControlPage from "../pages/AccessControlPage.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -80,6 +81,12 @@ const routes = [
     path: "/settings",
     name: "settings",
     component: Settings,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/access-control",
+    name: "access-control",
+    component: AccessControlPage,
     meta: { hideLayout: true },
   },
 ];

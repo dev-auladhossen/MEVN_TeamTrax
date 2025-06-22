@@ -207,6 +207,25 @@
         /></span>
         <span class="side-bar-item-caption">Settings</span>
       </router-link>
+
+      <router-link
+        v-if="
+          loggedUser.role == 'admin' || loggedUser.role == 'project manager'
+        "
+        to="/access-control"
+        class="side-bar-item rounded-full"
+        :class="isActive('/access-control')"
+      >
+        <span class="side-bar-item-icon"
+          ><font-awesome-icon
+            icon="gear"
+            :class="[
+              'text-sm',
+              route.path === '/access-control' ? 'animate-bounce' : '',
+            ]"
+        /></span>
+        <span class="side-bar-item-caption">Access Control</span>
+      </router-link>
     </div>
 
     <div id="content" class="content">
