@@ -23,20 +23,40 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-
+const loggedInToken = localStorage.getItem("token");
 const username = ref("");
 const token = ref("");
 
 onMounted(async () => {
-  const { data } = await axios.get("/api/user/github-settings");
-  username.value = data.githubUsername;
+  getGithubSettingsData();
 });
 
+const getGithubSettingsData = async () => {
+  const { data } = await axios.get(
+    "http://localhost:5000/api/user/github-settings",
+    {
+      headers: {
+        Authorization: `Bearer ${loggedInToken}`,
+      },
+    }
+  );
+  username.value = data.githubUsername;
+  console.log("username.value", username.value);
+};
+
 const saveGithubSettings = async () => {
-  await axios.post("/api/user/github-settings", {
-    githubUsername: username.value,
-    githubToken: token.value,
-  });
+  await axios.post(
+    "/api/user/github-settings",
+    {
+      githubUsername: username.value,
+      githubToken: token.value,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${loggedInToken}`,
+      },
+    }
+  );
   alert("Saved!");
 };
 </script>

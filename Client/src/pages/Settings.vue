@@ -4,6 +4,7 @@
     <GithubSetiings />
   </Layout>
 </template>
+
 <script setup>
 import Layout from "../components/Layout.vue";
 import SettingStatus from "./SettingStatus.vue";

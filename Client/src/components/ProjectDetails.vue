@@ -107,7 +107,7 @@
         </div>
       </div>
 
-      <div v-if="githubRepoData" class="space-y-2 mb-8">
+      <div class="space-y-2 mb-8">
         <h1 class="text-lg font-bold text-gray-800 mt-8 ms-2">
           Manage Project Repository
         </h1>
@@ -130,30 +130,6 @@
           </div>
         </div>
       </div>
-
-      <!-- ELSE Show prompt to create repo -->
-      <div
-        v-else
-        class="bg-white shadow rounded-xl p-6 border text-center space-y-4"
-      >
-        <h2 class="text-lg font-semibold text-gray-700">
-          📦 No GitHub Repository Linked Yet
-        </h2>
-        <p class="text-sm text-gray-500">
-          Creating a repository helps keep your project code up-to-date, track
-          commits, and collaborate with your team more effectively.
-        </p>
-
-        <div class="max-w-2xl mx-auto">
-          <!-- Show GithubRepoCreate with empty/default props -->
-          <!-- <GithubRepoCreate @refreshRepoInfo="refreshGithubRepoInfo" /> -->
-        </div>
-      </div>
-
-      <!-- <div v-else class="flex items-center gap-2 text-gray-600">
-        <span class="loader"></span>
-        Loading latest GitHub data...
-      </div> -->
 
       <!-- Status Switch Bar -->
       <div class="flex justify-between gap-4 overflow-x-auto pb-2">
@@ -507,6 +483,7 @@ const currentProjectId = route.params.id;
 const isLoading = ref(false);
 const tasks = ref([]);
 const selectedMember = ref(null);
+const githubSettingsUserName = ref(null);
 const githubRepoData = ref(null);
 
 const openMemberModal = (member) => {
@@ -833,12 +810,26 @@ watch(
   { immediate: true }
 );
 
+const getGithubSettingsData = async () => {
+  const { data } = await axios.get(
+    "http://localhost:5000/api/user/github-settings",
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  githubSettingsUserName.value = data.githubUsername;
+  console.log(" githubSettingsUserName.value", githubSettingsUserName.value);
+};
+
 onMounted(() => {
   fetchTaskStatus();
   fetchProject();
   fetchStatuses();
   fetchUsers();
   fetchLatestRepoInfo();
+  getGithubSettingsData();
 
   if (currentProjectId) {
     fetchTasks(currentProjectId);
