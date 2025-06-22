@@ -22,14 +22,6 @@ router.post("/create-or-fetch-repo/:projectId", async (req, res) => {
   const { projectId } = req.params;
   const { githubUserName, repoName, description } = req.body;
 
-  console.log(
-    "githubUserName projectId repoName description",
-    githubUserName,
-    projectId,
-    repoName,
-    description
-  );
-
   try {
     // Check if repo exists
     let repoInfo;
@@ -47,6 +39,16 @@ router.post("/create-or-fetch-repo/:projectId", async (req, res) => {
           private: false,
         });
         repoInfo = created.data;
+        // Add initial commit with a README.md file
+        await githubAPI.put(
+          `/repos/${githubUserName}/${repoName}/contents/README.md`,
+          {
+            message: "Initial commit with README",
+            content: Buffer.from(
+              `# ${repoName}\n\nThis repo was created via API.`
+            ).toString("base64"),
+          }
+        );
       } else {
         throw err;
       }
@@ -69,7 +71,6 @@ router.post("/create-or-fetch-repo/:projectId", async (req, res) => {
 
 // Fetch branches and commits of the repo
 router.get("/repo-info", async (req, res) => {
-  //   const { fullName } = req.params;
   const { fullName } = req.query;
 
   try {
@@ -90,12 +91,11 @@ router.get("/repo-info", async (req, res) => {
 
 // Create branch route
 router.post("/create-branch", async (req, res) => {
-  const { githubUserName, repoName, newBranchName } = req.body;
-  console.log("githubUserName", githubUserName);
+  const { githubUserName, repositoryName, newBranchName } = req.body;
   try {
     // Get SHA of main branch
     const mainRef = await axios.get(
-      `https://api.github.com/repos/${githubUserName}/${repoName}/git/ref/heads/main`,
+      `https://api.github.com/repos/${githubUserName}/${repositoryName}/git/ref/heads/main`,
       {
         headers: {
           Authorization: `Bearer ${GITHUB_TOKEN}`,
@@ -108,7 +108,7 @@ router.post("/create-branch", async (req, res) => {
 
     // Create new branch from main
     const newBranchRes = await axios.post(
-      `https://api.github.com/repos/${githubUserName}/${repoName}/git/refs`,
+      `https://api.github.com/repos/${githubUserName}/${repositoryName}/git/refs`,
       {
         ref: `refs/heads/${newBranchName}`,
         sha: mainSha,
