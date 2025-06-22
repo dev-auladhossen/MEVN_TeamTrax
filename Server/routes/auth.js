@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 const User = require("../models/User");
 
@@ -122,23 +122,40 @@ router.delete("/users/:id", async (req, res) => {
 });
 
 // GET GitHub settings
-router.get("/github-settings", async (req, res) => {
-  const userId = req.user.id;
+router.get("/user/github-settings",authMiddleware, async (req, res) => {
+  const userId = req.user.userId;
   const user = await User.findById(userId).select("githubUsername");
   res.json(user);
 });
 
 // POST GitHub settings
-router.post("/github-settings", async (req, res) => {
-  const { githubUsername, githubToken } = req.body;
-  const userId = req.user.id;
+router.post("/user/github-settings", authMiddleware, async (req, res) => {
+  try {
+    const { githubUsername, githubToken } = req.body;
+    const userId = req.user.userId;
+    console.log(userId, githubUsername, githubToken)
+    console.log("req.user", req.user)
 
-  await User.findByIdAndUpdate(userId, {
-    githubUsername,
-    githubToken,
-  });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { githubUsername, githubToken },
+      { new: true } // <-- returns the updated user
+    );
 
-  res.json({ message: "GitHub credentials saved successfully." });
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      message: "GitHub credentials saved successfully.",
+      githubUsername: updatedUser.githubUsername,
+    });
+  } catch (err) {
+    console.error("Error saving GitHub settings:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
+
+
 
 module.exports = router;
