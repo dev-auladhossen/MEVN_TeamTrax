@@ -23,12 +23,6 @@
         Back
       </button>
 
-      <div>
-        {{ project._id }}
-        <GithubRepoInfo :project="testProj"></GithubRepoInfo>
-        <GithubRepoCreate :project="testProj"></GithubRepoCreate>
-      </div>
-
       <!-- Top Section: Project Info -->
       <div
         class="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row md:justify-between items-start md:items-center"
@@ -111,6 +105,31 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div v-if="githubRepoData" class="space-y-2">
+        <h1 class="text-lg font-bold text-gray-800 mt-8 ms-2">
+          Manage Project Repository
+        </h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Repo Info -->
+          <div class="bg-white shadow-md rounded-xl p-6 border">
+            <GithubRepoInfo :projectRepoInfo="githubRepoData" />
+          </div>
+
+          <!-- Repo Creation + Branch Create -->
+          <div class="bg-white shadow-md rounded-xl p-6 border">
+            <GithubRepoCreate
+              :projectRepoInfo="githubRepoData"
+              @refreshRepoInfo="fetchLatestRepoInfo"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="text-center py-10 text-gray-500">
+        Loading project data...
       </div>
 
       <!-- Status Switch Bar -->
@@ -421,6 +440,7 @@ import {
   onMounted,
   onBeforeUnmount,
   onBeforeMount,
+  watch,
 } from "vue";
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
@@ -428,6 +448,7 @@ import draggable from "vuedraggable";
 import Dialog from "../components/Task/Dialog.vue";
 import GithubRepoInfo from "./GithubRepoInfo.vue";
 import GithubRepoCreate from "./GithubRepoCreate.vue";
+import GithubRepoPanel from "../components/GithubRepoPanel/GithubRepoPanel.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import Layout from "../components/Layout.vue";
@@ -461,8 +482,47 @@ const project = ref({
   status: "",
   startDate: "",
   endDate: "",
+  githubRepo: "",
   createdBy: { username: "" },
   teams: [],
+});
+
+const githubInfo = computed(() => ({
+  _id: project._id,
+  name: project.name,
+  githubRepo: {
+    owner: project.githubRepo?.split("/")[0] || "",
+    repo: project.githubRepo?.split("/")[1] || "",
+  },
+}));
+
+const githubRepoData = ref(null);
+watch(
+  () => project.value?.githubRepo,
+  (newRepo) => {
+    if (!newRepo) return;
+    const [owner, repo] = newRepo.split("/");
+    githubRepoData.value = {
+      _id: project.value._id,
+      name: project.value.name,
+      githubRepo: { owner, repo },
+      branches: [],
+      commits: [],
+    };
+  },
+  { immediate: true }
+);
+
+const githubRepoInfo = computed(() => {
+  if (!project.value) return null;
+  return {
+    _id: project.value._id,
+    name: project.value.name,
+    githubRepo: {
+      owner: project.value.githubRepo?.split("/")[0] || "",
+      repo: project.value.githubRepo?.split("/")[1] || "",
+    },
+  };
 });
 
 const initialForm = {
@@ -542,6 +602,28 @@ const handleClickOutside = (e) => {
     showAssigneeDropdown.value = false;
   }
 };
+const fetchLatestRepoInfo = async () => {
+  console.log("githubRepoData", githubRepoData.value);
+  console.log("githubRepoInfo", githubRepoInfo.value);
+  // const fullName = `${githubRepoInfo.value.githubRepo.owner}/${githubRepoInfo.value.githubRepo.repo}`;
+  // console.log("fullName", fullName);
+  // const res = await fetch(
+  //   `http://localhost:5000/api/github/repo-info?fullName=${fullName}`
+  // );
+  // const data = await res.json();
+  // console.log("data", data);
+  // githubRepoInfo.value.githubRepo = { ...githubRepoInfo.value.githubRepo }; // trigger reactivity
+
+  if (!githubRepoData.value) return;
+  const fullName = `${githubRepoData.value.githubRepo.owner}/${githubRepoData.value.githubRepo.repo}`;
+  const res = await fetch(
+    `http://localhost:5000/api/github/repo-info?fullName=${fullName}`
+  );
+  const data = await res.json();
+
+  githubRepoData.value.branches = data.branches;
+  githubRepoData.value.commits = data.commits;
+};
 
 const fetchProject = async () => {
   try {
@@ -564,6 +646,7 @@ const fetchProject = async () => {
       endDate: moment(p.endDate).format("LL"),
     };
     console.log("project.value", project.value);
+    console.log("githubInfo.value", githubInfo.value);
   } catch (error) {
     console.error("Failed to fetch project:", error);
   }
@@ -593,6 +676,7 @@ onMounted(() => {
   fetchProject();
   fetchStatuses();
   fetchUsers();
+  fetchLatestRepoInfo();
   if (currentProjectId) {
     fetchTasks(currentProjectId);
   }
