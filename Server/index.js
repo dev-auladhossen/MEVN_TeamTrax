@@ -12,6 +12,8 @@ const taskRoutes = require("./routes/task");
 const commentRoutes = require("./routes/comment");
 const User = require("./models/User");
 const githubRoutes = require("./routes/github");
+const permissionRoutes = require("./routes/permission");
+
 const authMiddleware = require("./middleware/authMiddleware");
 
 app.use(cors());
@@ -23,6 +25,7 @@ app.use("/api", taskRoutes);
 app.use("/api", projectStatusRoutes);
 app.use("/api", taskStatusRoutes);
 app.use("/api", authRoutes);
+app.use("/api/permissions", permissionRoutes);
 app.use("/api/github", githubRoutes);
 app.use(express.urlencoded({ extended: true }));
 

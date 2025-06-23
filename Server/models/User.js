@@ -28,8 +28,22 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["admin", "manager", "leader", "developer", "tester", "designer"],
+    enum: [
+      "developer",
+      "designer",
+      "devOps",
+      "tester",
+      "businessAnalyst",
+      "marketer",
+      "sales",
+      "admin",
+      "projectManager",
+    ],
     default: "developer",
+  },
+  permissions: {
+    type: [String],
+    default: [],
   },
   githubUsername: { type: String, default: "" },
   githubToken: { type: String, default: "" },
