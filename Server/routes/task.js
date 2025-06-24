@@ -6,6 +6,8 @@ const path = require("path");
 const authMiddleware = require("../middleware/authMiddleware");
 const authorize = require("../middleware/authorize");
 const Task = require("../models/Task");
+const User = require("../models/User");
+const Project = require("../models/Project");
 const fs = require("fs");
 const checkPermission = require("../middleware/checkPermission");
 const { trackProjectProgress } = require("../utils/trackProjectProgress");
@@ -175,6 +177,161 @@ router.get("/tasks/all", async (req, res) => {
     .populate("assignedTo", "username")
     .populate("projectId", "_id");
   res.json(tasks);
+});
+
+// GET /api/reports/overdue-tasks
+router.get("/reports/overdue-tasks", async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Find overdue tasks
+    const overdueTasks = await Task.find({
+      dueDate: { $lt: now },
+      status: { $ne: "Completed" },
+    }).lean();
+
+    // Unique project IDs
+    const projectIds = [
+      ...new Set(overdueTasks.map((task) => task.projectId?.toString())),
+    ];
+
+    // Fetch project titles
+    const projects = await Project.find({ _id: { $in: projectIds } }).lean();
+    const projectMap = {};
+    projects.forEach((project) => {
+      projectMap[project._id.toString()] = project.name;
+    });
+
+    // Prepare report objects
+    const byProject = {};
+    const byAssignee = {};
+
+    overdueTasks.forEach((task) => {
+      // Group by project
+      const projectName =
+        projectMap[task.projectId?.toString()] || "Unknown Project";
+      byProject[projectName] = (byProject[projectName] || 0) + 1;
+
+      // Group by each assigned user (embedded in task)
+      if (task.assignedTo && task.assignedTo.length > 0) {
+        task.assignedTo.forEach((user) => {
+          const userName = user.username || user.fullName || "Unnamed";
+          byAssignee[userName] = (byAssignee[userName] || 0) + 1;
+        });
+      } else {
+        byAssignee["Unassigned"] = (byAssignee["Unassigned"] || 0) + 1;
+      }
+    });
+
+    res.json({ byProject, byAssignee });
+  } catch (err) {
+    console.error("Overdue report error:", err);
+    res.status(500).json({ error: "Failed to fetch overdue tasks report" });
+  }
+});
+
+router.get("/member-performance", async (req, res) => {
+  try {
+    const { projectId, startDate, endDate } = req.query;
+
+    const query = {};
+
+    if (projectId) {
+      query.projectId = projectId;
+    }
+
+    if (startDate || endDate) {
+      query.updatedAt = {};
+      if (startDate) query.updatedAt.$gte = new Date(startDate);
+      if (endDate) query.updatedAt.$lte = new Date(endDate);
+    }
+
+    const now = new Date(); // consistent "now" reference
+
+    const tasks = await Task.find(query).lean();
+
+    const userStats = {};
+
+    tasks.forEach((task) => {
+      const assignedUsers = task.assignedTo || [];
+      const isCompleted = task.status === "Completed";
+      const isOverdue = task.dueDate && new Date(task.dueDate) < now;
+
+      assignedUsers.forEach((user) => {
+        const userId = typeof user === "object" ? user.id?.toString() : user;
+        const username =
+          typeof user === "object"
+            ? user.username || user.fullName || "Unknown"
+            : "Unknown";
+
+        if (!userId) return;
+
+        if (!userStats[userId]) {
+          userStats[userId] = {
+            name: username,
+            total: 0,
+            completed: 0,
+            overdue: 0,
+            completionDays: [],
+          };
+        }
+
+        userStats[userId].total += 1;
+
+        if (isCompleted) {
+          userStats[userId].completed += 1;
+
+          if (task.createdAt && task.updatedAt) {
+            const days =
+              (new Date(task.updatedAt) - new Date(task.createdAt)) /
+              (1000 * 60 * 60 * 24);
+            if (!isNaN(days) && days >= 0) {
+              userStats[userId].completionDays.push(Number(days.toFixed(1)));
+            }
+          }
+        }
+
+        if (!isCompleted && isOverdue) {
+          userStats[userId].overdue += 1;
+        }
+      });
+    });
+
+    // Final formatted result
+    const performance = Object.values(userStats).map((stat) => {
+      const onTime = stat.total - stat.overdue;
+      const onTimeRate = stat.total > 0 ? (onTime / stat.total) * 100 : 0;
+      const avgDays =
+        stat.completionDays.length > 0
+          ? (
+              stat.completionDays.reduce((a, b) => a + b, 0) /
+              stat.completionDays.length
+            ).toFixed(1)
+          : null;
+
+      let performanceLabel = "Poor";
+      if (onTimeRate >= 80) performanceLabel = "Good";
+      else if (onTimeRate >= 50) performanceLabel = "Average";
+
+      return {
+        name: stat.name,
+        totalTasks: stat.total,
+        completed: stat.completed,
+        overdue: stat.overdue,
+        onTimeRate: Math.round(onTimeRate),
+        avgCompletionDays: avgDays,
+        performance: performanceLabel,
+      };
+    });
+
+    // Sort by best performance first
+    performance.sort((a, b) => b.onTimeRate - a.onTimeRate);
+
+    res.json({ performance });
+  } catch (err) {
+    console.error("Member Performance Error:", err);
+    res.status(500).json({ error: "Server Error" });
+  }
 });
 
 module.exports = router;
