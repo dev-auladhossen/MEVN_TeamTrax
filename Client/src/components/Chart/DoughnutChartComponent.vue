@@ -1,26 +1,63 @@
+<!-- components/DoughnutChart.vue -->
 <template>
-  <Doughnut :data="data" :options="options" />
+  <div class="w-full h-80">
+    <Doughnut :data="chartData" :options="chartOptions" plugins="[ChartDataLabels]"s/>
+  </div>
 </template>
 
 <script setup>
-import {Chart, ArcElement, Tooltip, Legend } from 'chart.js'
-import { Doughnut } from 'vue-chartjs'
+import { computed } from "vue";
+import { Chart, ArcElement, Tooltip, Legend, Title } from "chart.js";
+import { Doughnut } from "vue-chartjs";
 
-Chart.register(ArcElement, Tooltip, Legend)
-const data = {
-  labels: ['AngularJs', 'EmberJs', 'ReactJs','VueJs'],
+// Register required Chart.js elements
+Chart.register(ArcElement, Tooltip, Legend, Title);
+
+// Props for reusability
+const props = defineProps({
+  labels: { type: Array, required: true },
+  values: { type: Array, required: true },
+  title: { type: String, default: "Doughnut Chart" },
+  colors: {
+    type: Array,
+    default: () => ["#f97316", "#3b82f6", "#10b981", "#8b5cf6", "#f43f5e"],
+  },
+});
+
+// Dynamically generate chart data
+const chartData = computed(() => ({
+  labels: props.labels,
   datasets: [
     {
-      backgroundColor: ['#E46651', '#00D8FF', '#DD1B16','#41B883'],
-      data: [10, 20, 30, 80]
-    }
-  ]
-}
+      backgroundColor: props.colors.slice(0, props.values.length),
+      data: props.values,
+    },
+  ],
+}));
 
-const options = {
+// Chart options with dynamic title
+const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  height:300
-}
-
+  plugins: {
+    datalabels: {
+      color: "#fff",
+      formatter: (value, context) => {
+        const dataset = context.chart.data.datasets[0].data;
+        const total = dataset.reduce((a, b) => a + b, 0);
+        const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+        return `${percent}%`;
+      },
+      font: {
+        weight: "bold",
+        size: 14,
+      },
+    },
+    legend: { position: "top" },
+    title: {
+      display: true,
+      text: props.title,
+    },
+  },
+};
 </script>

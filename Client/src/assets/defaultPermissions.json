@@ -1,0 +1,77 @@
+[
+  {
+    "name": "developer",
+    "permissions": [
+      { "name": "Tasks", "actions": ["View", "Create", "Edit", "Comment"] },
+      { "name": "Commits", "actions": ["View", "Push", "LinkToTask"] },
+      { "name": "Code Review", "actions": ["View", "Request", "Comment"] },
+      { "name": "Projects", "actions": ["View"] }
+    ]
+  },
+  {
+    "name": "designer",
+    "permissions": [
+      {
+        "name": "Design Assets",
+        "actions": ["View", "Create", "Edit", "Upload"]
+      },
+      { "name": "Tasks", "actions": ["View", "Comment"] },
+      { "name": "Projects", "actions": ["View"] }
+    ]
+  },
+  {
+    "name": "devOps",
+    "permissions": [
+      { "name": "Deployments", "actions": ["View", "Trigger", "Rollback"] },
+      { "name": "Server Configs", "actions": ["View", "Edit"] },
+      { "name": "Logs", "actions": ["View"] },
+      { "name": "Tasks", "actions": ["View", "Comment"] }
+    ]
+  },
+  {
+    "name": "tester",
+    "permissions": [
+      { "name": "Tasks", "actions": ["View", "Comment"] },
+      { "name": "Bugs", "actions": ["View", "Report", "UpdateStatus"] },
+      { "name": "Test Cases", "actions": ["View", "Create", "Edit"] },
+      { "name": "Reports", "actions": ["View", "Download"] }
+    ]
+  },
+  {
+    "name": "businessAnalyst",
+    "permissions": [
+      { "name": "Requirements", "actions": ["View", "Create", "Edit"] },
+      { "name": "Tasks", "actions": ["View", "Comment"] },
+      { "name": "Reports", "actions": ["View", "Download"] },
+      { "name": "Meetings", "actions": ["View", "Schedule"] }
+    ]
+  },
+  {
+    "name": "marketer",
+    "permissions": [
+      { "name": "Campaigns", "actions": ["View", "Create", "Edit", "Analyze"] },
+      { "name": "Leads", "actions": ["View", "Comment"] },
+      { "name": "Tasks", "actions": ["View", "Comment"] },
+      { "name": "Reports", "actions": ["View"] }
+    ]
+  },
+  {
+    "name": "sales",
+    "permissions": [
+      { "name": "Leads", "actions": ["View", "Create", "FollowUp"] },
+      { "name": "Clients", "actions": ["View", "Comment"] },
+      { "name": "Tasks", "actions": ["View", "Comment"] },
+      { "name": "Reports", "actions": ["View"] }
+    ]
+  },
+  {
+    "name": "projectManager",
+    "permissions": [
+      { "name": "Projects", "actions": ["View", "Create", "Edit", "Archive"] },
+      { "name": "Tasks", "actions": ["View", "Assign", "UpdateStatus"] },
+      { "name": "Team", "actions": ["View", "Manage"] },
+      { "name": "Reports", "actions": ["View", "Download"] },
+      { "name": "Meetings", "actions": ["Schedule", "View"] }
+    ]
+  }
+]

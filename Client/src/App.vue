@@ -19,3 +19,21 @@ onMounted(() => {
   window.$confirm = confirmDialog.value.showDialog;
 });
 </script>
+
+<style>
+@media print {
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #report-content {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+</style>

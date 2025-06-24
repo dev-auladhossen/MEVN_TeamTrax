@@ -65,21 +65,25 @@
             <div class="text-sm text-gray-600">
               Status:
               <span
-                class="px-2 py-1 rounded text-white text-sm"
-                :style="{ backgroundColor: getStatusColor(project.status) }"
+                class="px-2 py-1 border rounded font-semibold text-sm"
+                :class="[
+                  `bg-[${getStatusColor(
+                    project.status
+                  )}]/20 text-[${getStatusColor(project.status)}]`,
+                ]"
               >
                 {{ project.status }}
               </span>
             </div>
 
             <div class="flex gap-1 items-center">
-              <span class="text-sm text-gray-600">Owner:</span>
+              <span class="text-sm text-gray-600">Manager:</span>
               <div
                 @click="openMemberModal(project.createdBy)"
                 class="flex justify-between gap-1 items-center border rounded-full pr-3 bg-gray-200 cursor-pointer"
               >
                 <span
-                  class="cursor-pointer text-xs w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold hover:scale-105 transition"
+                  class="cursor-pointer text-xs w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold hover:scale-105 transition"
                 >
                   {{ getInitials(project?.createdBy?.username) }}
                 </span>
@@ -104,9 +108,81 @@
               Due Date: {{ project.endDate }}
             </div>
           </div>
+
+          <div class="text-sm text-gray-600">
+            Total Tasks [ {{ projectReport.totalTasks }} ] :
+            <span
+              v-for="(count, status) in projectReport.taskStatusBreakdown"
+              :key="idx"
+              class="ms-3"
+            >
+              {{ status }} -
+              <span
+                class="bg-gray-100 text-gray-800 h-6 w-16 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
+                >{{ count }}</span
+              >
+            </span>
+          </div>
         </div>
       </div>
 
+      <!-- Report Section  -->
+      <div>
+        <div
+          @click="showReport = !showReport"
+          class="flex justify-between items-center cursor-pointer bg-white shadow px-4 py-3 rounded-md hover:bg-gray-200 transition"
+        >
+          <span class="text-base text-gray-700 font-bold">
+            <font-awesome-icon class="text-blue-500 mr-2" icon="file" />{{
+              showReport ? "Hide" : "Show"
+            }}
+            Project Summary Report</span
+          >
+          <svg
+            :class="[
+              'w-5 h-5 transition-transform duration-300',
+              showReport ? 'rotate-180' : 'rotate-0',
+            ]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+
+        <!-- Expandable Report Section -->
+        <transition name="expand">
+          <div v-if="showReport" class="mt-2">
+            <div class="flex justify-end gap-2 my-2">
+              <button
+                @click="exportPDF"
+                class="px-3 py-2 bg-blue-500 text-white rounded"
+              >
+                Export PDF
+              </button>
+              <button
+                @click="exportImage"
+                class="px-3 py-2 bg-green-500 text-white rounded"
+              >
+                Export Image
+              </button>
+            </div>
+            <div id="report-content" class="bg-white rounded shadow">
+              <!-- Your full report section -->
+              <ProjectSummaryReport :projectId="route.params.id" />
+            </div>
+          </div>
+        </transition>
+      </div>
+
+      <!-- Github Repo Section  -->
       <div class="space-y-2 mb-8">
         <h1 class="text-lg font-bold text-gray-800 mt-8 ms-2">
           Manage Project Repository
@@ -447,6 +523,7 @@ import draggable from "vuedraggable";
 import Dialog from "../components/Task/Dialog.vue";
 import GithubRepoInfo from "./GithubRepoInfo.vue";
 import GithubRepoCreate from "./GithubRepoCreate.vue";
+import ProjectSummaryReport from "./Reports/ProjectSummaryReport.vue";
 import GithubRepoPanel from "../components/GithubRepoPanel/GithubRepoPanel.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -455,6 +532,14 @@ import { useToast } from "../components/Composables/useToast.js";
 import axios from "axios";
 import moment from "moment";
 import { useFetchStatus } from "../components/Composables/useFetchStatus";
+import BarChartComponent from "./Chart/BarChartComponent.vue";
+import DoughnutChartComponent from "./Chart/DoughnutChartComponent.vue";
+import { useExportReport } from "../components/Composables/useExportReport";
+import { exportToCSV } from "../components/Composables/useExportToCSV";
+import { fetchProjectSummary } from "../components/Services/projectReport";
+
+const { exportPDF, exportImage, exportExcel } = useExportReport();
+
 const {
   taskStatusList,
   projectStatusList,
@@ -473,6 +558,7 @@ const selectedStatus = ref("All Tasks");
 const filterPriority = ref("");
 const filterDueDate = ref("");
 const showModal = ref(false);
+const showReport = ref(false);
 const showAssigneeDropdown = ref(false);
 const mode = ref("add");
 const expandedDepts = ref([]);
@@ -485,6 +571,8 @@ const tasks = ref([]);
 const selectedMember = ref(null);
 const githubSettingsUserName = ref(null);
 const githubRepoData = ref(null);
+const projectReport = ref({});
+const projectProgress = ref({});
 
 const openMemberModal = (member) => {
   selectedMember.value = member;
@@ -522,6 +610,20 @@ const initialForm = {
 
 const form = reactive({ ...initialForm });
 
+const toggleShowReport = () => {
+  showReport.value = !showReport.value;
+};
+
+const exportCSV = async () => {
+  const data = [
+    { Name: "Alice", Email: "alice@example.com", Progress: 85 },
+    { Name: "Bob", Email: "bob@example.com", Progress: 90 },
+    { Name: "Charlie", Email: "charlie@example.com", Progress: 70 },
+  ];
+
+  exportToCSV(data, "project-summary.csv");
+};
+
 const getInitials = (name) => {
   if (!name || typeof name !== "string") return "";
   return name
@@ -536,6 +638,15 @@ const getStatusColor = (statusName) => {
     (status) => status.name === statusName
   );
   return matchedStatus ? matchedStatus.color : "#d1d5db"; // fallback color if not found
+};
+
+const loadReport = async () => {
+  try {
+    projectReport.value = await fetchProjectSummary(currentProjectId);
+    console.log("projectReport", projectReport.value);
+  } catch (err) {
+    console.error("Error loading report:", err);
+  }
 };
 
 const assigneeDropdownRef = ref(null);
@@ -830,6 +941,7 @@ onMounted(() => {
   fetchUsers();
   fetchLatestRepoInfo();
   getGithubSettingsData();
+  loadReport();
 
   if (currentProjectId) {
     fetchTasks(currentProjectId);
@@ -865,5 +977,23 @@ body {
 /* Track */
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* Smooth expand/collapse animation */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+}
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  transform: scaleY(0.95);
+  max-height: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  transform: scaleY(1);
+  max-height: 1000px;
 }
 </style>

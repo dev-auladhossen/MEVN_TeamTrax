@@ -2,7 +2,7 @@
   <Transition name="modal">
     <div
       v-show="isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto"
+      class="fixed inset-0 z-50 overflow-y-auto max-w-full"
       aria-labelledby="modal-title"
       aria-modal="true"
       role="dialog"
