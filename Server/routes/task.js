@@ -8,6 +8,7 @@ const authorize = require("../middleware/authorize");
 const Task = require("../models/Task");
 const fs = require("fs");
 const checkPermission = require("../middleware/checkPermission");
+const { trackProjectProgress } = require("../utils/trackProjectProgress");
 
 const uploadsDir = "uploads";
 if (!fs.existsSync(uploadsDir)) {
@@ -86,55 +87,51 @@ router.delete(
   }
 );
 
-router.put(
-  "/task/:id",
-  upload.array("attachments", 5),
-  checkPermission("canEditTask"),
-  async (req, res) => {
-    console.log("req.files", req.files);
-    console.log("req.body", req.body);
+router.put("/task/:id", upload.array("attachments", 5), async (req, res) => {
+  console.log("req.files", req.files);
+  console.log("req.body", req.body);
 
-    const taskId = req.params.id;
-    const {
-      title,
-      description,
-      status,
-      priority,
-      projectId,
-      dueDate,
-      assignedTo,
-    } = req.body;
+  const taskId = req.params.id;
+  const {
+    title,
+    description,
+    status,
+    priority,
+    projectId,
+    dueDate,
+    assignedTo,
+  } = req.body;
 
-    const uploadedAttachments = req.files?.map((file) => file.filename) || [];
-    // Prepare update object
-    const updateData = {
-      title,
-      description,
-      status,
-      priority,
-      projectId,
-      dueDate,
-      assignedTo: JSON.parse(assignedTo),
+  const uploadedAttachments = req.files?.map((file) => file.filename) || [];
+  // Prepare update object
+  const updateData = {
+    title,
+    description,
+    status,
+    priority,
+    projectId,
+    dueDate,
+    assignedTo: JSON.parse(assignedTo),
+  };
+
+  // Only push attachments if any were uploaded
+  if (uploadedAttachments.length > 0) {
+    updateData.$push = {
+      attachments: { $each: uploadedAttachments },
     };
-
-    // Only push attachments if any were uploaded
-    if (uploadedAttachments.length > 0) {
-      updateData.$push = {
-        attachments: { $each: uploadedAttachments },
-      };
-    }
-
-    try {
-      const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, {
-        new: true,
-      });
-      res.json(updatedTask);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Update failed" });
-    }
   }
-);
+
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, {
+      new: true,
+    });
+    await trackProjectProgress(updatedTask.projectId);
+    res.json(updatedTask);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Update failed" });
+  }
+});
 
 router.delete("/task/:taskId/attachment/:filename", async (req, res) => {
   const { taskId, filename } = req.params;
@@ -170,6 +167,14 @@ router.get("/dev/tasks", authMiddleware, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch tasks" });
   }
+});
+
+// GET /api/tasks/all
+router.get("/tasks/all", async (req, res) => {
+  const tasks = await Task.find({})
+    .populate("assignedTo", "username")
+    .populate("projectId", "_id");
+  res.json(tasks);
 });
 
 module.exports = router;
