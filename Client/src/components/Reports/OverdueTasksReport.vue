@@ -1,92 +1,152 @@
 <template>
-  <div class="bg-white p-4 rounded shadow">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold">Overdue Tasks</h2>
-      <div>
-        <label class="mr-2 font-medium">View by:</label>
-        <select v-model="viewMode" class="border px-2 py-1 rounded">
-          <option value="project">Project</option>
-          <option value="assignee">Assignee</option>
-        </select>
-      </div>
+  <div>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold">Overdue Tasks Report</h2>
+      <button
+        @click="switchType"
+        class="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+      >
+        Switch to {{ chartType === "project" ? "Assignee" : "Project" }} View
+      </button>
     </div>
 
-    <Bar :data="chartData" :options="chartOptions" />
+    <Bar
+      :data="chartData"
+      :options="chartOptions"
+      class="max-h-[400px] h-[300px] w-full"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { Bar } from 'vue-chartjs';
+import { ref, onMounted, watch } from "vue";
+import { Bar } from "vue-chartjs";
 import {
   Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  ChartDataLabels
+);
 
-// Dummy data - Replace with real API call logic
-const overdueByProject = [
-  { name: 'Project A', count: 5 },
-  { name: 'Project B', count: 2 },
-  { name: 'Project C', count: 7 },
-];
+const chartType = ref("project"); // 'project' or 'assignee'
+const rawData = ref({ byProject: {}, byAssignee: {} });
 
-const overdueByAssignee = [
-  { name: 'Alice', count: 6 },
-  { name: 'Bob', count: 2 },
-  { name: 'Charlie', count: 4 },
-];
-
-const viewMode = ref('project');
-
-const currentData = computed(() => {
-  return viewMode.value === 'project' ? overdueByProject : overdueByAssignee;
-});
-
-const chartData = computed(() => ({
-  labels: currentData.value.map(item => item.name),
+const chartData = ref({
+  labels: [],
   datasets: [
     {
-      label: 'Overdue Tasks',
-      data: currentData.value.map(item => item.count),
-      backgroundColor: '#ef4444',
+      label: "Overdue Tasks",
+      backgroundColor: "#f87171",
+      data: [],
     },
   ],
-}));
+});
 
 const chartOptions = {
   responsive: true,
   plugins: {
+    datalabels: {
+      color: "white", // ✅ label color
+      anchor: "end",
+      align: "start",
+      font: {
+        weight: "bold",
+        size: 12,
+      },
+      formatter: Math.round,
+    },
     legend: { display: false },
-    title: { display: false },
+    title: {
+      display: true,
+      text: "Overdue Tasks",
+    },
   },
   scales: {
     y: {
       beginAtZero: true,
       title: {
         display: true,
-        text: 'Tasks',
+        text: "Number of Overdue Tasks",
+      },
+      ticks: {
+        stepSize: 1,
       },
     },
     x: {
       title: {
         display: true,
-        text: viewMode.value === 'project' ? 'Projects' : 'Assignees',
+        text: "Project or Assignee",
       },
     },
   },
 };
-</script>
+watch(chartType, () => {
+  console.log("rawData.value", rawData.value);
+  updateChart();
+});
 
-<style scoped>
-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
-</style>
+const fetchData = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/api/reports/overdue-tasks");
+    const data = await res.json();
+    console.log("Fetched Overdue Tasks:", data);
+    rawData.value = data;
+    updateChart(); // initial render
+  } catch (err) {
+    console.error("Failed to fetch overdue tasks:", err);
+  }
+};
+
+const updateChart = () => {
+  const source =
+    chartType.value === "project"
+      ? rawData.value.byProject
+      : rawData.value.byAssignee;
+
+  if (!source || Object.keys(source).length === 0) {
+    chartData.value = {
+      labels: [],
+      datasets: [
+        {
+          label: "Overdue Tasks",
+          backgroundColor: "#f87171",
+          data: [],
+        },
+      ],
+    };
+    return;
+  }
+
+  chartData.value = {
+    labels: Object.keys(source),
+    datasets: [
+      {
+        label: "Overdue Tasks",
+        backgroundColor: "#f87171",
+        data: Object.values(source),
+      },
+    ],
+  };
+};
+
+const switchType = () => {
+  chartType.value = chartType.value === "project" ? "assignee" : "project";
+  updateChart();
+};
+
+onMounted(fetchData);
+</script>

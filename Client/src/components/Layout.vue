@@ -86,6 +86,27 @@
         </span>
         <span class="side-bar-item-caption">Dashboard</span>
       </router-link>
+
+      <router-link
+        v-if="
+          loggedUser.role !== 'admin' || loggedUser.role !== 'project manager'
+        "
+        to="/devDashboard"
+        class="side-bar-item rounded-full"
+        :class="isActive('/devDashboard')"
+      >
+        <span class="side-bar-item-icon">
+          <font-awesome-icon
+            class="text-sm"
+            icon="laptop-code"
+            :class="[
+              'text-sm',
+              route.path === '/devDashboard' ? 'animate-bounce' : '',
+            ]"
+          />
+        </span>
+        <span class="side-bar-item-caption">My Dashboard</span>
+      </router-link>
       <router-link
         to="/projects"
         class="side-bar-item rounded-full"
@@ -104,6 +125,9 @@
       </router-link>
 
       <router-link
+        v-if="
+          loggedUser.role == 'admin' || loggedUser.role == 'project manager'
+        "
         to="/tasks"
         class="side-bar-item rounded-full"
         :class="isActive('/tasks')"
@@ -139,6 +163,25 @@
       </router-link>
 
       <router-link
+        v-if="
+          loggedUser.role !== 'admin' || loggedUser.role !== 'projectManager'
+        "
+        to="/todo"
+        class="side-bar-item rounded-full"
+        :class="isActive('/todo')"
+      >
+        <span class="side-bar-item-icon"
+          ><font-awesome-icon
+            icon="tasks-alt"
+            :class="[
+              'text-sm',
+              route.path === '/todo' ? 'animate-bounce' : '',
+            ]"
+        /></span>
+        <span class="side-bar-item-caption">ToDo</span>
+      </router-link>
+
+      <router-link
         to="/completed"
         class="side-bar-item rounded-full"
         :class="isActive('/completed')"
@@ -152,22 +195,6 @@
             ]"
         /></span>
         <span class="side-bar-item-caption">Completed</span>
-      </router-link>
-
-      <router-link
-        to="/inprogress"
-        class="side-bar-item rounded-full"
-        :class="isActive('/inprogress')"
-      >
-        <span class="side-bar-item-icon"
-          ><font-awesome-icon
-            icon="tasks-alt"
-            :class="[
-              'text-sm',
-              route.path === '/inprogress' ? 'animate-bounce' : '',
-            ]"
-        /></span>
-        <span class="side-bar-item-caption">In Progress</span>
       </router-link>
 
       <router-link
@@ -218,13 +245,66 @@
       >
         <span class="side-bar-item-icon"
           ><font-awesome-icon
-            icon="gear"
+            icon="user"
             :class="[
               'text-sm',
               route.path === '/access-control' ? 'animate-bounce' : '',
             ]"
         /></span>
         <span class="side-bar-item-caption">Access Control</span>
+      </router-link>
+
+      <router-link
+        v-if="
+          loggedUser.role == 'admin' ||
+          loggedUser.role == 'projectManager' ||
+          loggedUser.role == 'developer'
+        "
+        to="/github-connect"
+        class="side-bar-item rounded-full"
+        :class="isActive('/github-connect')"
+      >
+        <span class="side-bar-item-icon"
+          ><font-awesome-icon
+            icon="code"
+            :class="[
+              'text-sm',
+              route.path === '/github-connect' ? 'animate-bounce' : '',
+            ]"
+        /></span>
+        <span class="side-bar-item-caption">Github Link</span>
+      </router-link>
+
+      <router-link
+        v-if="loggedUser.role == 'admin' || loggedUser.role == 'projectManager'"
+        to="/reports"
+        class="side-bar-item rounded-full"
+        :class="isActive('/reports')"
+      >
+        <span class="side-bar-item-icon"
+          ><font-awesome-icon
+            icon="file"
+            :class="[
+              'text-sm',
+              route.path === '/reports' ? 'animate-bounce' : '',
+            ]"
+        /></span>
+        <span class="side-bar-item-caption">Reports</span>
+      </router-link>
+      <router-link
+        to="/chat-box"
+        class="side-bar-item rounded-full"
+        :class="isActive('/chat-box')"
+      >
+        <span class="side-bar-item-icon"
+          ><font-awesome-icon
+            icon="message"
+            :class="[
+              'text-sm',
+              route.path === '/chat-box' ? 'animate-bounce' : '',
+            ]"
+        /></span>
+        <span class="side-bar-item-caption">Chat</span>
       </router-link>
     </div>
 

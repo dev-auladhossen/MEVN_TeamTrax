@@ -64,13 +64,26 @@ import {
   faDatabase,
   faServer,
   faFile,
+  faMessage,
+  faImage,
+  faFileCsv,
+  faFilePdf,
+  faUserPlus,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPaste } from "@fortawesome/free-regular-svg-icons";
-import { faOpencart } from "@fortawesome/free-brands-svg-icons";
+import {
+  faOpencart,
+  faStackExchange,
+} from "@fortawesome/free-brands-svg-icons";
 library.add(
+  faImage,
+  faFileCsv,
+  faFilePdf,
+  faMessage,
+  faStackExchange,
   faFile,
   faServer,
   faDatabase,
@@ -122,7 +135,8 @@ library.add(
   faSignOutAlt,
   faTableCellsLarge,
   faPaperclip,
-  faComment
+  faComment,
+  faUserPlus
 );
 
 createApp(App)

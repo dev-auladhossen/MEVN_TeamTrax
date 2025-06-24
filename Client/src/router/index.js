@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../pages/Home.vue";
 import Login from "../pages/Login.vue";
-import AdminDashboard from "../pages/AdminDashboard.vue";
+import AdminDashboard from "../components/Dashboards/AdminDashboard.vue";
 import UserDashboard from "../pages/UserDashboard.vue";
 import AddNewUser from "../pages/AddNewUser.vue";
 import Layout from "../components/Layout.vue";
@@ -14,6 +14,7 @@ import Settings from "../pages/Settings.vue";
 import Tasks from "../pages/Tasks.vue";
 import DevTasks from "../pages/DevTasks.vue";
 import AccessControlPage from "../pages/AccessControlPage.vue";
+import Reports from "../pages/Reports.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -87,6 +88,12 @@ const routes = [
     path: "/access-control",
     name: "access-control",
     component: AccessControlPage,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/reports",
+    name: "reports",
+    component: Reports,
     meta: { hideLayout: true },
   },
 ];

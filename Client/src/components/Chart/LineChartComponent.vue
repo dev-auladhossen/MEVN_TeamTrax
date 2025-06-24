@@ -74,21 +74,21 @@ const chartOptions = computed(() => ({
         text: "Progress (%)",
       },
     },
-    // y: {
-    //   beginAtZero: true,
-    //   max: 100,
-    //   stepSize: 10,
-    //   title: {
-    //     display: true,
-    //     text: "Progress (%)",
-    //   },
-    //   ticks: {
-    //     callback: function (value) {
-    //       return value + "%"; // ✅ add % sign to each tick label
-    //     },
-    //     stepSize: 10, // ✅ force steps of 10%
-    //   },
-    // },
+    y: {
+      beginAtZero: true,
+      max: 100,
+      stepSize: 10,
+      title: {
+        display: true,
+        text: "Progress (%)",
+      },
+      ticks: {
+        callback: function (value) {
+          return value + "%"; // ✅ add % sign to each tick label
+        },
+        stepSize: 10, // ✅ force steps of 10%
+      },
+    },
     x: {
       title: {
         display: true,

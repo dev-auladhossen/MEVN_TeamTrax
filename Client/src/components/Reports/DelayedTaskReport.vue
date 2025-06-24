@@ -1,10 +1,24 @@
 <template>
   <div class="p-4">
-    <h2 class="text-lg font-bold mb-4 text-red-600">
-      Global Delayed / Bottleneck Tasks
-    </h2>
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-bold mb-4 text-red-600">Delayed Tasks</h2>
+      <div class="flex justify-end gap-2 my-2">
+        <button @click="exportCSV" class="p-2">
+          <font-awesome-icon class="text-green-500 text-2xl" icon="file-csv" />
+        </button>
+        <button @click="exportPDF" class="p-2">
+          <font-awesome-icon class="text-red-500 text-2xl" icon="file-pdf" />
+        </button>
+        <button @click="exportImage" class="p-2">
+          <font-awesome-icon class="text-blue-500 text-2xl" icon="image" />
+        </button>
+      </div>
+    </div>
     <div v-if="delayedTasks.length" class="overflow-x-auto">
-      <table class="w-full border border-gray-300 text-sm text-left">
+      <table
+        id="report-content"
+        class="w-full border border-gray-300 text-sm text-left"
+      >
         <thead class="bg-gray-100">
           <tr>
             <th class="border px-2 py-1">Task</th>
@@ -20,7 +34,7 @@
             <td class="border px-2 py-1">{{ task.status }}</td>
             <td v-if="task.assignedTo" class="border px-2 py-1">
               <div v-for="(assignee, indx) in task.assignedTo">
-                {{ assignee?.username  || "Unassigned" }}, 
+                {{ assignee?.username || "Unassigned" }},
                 <span> </span>
               </div>
             </td>
@@ -42,8 +56,15 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import { isBefore, format, differenceInDays } from "date-fns";
+import { useExportReport } from "../Composables/useExportReport";
+import { exportToCSV } from "../Composables/useExportToCSV";
+const { exportPDF, exportImage, exportExcel } = useExportReport();
 
 const delayedTasks = ref([]);
+
+const exportCSV = async () => {
+  exportToCSV(delayedTasks.value, "project-summary.csv");
+};
 
 const formatDate = (date) => format(new Date(date), "PP");
 const calculateOverdueDays = (dueDate) =>

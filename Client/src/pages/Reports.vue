@@ -32,9 +32,9 @@
           <div class="bg-white shadow-sm rounded-lg p-4">
             <BarChartComponent
               :labels="['Completed', 'In Progress', 'Pending', 'Review']"
-              :values="[80, 6,20, 30]"
+              :values="[80, 6, 20, 30]"
               title="Task Distribution"
-              :colors="['#10b981', '#3b82f6', '#f59e0b', '#345016']"
+              :colors="['#E46651', '#00D8FF', '#DD1B16', '#41B883']"
             />
           </div>
         </div>
@@ -44,7 +44,7 @@
               :labels="['Completed', 'In Progress', 'Pending', 'Review']"
               :values="[20, 6, 80, 30]"
               title="Task Distribution"
-              :colors="['#10b981', '#3b82f6', '#f59e0b', '#f56e1b']"
+              :colors="['#E46651', '#00D8FF', '#DD1B16', '#41B883']"
             />
           </div>
         </div>
@@ -54,7 +54,7 @@
               :labels="['Completed', 'In Progress', 'Pending', 'Review']"
               :values="[20, 6, 80, 30]"
               title="Task Distribution"
-              :colors="['#10b981', '#3b82f6', '#f59e0b', '#f56e1b']"
+              :colors="['#E46651', '#00D8FF', '#DD1B16', '#41B883']"
             />
           </div>
         </div>
@@ -64,7 +64,7 @@
               :labels="['Completed', 'In Progress', 'Pending', 'Review']"
               :values="[20, 6, 80, 30]"
               title="Task Distribution"
-              :colors="['#10b981', '#3b82f6', '#f59e0b', '#f56e1b']"
+              :colors="['#E46651', '#00D8FF', '#DD1B16', '#41B883']"
             />
           </div>
         </div>
@@ -73,13 +73,8 @@
   </Layout>
 </template>
 <script setup>
-import { useAuth } from "../utils/auth";
-const { logout } = useAuth();
 import { ref } from "vue";
-import Sidebar from "../components/Sidebar.vue";
-import Topbar from "../components/Topbar.vue";
 import Layout from "../components/Layout.vue";
-import ProjectSummaryReport from "../components/Reports/ProjectSummaryReport.vue";
 import BarChartComponent from "../components/Chart/BarChartComponent.vue";
 import LineChartComponent from "../components/Chart/LineChartComponent.vue";
 import DoughnutChartComponent from "../components/Chart/DoughnutChartComponent.vue";
@@ -90,12 +85,5 @@ import OverdueTasksReport from "../components/Reports/OverdueTasksReport.vue";
 import MemberPerformanceReport from "../components/Reports/MemberPerformanceReport.vue";
 import IndividualPerformanceReport from "../components/Reports/IndividualPerformanceReport.vue";
 import TopPerformerReport from "../components/Reports/TopPerformerReport.vue";
-
-const route = useRoute();
-
-const isSidebarOpen = ref(true);
-const toggleSidebar = () => (isSidebarOpen.value = !isSidebarOpen.value);
-
-const role = ref("admin"); // 'admin' | 'projectManager' | 'developer'
 </script>
 <style scoped></style>
