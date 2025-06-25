@@ -38,7 +38,7 @@ const actions = [
     id: 3,
     label: "Invite User",
     icon: "user-plus",
-    route: "/add-users",
+    route: "/add-user",
   },
   { id: 4, label: "Access Control", icon: "key", route: "/access-control" },
 ];

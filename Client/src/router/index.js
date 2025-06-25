@@ -15,6 +15,7 @@ import Tasks from "../pages/Tasks.vue";
 import DevTasks from "../pages/DevTasks.vue";
 import AccessControlPage from "../pages/AccessControlPage.vue";
 import Reports from "../pages/Reports.vue";
+import DailyStandUp from "../pages/DailyStandUp.vue";
 
 const routes = [
   { path: "/home", component: Home },
@@ -94,6 +95,12 @@ const routes = [
     path: "/reports",
     name: "reports",
     component: Reports,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/daily-standup",
+    name: "daily-standup",
+    component: DailyStandUp,
     meta: { hideLayout: true },
   },
 ];

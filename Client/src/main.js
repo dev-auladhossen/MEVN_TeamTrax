@@ -69,6 +69,7 @@ import {
   faFileCsv,
   faFilePdf,
   faUserPlus,
+  faUsersViewfinder,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
@@ -79,6 +80,7 @@ import {
   faStackExchange,
 } from "@fortawesome/free-brands-svg-icons";
 library.add(
+  faUsersViewfinder,
   faImage,
   faFileCsv,
   faFilePdf,
