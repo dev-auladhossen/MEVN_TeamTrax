@@ -16,7 +16,8 @@ import DevTasks from "../pages/DevTasks.vue";
 import AccessControlPage from "../pages/AccessControlPage.vue";
 import Reports from "../pages/Reports.vue";
 import DailyStandUp from "../pages/DailyStandUp.vue";
-
+import ChatBox from "../pages/ChatBox.vue";
+import Chat from "../pages/Chat.vue";
 const routes = [
   { path: "/home", component: Home },
   {
@@ -102,6 +103,17 @@ const routes = [
     name: "daily-standup",
     component: DailyStandUp,
     meta: { hideLayout: true },
+  },
+  {
+    path: "/chat-box",
+    name: "chat-box",
+    component: Chat,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/chat",
+    name: "Chat",
+    component: () => import("../pages/Chat.vue"),
   },
 ];
 const router = createRouter({
