@@ -19,6 +19,7 @@ const User = require("./models/User");
 const githubRoutes = require("./routes/github");
 const chatRoutes = require("./routes/chat");
 const permissionRoutes = require("./routes/permission");
+const analyticsRoutes = require("./routes/analytics");
 const authMiddleware = require("./middleware/authMiddleware");
 
 app.use(cors());
@@ -30,6 +31,7 @@ app.use("/api", taskRoutes);
 app.use("/api", projectStatusRoutes);
 app.use("/api", taskStatusRoutes);
 app.use("/api", authRoutes);
+app.use("/api", analyticsRoutes);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/github", githubRoutes);
 app.use("/api/chats", chatRoutes);
