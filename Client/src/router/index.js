@@ -18,6 +18,7 @@ import Reports from "../pages/Reports.vue";
 import DailyStandUp from "../pages/DailyStandUp.vue";
 import ChatBox from "../pages/ChatBox.vue";
 import Chat from "../pages/Chat.vue";
+import AnalyticalDashboard from "../pages/AnalyticalDashboard.vue";
 const routes = [
   { path: "/home", component: Home },
   {
@@ -102,6 +103,12 @@ const routes = [
     path: "/daily-standup",
     name: "daily-standup",
     component: DailyStandUp,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/analytical-dashboard",
+    name: "analytical-dashboard",
+    component: AnalyticalDashboard,
     meta: { hideLayout: true },
   },
   {

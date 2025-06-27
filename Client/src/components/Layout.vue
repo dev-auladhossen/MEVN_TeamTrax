@@ -87,6 +87,26 @@
           <span class="side-bar-item-caption">Dashboard</span>
         </router-link>
         <router-link
+          v-if="
+            loggedUser.role == 'admin' || loggedUser.role == 'project manager'
+          "
+          to="/analytical-dashboard"
+          class="side-bar-item rounded-full"
+          :class="isActive('/analytical-dashboard')"
+        >
+          <span class="side-bar-item-icon">
+            <font-awesome-icon
+              class="text-sm"
+              icon="laptop-code"
+              :class="[
+                'text-sm',
+                route.path === '/analytical-dashboard' ? 'animate-bounce' : '',
+              ]"
+            />
+          </span>
+          <span class="side-bar-item-caption">Analytics Dashboard</span>
+        </router-link>
+        <router-link
           to="/daily-standup"
           class="side-bar-item rounded-full"
           :class="isActive('/daily-standup')"
