@@ -65,7 +65,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join", (userId) => {
-    console.log("userId joined", userId);
     socket.join(userId);
   });
 
