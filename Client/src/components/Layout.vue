@@ -104,7 +104,7 @@
               ]"
             />
           </span>
-          <span class="side-bar-item-caption">Analytics Dashboard</span>
+          <span class="side-bar-item-caption">Analytics</span>
         </router-link>
         <router-link
           to="/daily-standup"
