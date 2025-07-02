@@ -207,6 +207,23 @@
         </div>
       </div>
 
+      <!-- Scrumban Board  -->
+      <div class="p-4 space-y-6">
+        <!-- Top Section: Backlog and Sprint Manager (stack on mobile, side-by-side on desktop) -->
+        <div class="flex flex-col lg:flex-row gap-4">
+          <div class="lg:w-1/2 bg-gray-100 p-4 rounded shadow">
+            <Backlog />
+          </div>
+          <div class="lg:w-1/2 bg-gray-100 p-4 rounded shadow">
+            <SprintManager />
+          </div>
+        </div>
+
+        <!-- Bottom Section: Scrumban Board full width -->
+        <div class="bg-gray-100 p-4 rounded shadow">
+          <ScrumBanBoard />
+        </div>
+      </div>
       <!-- Status Switch Bar -->
       <div class="flex justify-between gap-4 overflow-x-auto pb-2">
         <div
@@ -537,6 +554,9 @@ import DoughnutChartComponent from "./Chart/DoughnutChartComponent.vue";
 import { useExportReport } from "../components/Composables/useExportReport";
 import { exportToCSV } from "../components/Composables/useExportToCSV";
 import { fetchProjectSummary } from "../components/Services/projectReport";
+import ScrumBanBoard from "./ScrumBan/ScrumBanBoard.vue";
+import SprintManager from "./ScrumBan/SprintManager.vue";
+import Backlog from "./ScrumBan/Backlog.vue";
 
 const { exportPDF, exportImage, exportExcel } = useExportReport();
 
