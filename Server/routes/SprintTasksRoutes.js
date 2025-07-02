@@ -6,6 +6,7 @@ const router = express.Router();
 router.get("/sprint-tasks", async (req, res) => {
   try {
     const { projectId, sprintId } = req.query;
+    console.log("req.query", req.query);
 
     if (!projectId) {
       return res.status(400).json({ error: "projectId is required" });
@@ -29,7 +30,12 @@ router.get("/sprint-tasks", async (req, res) => {
 // POST create new task
 router.post("/add-sprintTasks", async (req, res) => {
   try {
+    if (req.body.sprintId === "") {
+      req.body.sprintId = null;
+    }
+    console.log("req.body", req.body);
     const task = await SprintTasks.create(req.body);
+    console.log("task", task);
     res.status(201).json(task);
   } catch (err) {
     res.status(500).json({ error: "Failed to create task" });
