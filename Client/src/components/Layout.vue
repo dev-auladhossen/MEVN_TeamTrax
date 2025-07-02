@@ -87,6 +87,23 @@
           <span class="side-bar-item-caption">Dashboard</span>
         </router-link>
         <router-link
+          to="/scrumboard"
+          class="side-bar-item rounded-full"
+          :class="isActive('/scrumboard')"
+        >
+          <span class="side-bar-item-icon">
+            <font-awesome-icon
+              class="text-sm"
+              icon="laptop-code"
+              :class="[
+                'text-sm',
+                route.path === '/scrumboard' ? 'animate-bounce' : '',
+              ]"
+            />
+          </span>
+          <span class="side-bar-item-caption">Scrum Board</span>
+        </router-link>
+        <router-link
           v-if="
             loggedUser.role == 'admin' || loggedUser.role == 'project manager'
           "

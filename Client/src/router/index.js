@@ -19,8 +19,9 @@ import DailyStandUp from "../pages/DailyStandUp.vue";
 import ChatBox from "../pages/ChatBox.vue";
 import Chat from "../pages/Chat.vue";
 import AnalyticalDashboard from "../pages/AnalyticalDashboard.vue";
+import ScrumBanBoard from "../components/ScrumBan/ScrumBanBoard.vue";
 const routes = [
-  { path: "/home", component: Home },
+  { path: "/", component: Login },
   {
     path: "/login",
     component: Login,
@@ -121,6 +122,12 @@ const routes = [
     path: "/chat",
     name: "Chat",
     component: () => import("../pages/Chat.vue"),
+  },
+  {
+    path: "/scrumboard",
+    name: "scrumboard",
+    component: ScrumBanBoard,
+    meta: { hideLayout: true },
   },
 ];
 const router = createRouter({
