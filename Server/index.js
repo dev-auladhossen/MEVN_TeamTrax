@@ -8,7 +8,7 @@ const Chat = require("./models/Chat");
 
 const app = express();
 const server = http.createServer(app);
-
+const testUsersRoutes = require("./routes/testUsers");
 const authRoutes = require("./routes/auth");
 const projectRoutes = require("./routes/project");
 const projectStatusRoutes = require("./routes/project-status");
@@ -20,6 +20,8 @@ const githubRoutes = require("./routes/github");
 const chatRoutes = require("./routes/chat");
 const permissionRoutes = require("./routes/permission");
 const analyticsRoutes = require("./routes/analytics");
+const sprintRoutes = require("./routes/sprintRoutes");
+const ScrumTaskRoutes = require("./routes/ScrumTaskRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 
 app.use(cors());
@@ -35,6 +37,8 @@ app.use("/api", analyticsRoutes);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/github", githubRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api", ScrumTaskRoutes);
+app.use("/api", sprintRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 // Setup Socket.IO server
@@ -74,7 +78,7 @@ io.on("connection", (socket) => {
 });
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/project-tracker")
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log("DB Error:", err));
 
