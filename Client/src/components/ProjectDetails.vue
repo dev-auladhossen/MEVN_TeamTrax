@@ -22,7 +22,51 @@
         </svg>
         Back
       </button>
+      <!-- Scrumban Board  -->
+      <div class="p-4 space-y-6">
+        <!-- Top Section: Backlog and Sprint Manager (stack on mobile, side-by-side on desktop) -->
+        <div v-if="currentProjectId" class="flex gap-4">
+          <Backlog
+            class="w-[30%]"
+            :projectId="currentProjectId"
+            @create-task="openCreateTaskModal"
+            @create-sprint="showSprintModal = true"
+            :backlogTasks="backlogTasks"
+          />
 
+          <SprintBoard
+            class="w-[70%]"
+            :projectId="currentProjectId"
+            @task-moved="onTaskMoved"
+          ></SprintBoard>
+
+          <!-- <SprintManager
+            :projectId="currentProjectId"
+            @sprint-selected="sprintSelected($event)"
+          /> -->
+        </div>
+
+        <!-- Bottom Section: Scrumban Board full width -->
+        <div class="bg-gray-100 p-4 rounded shadow">
+          <ScrumBanBoard
+            :projectId="currentProjectId"
+            :sprintId="selectedSprint"
+          />
+        </div>
+        <CreateEditTaskModal
+          v-if="showSprintTaskModal"
+          :projectId="currentProjectId"
+          :task="editingTask"
+          @close="closeModal"
+          @saved="refresh"
+        />
+        <CreateEditSprintModal
+          v-if="showSprintModal"
+          :projectId="currentProjectId"
+          @close="closeModal"
+          @saved="refresh"
+        />
+      </div>
       <!-- Top Section: Project Info -->
       <div
         class="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row md:justify-between items-start md:items-center"
@@ -113,7 +157,7 @@
             Total Tasks [ {{ projectReport.totalTasks }} ] :
             <span
               v-for="(count, status) in projectReport.taskStatusBreakdown"
-              :key="idx"
+              :key="status"
               class="ms-3"
             >
               {{ status }} -
@@ -207,23 +251,6 @@
         </div>
       </div>
 
-      <!-- Scrumban Board  -->
-      <div class="p-4 space-y-6">
-        <!-- Top Section: Backlog and Sprint Manager (stack on mobile, side-by-side on desktop) -->
-        <div class="flex flex-col lg:flex-row gap-4">
-          <div class="lg:w-1/2 bg-gray-100 p-4 rounded shadow">
-            <Backlog />
-          </div>
-          <div class="lg:w-1/2 bg-gray-100 p-4 rounded shadow">
-            <SprintManager />
-          </div>
-        </div>
-
-        <!-- Bottom Section: Scrumban Board full width -->
-        <div class="bg-gray-100 p-4 rounded shadow">
-          <ScrumBanBoard />
-        </div>
-      </div>
       <!-- Status Switch Bar -->
       <div class="flex justify-between gap-4 overflow-x-auto pb-2">
         <div
@@ -557,6 +584,9 @@ import { fetchProjectSummary } from "../components/Services/projectReport";
 import ScrumBanBoard from "./ScrumBan/ScrumBanBoard.vue";
 import SprintManager from "./ScrumBan/SprintManager.vue";
 import Backlog from "./ScrumBan/Backlog.vue";
+import CreateEditTaskModal from "../components/CreateEditTaskModal.vue";
+import CreateEditSprintModal from "../components/CreateEditSprintModal.vue";
+import SprintBoard from "./SprintBoard.vue";
 
 const { exportPDF, exportImage, exportExcel } = useExportReport();
 
@@ -577,6 +607,7 @@ const taskStatuses = ["Todo", "In Progress", "Review", "Completed"];
 const selectedStatus = ref("All Tasks");
 const filterPriority = ref("");
 const filterDueDate = ref("");
+const showSprintModal = ref(false);
 const showModal = ref(false);
 const showReport = ref(false);
 const showAssigneeDropdown = ref(false);
@@ -593,6 +624,8 @@ const githubSettingsUserName = ref(null);
 const githubRepoData = ref(null);
 const projectReport = ref({});
 const projectProgress = ref({});
+const selectedSprint = ref(null);
+const backlogTasks = ref([]);
 
 const openMemberModal = (member) => {
   selectedMember.value = member;
@@ -630,9 +663,44 @@ const initialForm = {
 
 const form = reactive({ ...initialForm });
 
+async function fetchBacklogTasks() {
+  if (!currentProjectId) return;
+  const res = await axios.get("http://localhost:5000/api/sprint-tasks", {
+    params: { projectId: currentProjectId, sprintId: "null" },
+  });
+  backlogTasks.value = res.data;
+  console.log("backlogTasks.value", backlogTasks.value);
+}
+
+function onTaskMoved() {
+  console.log("task moved");
+  fetchBacklogTasks();
+}
+
 const toggleShowReport = () => {
   showReport.value = !showReport.value;
 };
+
+const sprintSelected = (event) => {
+  console.log("event", event);
+  selectedSprint.value = event;
+};
+
+const showSprintTaskModal = ref(false);
+const editingTask = ref(null);
+
+function openCreateTaskModal(task = null) {
+  editingTask.value = "add";
+  showSprintTaskModal.value = true;
+}
+function closeModal() {
+  showSprintTaskModal.value = false;
+  showSprintModal.value = false;
+  editingTask.value = null;
+}
+function refresh() {
+  // Optionally reload child components
+}
 
 const exportCSV = async () => {
   const data = [
@@ -663,7 +731,6 @@ const getStatusColor = (statusName) => {
 const loadReport = async () => {
   try {
     projectReport.value = await fetchProjectSummary(currentProjectId);
-    console.log("projectReport", projectReport.value);
   } catch (err) {
     console.error("Error loading report:", err);
   }
@@ -723,13 +790,11 @@ const handleClickOutside = (e) => {
 };
 
 const refreshGithubRepoInfo = () => {
-  console.log("refreshGithubRepoInfo", githubRepoData.value);
   fetchProject();
   fetchLatestRepoInfo();
 };
 
 const fetchLatestRepoInfo = async () => {
-  console.log("githubRepoData", githubRepoData.value);
   if (!githubRepoData.value) return;
 
   isLoading.value = true;
@@ -742,7 +807,6 @@ const fetchLatestRepoInfo = async () => {
 
     githubRepoData.value.branches = data.branches;
     githubRepoData.value.commits = data.commits;
-    console.log("fetch new repo info", githubRepoData.value);
   } catch (err) {
     console.error("Error fetching repo info", err);
   } finally {
@@ -763,14 +827,12 @@ const fetchProject = async () => {
     );
 
     const p = res.data;
-    console.log("p", p);
     project.value = {
       ...p,
       createdBy: p.createdBy || "Unknown",
       startDate: moment(p.startDate).format("LL"),
       endDate: moment(p.endDate).format("LL"),
     };
-    console.log("project.value", project.value);
   } catch (error) {
     console.error("Failed to fetch project:", error);
   }
@@ -789,7 +851,6 @@ const fetchUsers = async () => {
       username: u.username,
       department: u.department,
     }));
-    console.log("users.value", users.value);
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }
@@ -811,8 +872,6 @@ const filteredTasksByStatus = (status) => {
         filterDueDate.value &&
         task.dueDate.slice(0, 10) !== filterDueDate.value
       ) {
-        console.log("filterDueDate.value", filterDueDate.value);
-        console.log("task.dueDate", task.dueDate);
         return false;
       }
       return true;
@@ -821,11 +880,9 @@ const filteredTasksByStatus = (status) => {
 };
 
 const createTask = async () => {
-  console.log("newTask.value", newTask.value);
   try {
     const token = localStorage.getItem("token");
     const payLoad = { ...newTask.value, projectId: project.value._id };
-    console.log("payLoad", payLoad);
     if (mode.value === "add") {
       await axios.post("http://localhost:5000/api/create-task", payLoad, {
         headers: { Authorization: `Bearer ${token}` },
@@ -876,11 +933,7 @@ const refreshProjectList = () => {
 };
 
 const onTaskDrop = (event, newStatus) => {
-  console.log(event);
-  console.log("onTaskDrop newStatus", newStatus);
-
   const movedTask = event?.added?.element;
-  console.log("movedTask", movedTask);
   if (movedTask) {
     movedTask.status = newStatus;
     // updateTaskStatus(task);
@@ -896,16 +949,12 @@ const fetchStatuses = async () => {
       },
     });
     statuses.value = res.data;
-
-    console.log("clg from statuses ", statuses.value);
   } catch (error) {
     console.error("Failed to fetch statuses:", error);
   }
 };
 const fetchTasks = async (currentProjectId) => {
   try {
-    console.log("project.value._id", project.value);
-    console.log("currentProjectId", currentProjectId);
     const token = localStorage.getItem("token");
     const res = await axios.get(
       `http://localhost:5000/api/tasks/project/${currentProjectId}`,
@@ -916,17 +965,18 @@ const fetchTasks = async (currentProjectId) => {
       }
     );
     tasks.value = res.data;
-
-    console.log("clg from tasks", tasks.value);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
   }
 };
 
+watch(currentProjectId, () => {
+  fetchBacklogTasks();
+});
+
 watch(
   () => project.value?.githubRepo,
   (newRepo) => {
-    console.log("newRepo", newRepo);
     if (!newRepo) return;
     const [owner, repo] = newRepo.split("/");
     githubRepoData.value = {
@@ -951,7 +1001,6 @@ const getGithubSettingsData = async () => {
     }
   );
   githubSettingsUserName.value = data.githubUsername;
-  console.log(" githubSettingsUserName.value", githubSettingsUserName.value);
 };
 
 onMounted(() => {
@@ -962,6 +1011,7 @@ onMounted(() => {
   fetchLatestRepoInfo();
   getGithubSettingsData();
   loadReport();
+  fetchBacklogTasks();
 
   if (currentProjectId) {
     fetchTasks(currentProjectId);
