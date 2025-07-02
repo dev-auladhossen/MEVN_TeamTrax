@@ -20,8 +20,9 @@ const githubRoutes = require("./routes/github");
 const chatRoutes = require("./routes/chat");
 const permissionRoutes = require("./routes/permission");
 const analyticsRoutes = require("./routes/analytics");
+const backlogsRoutes = require("./routes/backlogs");
 const sprintRoutes = require("./routes/sprintRoutes");
-const ScrumTaskRoutes = require("./routes/ScrumTaskRoutes");
+const SprintTasksRoutes = require("./routes/SprintTasksRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 
 app.use(cors());
@@ -37,8 +38,9 @@ app.use("/api", analyticsRoutes);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/github", githubRoutes);
 app.use("/api/chats", chatRoutes);
-app.use("/api", ScrumTaskRoutes);
+app.use("/api", SprintTasksRoutes);
 app.use("/api", sprintRoutes);
+app.use("/api", backlogsRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 // Setup Socket.IO server
