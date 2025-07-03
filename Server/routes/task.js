@@ -90,7 +90,7 @@ router.delete(
 );
 
 router.put("/task/:id", upload.array("attachments", 5), async (req, res) => {
-  console.log("req.files", req.files);
+  console.log("req.files", req?.files);
   console.log("req.body", req.body);
 
   const taskId = req.params.id;
