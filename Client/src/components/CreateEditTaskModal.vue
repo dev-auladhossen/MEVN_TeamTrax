@@ -21,11 +21,11 @@
 
         <!-- Status -->
         <select v-model="form.status" class="select mb-2 w-full">
-          <option value="backlog">Backlog</option>
-          <option value="todo">To Do</option>
-          <option value="inprogress">In Progress</option>
-          <option value="review">Review</option>
-          <option value="done">Done</option>
+          <option value="Backlog">Backlog</option>
+          <option value="Todo">To Do</option>
+          <option value="InProgress">In Progress</option>
+          <option value="Review">Review</option>
+          <option value="Done">Done</option>
         </select>
 
         <!-- Priority -->
@@ -62,7 +62,7 @@
             Cancel
           </button>
           <button type="submit" class="btn btn-primary">
-            {{ task ? "Update" : "Create" }}
+            {{ task == "edit" ? "Update" : "Create" }}
           </button>
         </div>
       </form>
@@ -73,6 +73,9 @@
 <script setup>
 import { reactive, watch, onMounted } from "vue";
 import axios from "axios";
+import { useToast } from "../components/Composables/useToast.js";
+
+const { success, error } = useToast();
 
 const props = defineProps({ projectId: String, task: Object });
 const emit = defineEmits(["close", "saved"]);
@@ -153,6 +156,9 @@ async function submit() {
     }
     emit("saved");
     emit("close");
+    success(`Task added successfully!`, {
+      title: "Success",
+    });
   } catch (err) {
     console.error("Submit error:", err);
   }

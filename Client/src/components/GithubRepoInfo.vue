@@ -24,7 +24,7 @@
       <div class="mt-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-2">Branches:</h3>
         <p class="text-sm text-gray-500 mb-1">
-          Total branches: {{ projectRepoInfo.branches.length }}
+          Total branches: {{ projectRepoInfo?.branches?.length }}
         </p>
         <div
           class="bg-white border rounded-lg shadow-sm p-4 max-h-40 overflow-auto space-y-2"

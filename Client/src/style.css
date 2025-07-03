@@ -8,21 +8,19 @@
   font-family: "Nunito Sans", sans-serif;
 }
 /* Custom Scrollbar Styles */
-/* Track */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
   height: 6px;
 }
-
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background-color: #a5a5a5;
-  border-radius: 6px;
+  background-color: #e4e4e4;
+  border-radius: 0px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #929292;
+  background-color: #b1b1b1;
 }
 
 /* Track */
@@ -30,6 +28,23 @@
   background: transparent;
 }
 
+/* Smooth expand/collapse animation */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+}
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  transform: scaleY(0.95);
+  max-height: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  transform: scaleY(1);
+  max-height: 1000px;
+}
 .dots-container {
   display: flex;
   align-items: center;

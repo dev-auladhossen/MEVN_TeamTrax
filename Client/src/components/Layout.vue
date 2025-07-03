@@ -436,4 +436,24 @@ const initials =
 .side-nav-close {
   padding: 0px;
 }
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 6px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: #e4e4e4;
+  border-radius: 0px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b1b1b1;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 </style>

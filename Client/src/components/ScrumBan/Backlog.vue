@@ -1,32 +1,58 @@
 <template>
-  <div>
-    <h2 class="text-xl font-semibold mb-4">Backlog</h2>
-    <div class="flex gap-3">
+  <div
+    class="max-w-md bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-sm"
+  >
+    <h2 class="text-lg font-bold text-gray-800 mb-3">Backlog</h2>
+
+    <!-- Buttons -->
+    <div class="flex flex-wrap gap-3 mb-5">
       <button
         @click="$emit('create-task')"
-        class="px-4 py-2 rounded font-medium text-white bg-blue-600 hover:bg-blue-700 transition bg-blue-600 text-white hover:bg-blue-700"
+        class="flex-1 px-3 py-2 rounded-md font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
       >
-        + Add Task
+        + Task
       </button>
       <button
         @click="showSprintModal = true"
-        class="px-4 py-2 rounded font-medium text-white bg-blue-600 hover:bg-blue-700 transition bg-blue-600 text-white hover:bg-blue-700"
+        class="flex-1 px-3 py-2 rounded-md font-medium text-white bg-green-600 hover:bg-green-700 transition"
       >
-        + Create Sprint
+        + Sprint
       </button>
     </div>
-    <ul class="space-y-2">
-      <li
-        v-for="task in props.backlogTasks"
-        :key="task._id"
-        class="bg-white border p-2 rounded shadow cursor-move"
-        draggable="true"
-        @dragstart="onDragStart(task)"
-      >
-        {{ task.title }}
-      </li>
-    </ul>
 
+    <!-- Backlog List -->
+    <div
+      class="max-h-[400px] overflow-y-auto pr-1 pb-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+    >
+      <!-- Skeleton -->
+      <ul v-if="loading" class="space-y-3 animate-pulse">
+        <li v-for="n in 5" :key="n" class="bg-gray-200 h-10 rounded-md"></li>
+      </ul>
+
+      <!-- Actual Tasks -->
+      <ul v-else-if="backlogTasks.length" class="space-y-3">
+        <li
+          @click="$emit('open-task', task)"
+          v-for="task in backlogTasks"
+          :key="task._id"
+          class="bg-white border border-gray-200 rounded-md p-3 shadow-sm hover:shadow-md transition cursor-move"
+          draggable="true"
+          @dragstart="onDragStart(task)"
+          @dragend="onDragEnd(task)"
+        >
+          <div class="text-sm font-medium text-gray-800 truncate">
+            {{ task.title }}
+          </div>
+        </li>
+      </ul>
+
+      <!-- Empty State -->
+      <div v-else class="text-center text-gray-500 text-sm py-10">
+        No backlog tasks yet. Add one to get started!
+      </div>
+    </div>
+
+    <!-- Sprint Modal -->
     <CreateEditSprintModal
       v-if="showSprintModal"
       :project-id="projectId"
@@ -41,27 +67,46 @@ import { ref, watch } from "vue";
 import axios from "axios";
 import CreateEditSprintModal from "../CreateEditSprintModal.vue";
 
-const emit = defineEmits(["create-task", "create-sprint", "task-moved"]);
+const emit = defineEmits([
+  "create-task",
+  "create-sprint",
+  "task-moved",
+  "open-task",
+]);
 
 const props = defineProps({ projectId: String, backlogTasks: Array });
 // const backlogTasks = ref([]);
 
 const showSprintModal = ref(false);
+const loading = ref(true);
 
-watch(() => props.projectId, fetchTasks, { immediate: true });
+watch(() => props.projectId, fetchTasks, {
+  immediate: true,
+});
 
 const backlogTasks = ref(props.backlogTasks || []);
 
 async function fetchTasks() {
-  const res = await axios.get("http://localhost:5000/api/sprint-tasks", {
-    params: { projectId: props.projectId, sprintId: "null" },
-  });
-  backlogTasks.value = res.data;
+  loading.value = true;
+  try {
+    const res = await axios.get("http://localhost:5000/api/sprint-tasks", {
+      params: { projectId: props.projectId, sprintId: "null" },
+    });
+    backlogTasks.value = res.data;
+  } catch (error) {
+    console.error("Failed to fetch backlog tasks:", error);
+  } finally {
+    loading.value = false;
+  }
 }
 
 function onDragStart(task) {
   event.dataTransfer.setData("application/json", JSON.stringify(task));
 }
+async function onDragEnd(task) {
+  await fetchTasks();
+}
+defineExpose({ fetchTasks });
 </script>
 
 <!-- <template>

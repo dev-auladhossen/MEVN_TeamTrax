@@ -21,7 +21,7 @@
         &times;
       </div>
       <TaskDetailsForDrawer
-        :task="task"
+        :task="props.task"
         @taskEdited="taskEdited"
         @taskDeleted="taskDeleted"
       ></TaskDetailsForDrawer>
@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import TaskDetailsForDrawer from "./TaskDetailsForDrawer.vue";
 
 const props = defineProps({
@@ -73,6 +73,9 @@ watch(
     comments.value = []; // load from server if needed
   }
 );
+onMounted(() => {
+  console.log(" task props from drawer", props.task);
+});
 </script>
 
 <style scoped>

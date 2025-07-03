@@ -539,7 +539,7 @@ const updateTask = async () => {
       console.log("key value ", key, value);
     }
     await axios.put(
-      `http://localhost:5000/api/task/${route.params.id}`,
+      `http://localhost:5000/api/sprint-task/${route.params.id}`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -564,14 +564,18 @@ const handleDelete = async () => {
     if (!confirmed) {
       return;
     } else {
-      await axios.delete(`http://localhost:5000/api/task/${currentTaskId}`, {
-        headers: {
-          Authorization: `Berear${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:5000/api/sprint-task/${currentTaskId}`,
+        {
+          headers: {
+            Authorization: `Berear${token}`,
+          },
+        }
+      );
       refreshTask();
       success("Task Deleted Succeussfully!", { title: "Success" });
-      router.push("/tasks");
+      // router.push("/tasks");
+      router.back();
     }
   } catch (err) {
     console.error("Error deleting task:", err.message);
@@ -600,7 +604,7 @@ const fetchTask = async () => {
   try {
     const token = localStorage.getItem("token");
     const res = await axios.get(
-      `http://localhost:5000/api/task-details/${route.params.id}`,
+      `http://localhost:5000/api/sprintTask-details/${route.params.id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

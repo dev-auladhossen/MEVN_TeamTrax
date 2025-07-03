@@ -23,36 +23,38 @@
         Back
       </button>
       <!-- Scrumban Board  -->
-      <div class="p-4 space-y-6">
+      <div class="p-1 space-y-6">
         <!-- Top Section: Backlog and Sprint Manager (stack on mobile, side-by-side on desktop) -->
         <div v-if="currentProjectId" class="flex gap-4">
+          <TaskDrawer
+            :isOpen="isDrawerOpen"
+            :task="selectedTask"
+            @close="isDrawerOpen = false"
+          />
+          <!-- <SprintTaskDetailsDrawer
+            v-if="showDrawer"
+            :task="selectedTask"
+            @close="showDrawer = false"
+          /> -->
           <Backlog
-            class="w-[30%]"
+            class="w-[25%]"
             :projectId="currentProjectId"
+            @open-task="openTask"
             @create-task="openCreateTaskModal"
             @create-sprint="showSprintModal = true"
             :backlogTasks="backlogTasks"
+            ref="backlogRef"
           />
 
           <SprintBoard
-            class="w-[70%]"
+            class="w-[75%]"
             :projectId="currentProjectId"
             @task-moved="onTaskMoved"
+            @open-task="openTask"
           ></SprintBoard>
-
-          <!-- <SprintManager
-            :projectId="currentProjectId"
-            @sprint-selected="sprintSelected($event)"
-          /> -->
         </div>
 
         <!-- Bottom Section: Scrumban Board full width -->
-        <div class="bg-gray-100 p-4 rounded shadow">
-          <ScrumBanBoard
-            :projectId="currentProjectId"
-            :sprintId="selectedSprint"
-          />
-        </div>
         <CreateEditTaskModal
           v-if="showSprintTaskModal"
           :projectId="currentProjectId"
@@ -587,6 +589,8 @@ import Backlog from "./ScrumBan/Backlog.vue";
 import CreateEditTaskModal from "../components/CreateEditTaskModal.vue";
 import CreateEditSprintModal from "../components/CreateEditSprintModal.vue";
 import SprintBoard from "./SprintBoard.vue";
+import TaskDrawer from "../components/TaskDetails/TaskDrawer.vue";
+import SprintTaskDetailsDrawer from "./ScrumBan/SprintTaskDetailsDrawer.vue";
 
 const { exportPDF, exportImage, exportExcel } = useExportReport();
 
@@ -602,6 +606,9 @@ const route = useRoute();
 const router = useRouter();
 const goBack = () => router.back();
 const { success, error } = useToast();
+const isDrawerOpen = ref(false);
+const showDrawer = ref(false);
+const selectedTask = ref(null);
 
 const taskStatuses = ["Todo", "In Progress", "Review", "Completed"];
 const selectedStatus = ref("All Tasks");
@@ -626,6 +633,8 @@ const projectReport = ref({});
 const projectProgress = ref({});
 const selectedSprint = ref(null);
 const backlogTasks = ref([]);
+const backlogKey = ref(0);
+const backlogRef = ref(null);
 
 const openMemberModal = (member) => {
   selectedMember.value = member;
@@ -663,6 +672,14 @@ const initialForm = {
 
 const form = reactive({ ...initialForm });
 
+const openTask = async (task) => {
+  // console.log("task from backlog", task);
+  // selectedTask.value = task;
+  // showDrawer.value = true;
+  // isDrawerOpen.value = true;
+  router.push(`/task-details/${task._id}`);
+};
+
 async function fetchBacklogTasks() {
   if (!currentProjectId) return;
   const res = await axios.get("http://localhost:5000/api/sprint-tasks", {
@@ -675,6 +692,7 @@ async function fetchBacklogTasks() {
 function onTaskMoved() {
   console.log("task moved");
   fetchBacklogTasks();
+  backlogRef.value?.fetchTasks?.();
 }
 
 const toggleShowReport = () => {
@@ -700,6 +718,8 @@ function closeModal() {
 }
 function refresh() {
   // Optionally reload child components
+  backlogKey.value++;
+  backlogRef.value?.fetchTasks?.();
 }
 
 const exportCSV = async () => {

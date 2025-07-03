@@ -1,5 +1,6 @@
 <template>
-  <div class="p-2 space-y-1 overflow-auto">
+  <div v-if="task" class="p-2 space-y-1 overflow-auto">
+    insiddee{{ task }}
     <!-- Top Section: Task Info -->
     <div
       class="bg-white p-4 space-y-5 w-full rounded-lg shadow flex flex-col md:flex-row md:justify-between items-start md:items-center"
@@ -335,6 +336,7 @@ import {
   onBeforeMount,
   defineEmits,
   provide,
+  watch,
 } from "vue";
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
@@ -691,6 +693,7 @@ onMounted(() => {
   userSpecificTasks();
   fetchStatuses();
   fetchUsers();
+  fetchTask();
   document.addEventListener("click", closeDropdownOnOutsideClick);
 });
 onBeforeMount(() => {
@@ -701,6 +704,14 @@ onBeforeUnmount(() => {
   document.removeEventListener("click", closeDropdownOnOutsideClick);
 });
 defineExpose({ fetchUsers });
+
+watch(
+  () => props.task,
+  (val) => {
+    console.log("Received task:", val);
+    fetchTask();
+  }
+);
 </script>
 
 <style scoped>
