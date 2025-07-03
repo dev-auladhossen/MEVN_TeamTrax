@@ -22,7 +22,92 @@
         </svg>
         Back
       </button>
-      <!-- Scrumban Board  -->
+
+      <!-- Top Section: Project Info -->
+      <div class="bg-white rounded-2xl shadow p-6 space-y-2">
+        <!-- Header -->
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+        >
+          <h1 class="text-xl font-bold text-gray-800">{{ project.name }}</h1>
+
+          <!-- Progress -->
+          <div class="w-full md:w-64">
+            <div class="flex justify-between text-xs text-gray-600 mb-1">
+              <span>Progress</span>
+              <span class="text-black font-semibold"
+                >{{ project.progress }}%</span
+              >
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div
+                class="bg-blue-500 h-full transition-all duration-500 ease-in-out"
+                :style="{ width: project.progress + '%' }"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="text-sm text-gray-600">
+          <span class="font-medium">{{ project.description }}</span>
+        </div>
+
+        <!-- Status & Owner -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center gap-4 text-sm text-gray-600"
+        >
+          <!-- Owner -->
+          <div class="flex items-center gap-2">
+            <font-awesome-icon icon="user" class="text-gray-500" />
+            <span class="font-medium">:</span>
+            <div
+              @click="openMemberModal(project.createdBy)"
+              class="flex items-center gap-1 px-2 py-1 rounded bg-gray-100 text-xs cursor-pointer hover:bg-gray-200 transition"
+            >
+              <span>{{ project.createdBy.username }}</span>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="flex items-center gap-2">
+            <font-awesome-icon icon="circle-info" class="text-gray-500" />
+            <span class="font-medium">Status:</span>
+            <span
+              class="px-2 py-1 border rounded font-semibold text-xs"
+              :class="[
+                `bg-[${getStatusColor(
+                  project.status
+                )}]/20 text-[${getStatusColor(project.status)}]`,
+              ]"
+            >
+              {{ project.status }}
+            </span>
+          </div>
+
+          <!-- Teams -->
+          <div class="flex flex-wrap items-center gap-2">
+            <font-awesome-icon icon="users" class="text-gray-500" />
+            <span class="font-medium">Teams:</span>
+            <span
+              v-for="(value, idx) in project.teams"
+              :key="idx"
+              class="bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full text-xs font-medium"
+            >
+              {{ value }}
+            </span>
+          </div>
+
+          <!-- Deadline -->
+          <div class="flex items-center gap-2">
+            <font-awesome-icon icon="calendar-days" class="text-gray-500" />
+            <span class="font-medium">Deadline:</span>
+            <span>{{ project.endDate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrum Board  -->
       <div class="p-1 space-y-6">
         <!-- Top Section: Backlog and Sprint Manager (stack on mobile, side-by-side on desktop) -->
         <div v-if="currentProjectId" class="flex gap-4">
@@ -68,108 +153,6 @@
           @close="closeModal"
           @saved="refresh"
         />
-      </div>
-      <!-- Top Section: Project Info -->
-      <div
-        class="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row md:justify-between items-start md:items-center"
-      >
-        <div class="w-full space-y-3">
-          <div class="flex justify-between">
-            <h1 class="text-xl font-bold text-gray-800">
-              {{ project.name }}
-            </h1>
-            <div class="flex gap-2">
-              <div class="progress-section">
-                <div
-                  class="flex justify-between gap-1 text-xs text-gray-600 mb-1"
-                >
-                  <span>Progress: </span>
-                  <span class="text-black font-semibold"
-                    >{{ project.progress }}%</span
-                  >
-                </div>
-                <div class="w-full bg-gray-200 rounded h-2 overflow-hidden">
-                  <div
-                    class="bg-blue-500 h-full"
-                    :style="{ width: project.progress + '%' }"
-                  ></div>
-                </div>
-              </div>
-              <button
-                @click="showModal = true"
-                class="mt-4 md:mt-0 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition"
-              >
-                + Add Task
-              </button>
-            </div>
-          </div>
-
-          <div class="text-sm text-gray-600">
-            <span class="font-medium">{{ project.description }}</span>
-          </div>
-          <div class="flex w-full justify-between my-2">
-            <div class="text-sm text-gray-600">
-              Status:
-              <span
-                class="px-2 py-1 border rounded font-semibold text-sm"
-                :class="[
-                  `bg-[${getStatusColor(
-                    project.status
-                  )}]/20 text-[${getStatusColor(project.status)}]`,
-                ]"
-              >
-                {{ project.status }}
-              </span>
-            </div>
-
-            <div class="flex gap-1 items-center">
-              <span class="text-sm text-gray-600">Manager:</span>
-              <div
-                @click="openMemberModal(project.createdBy)"
-                class="flex justify-between gap-1 items-center border rounded-full pr-3 bg-gray-200 cursor-pointer"
-              >
-                <span
-                  class="cursor-pointer text-xs w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold hover:scale-105 transition"
-                >
-                  {{ getInitials(project?.createdBy?.username) }}
-                </span>
-                <span>{{ project.createdBy.username }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex gap-4 justify-between">
-            <div class="flex gap-1 text-sm text-gray-600">
-              Teams:
-              <span
-                v-for="(value, idx) in project.teams"
-                :key="idx"
-                class="bg-gray-100 text-gray-800 h-6 w-16 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
-              >
-                {{ value }}
-              </span>
-            </div>
-            <div class="text-sm text-gray-600">
-              <font-awesome-icon class="text-gray-500" icon="calendar-days" />
-              Due Date: {{ project.endDate }}
-            </div>
-          </div>
-
-          <div class="text-sm text-gray-600">
-            Total Tasks [ {{ projectReport.totalTasks }} ] :
-            <span
-              v-for="(count, status) in projectReport.taskStatusBreakdown"
-              :key="status"
-              class="ms-3"
-            >
-              {{ status }} -
-              <span
-                class="bg-gray-100 text-gray-800 h-6 w-16 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
-                >{{ count }}</span
-              >
-            </span>
-          </div>
-        </div>
       </div>
 
       <!-- Report Section  -->
@@ -253,112 +236,6 @@
         </div>
       </div>
 
-      <!-- Status Switch Bar -->
-      <div class="flex justify-between gap-4 overflow-x-auto pb-2">
-        <div
-          class="w-full sm:w-auto flex flex-wrap gap-2 sm:gap-0 sm:inline-flex rounded-md overflow-hidden shadow-sm border border-gray-200"
-        >
-          <button
-            v-for="status in ['All Tasks', ...taskStatuses]"
-            :key="status"
-            @click="selectedStatus = status"
-            :class="[
-              'flex-1 sm:flex-none px-3 py-0.5 text-sm font-medium text-center border-gray-300',
-              selectedStatus === status
-                ? 'bg-white text-gray-600'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
-              'transition-colors duration-200 ease-in-out',
-              'border sm:border-r last:sm:border-r-0 rounded sm:rounded-none',
-            ]"
-          >
-            {{ status }}
-          </button>
-        </div>
-
-        <!-- Filters -->
-        <div class="flex gap-4 flex-wrap items-center">
-          <select
-            v-model="filterPriority"
-            class="px-4 py-2 rounded-lg border text-sm"
-          >
-            <option value="">All Priorities</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-          <input
-            type="date"
-            v-model="filterDueDate"
-            class="px-4 py-2 rounded-lg border text-sm"
-          />
-        </div>
-      </div>
-
-      <!-- Task Cards by Statuses -->
-      <div
-        class="flex gap-2 overflow-x-auto space-x-1 max-w-5xl mx-auto max-h-96"
-      >
-        <div
-          v-for="status in filteredColumns"
-          :key="status"
-          v-show="selectedStatus === 'All Tasks' || selectedStatus === status"
-          class="bg-gray-50 rounded-2xl p-2 shadow min-w-[250px] flex flex-col space-y-2 overflow-y-auto"
-          :data-status="status"
-        >
-          <h2 class="text-lg font-semibold mb-4 text-gray-700">{{ status }}</h2>
-          <draggable
-            v-if="filteredTasksByStatus(status).length"
-            :list="filteredTasksByStatus(status)"
-            :group="{ name: 'tasks', pull: true, put: true }"
-            @change="onTaskDrop($event, status)"
-            item-key="id"
-          >
-            <template #item="{ element: task, index }">
-              <div
-                class="bg-white p-4 rounded-xl shadow hover:shadow-md transition mb-4"
-                :key="task.id"
-                :data-id="task.id"
-              >
-                <div class="flex justify-between items-center mb-2">
-                  <div class="text-sm font-semibold text-gray-800">
-                    {{ task.title }}
-                  </div>
-                  <span
-                    class="text-xs px-2 py-0.5 rounded"
-                    :class="{
-                      'bg-red-100 text-red-600': task.priority === 'High',
-                      'bg-yellow-100 text-yellow-600':
-                        task.priority === 'Medium',
-                      'bg-green-100 text-green-600': task.priority === 'Low',
-                    }"
-                  >
-                    {{ task.priority }}
-                  </span>
-                </div>
-                <div class="text-sm text-gray-500 mb-1">
-                  Due: {{ task.dueDate }}
-                </div>
-                <p class="text-sm text-gray-600 mb-3">{{ task.description }}</p>
-                <div class="flex -space-x-2">
-                  <div
-                    v-for="member in task.assignedTo"
-                    :key="member.id"
-                    @click="openMemberModal(member)"
-                    class="cursor-pointer w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold border-2 border-white hover:scale-105 transition"
-                    :title="member.username"
-                  >
-                    {{ getInitials(member?.username) }}
-                  </div>
-                </div>
-              </div>
-            </template>
-          </draggable>
-          <div v-else class="text-sm text-gray-500 italic">
-            No tasks in this status.
-          </div>
-        </div>
-      </div>
-
       <!-- Task Form Modal -->
       <Dialog :isOpen="showModal" @close="showModal = false">
         <div class="max-w-xl mx-auto bg-white">
@@ -368,7 +245,7 @@
             {{ mode === "add" ? "ADD NEW TASK" : "EDIT TASK" }}
           </h3>
 
-          <form @submit.prevent="createTask" class="space-y-3">
+          <form @submit.prevent="addTask" class="space-y-3">
             <div>
               <label class="block text-sm font-medium text-gray-700"
                 >Title</label
@@ -425,6 +302,20 @@
                   <option value="Low">Low</option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <!-- Sprint -->
+              <select v-model="form.sprintId" class="select mb-4 w-full">
+                <option disabled value="">Select Sprint</option>
+                <option
+                  v-for="sprint in sprints"
+                  :key="sprint._id"
+                  :value="sprint._id"
+                >
+                  {{ sprint.name }}
+                </option>
+              </select>
             </div>
 
             <!-- Assignees Multi-Select Dropdown -->
@@ -609,6 +500,7 @@ const { success, error } = useToast();
 const isDrawerOpen = ref(false);
 const showDrawer = ref(false);
 const selectedTask = ref(null);
+const sprints = reactive([]);
 
 const taskStatuses = ["Todo", "In Progress", "Review", "Completed"];
 const selectedStatus = ref("All Tasks");
@@ -680,6 +572,18 @@ const openTask = async (task) => {
   router.push(`/task-details/${task._id}`);
 };
 
+async function fetchSprints() {
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/sprints?projectId=${currentProjectId}`
+    ); // or adjust route
+    sprints.splice(0, sprints.length, ...res.data);
+    console.log("sprints", sprints);
+  } catch (err) {
+    console.error("Failed to fetch sprints", err);
+  }
+}
+
 async function fetchBacklogTasks() {
   if (!currentProjectId) return;
   const res = await axios.get("http://localhost:5000/api/sprint-tasks", {
@@ -708,8 +612,9 @@ const showSprintTaskModal = ref(false);
 const editingTask = ref(null);
 
 function openCreateTaskModal(task = null) {
-  editingTask.value = "add";
-  showSprintTaskModal.value = true;
+  // editingTask.value = "add";
+  // showSprintTaskModal.value = true;
+  showModal.value = true;
 }
 function closeModal() {
   showSprintTaskModal.value = false;
@@ -946,6 +851,54 @@ const createTask = async () => {
   showModal.value = false;
 };
 
+const addTask = async (task) => {
+  console.log("form", form);
+  const token = localStorage.getItem("token");
+  const payLoad = { ...newTask.value, projectId: project.value._id };
+  console.log("payLoad", payLoad);
+
+  if (mode.value === "add") {
+    await axios.post("http://localhost:5000/api/add-sprintTasks", payLoad, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    message.value = "Task Created Successfully!";
+    success(message.value, { title: "Success" });
+  } else {
+    await axios.patch(
+      `http://localhost:5000/api/sprint-task/${task._id}`,
+      form
+    );
+  }
+  // emit("saved");
+  // emit("close");
+  backlogRef.value?.fetchTasks?.();
+  mode.value = "add";
+  showModal.value = false;
+  Object.assign(form, initialForm);
+  // try {
+  //   if (mode.value === "edit") {
+  //     await axios.patch(
+  //       `http://localhost:5000/api/sprint-task/${props?.task?._id}`,
+  //       form
+  //     );
+  //   } else {
+  //     console.log("...form", { ...form });
+  //     await axios.post("http://localhost:5000/api/add-sprintTasks", {
+  //       ...form,
+  //       projectId: project.value._id,
+  //     });
+  //   }
+  //   emit("saved");
+  //   emit("close");
+  //   success(`Task added successfully!`, {
+  //     title: "Success",
+  //   });
+  // } catch (err) {
+  //   console.error("Submit error:", err);
+  // }
+};
+
 const refreshProjectList = () => {
   if (currentProjectId) {
     fetchTasks(currentProjectId);
@@ -1024,6 +977,7 @@ const getGithubSettingsData = async () => {
 };
 
 onMounted(() => {
+  fetchSprints();
   fetchTaskStatus();
   fetchProject();
   fetchStatuses();
