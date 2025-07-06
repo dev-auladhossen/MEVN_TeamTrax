@@ -20,7 +20,7 @@ router.post("/task/status", async (req, res) => {
   }
 });
 
-// Update multiple task statuses (for drag order)
+// Update multiple task statuses
 router.put("/task/status-reorder", async (req, res) => {
   const updates = req.body;
   const bulkOps = updates.map(({ _id, name, color, order }) => ({
