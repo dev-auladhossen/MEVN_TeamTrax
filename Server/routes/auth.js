@@ -64,6 +64,8 @@ router.post("/login", async (req, res) => {
       email: user.email,
       status: user.status,
       color: user.color,
+      department: user.department,
+      permissions: user.permissions,
       token,
     });
   } catch (err) {

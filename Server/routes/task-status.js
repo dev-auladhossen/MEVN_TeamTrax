@@ -4,13 +4,13 @@ const router = express.Router();
 const TaskStatus = require("../models/TaskStatus");
 
 // Get all task statuses
-router.get("/task/status", async (req, res) => {
+router.get("/task-status/status", async (req, res) => {
   const statuses = await TaskStatus.find().sort({ order: 1 });
   res.json(statuses);
 });
 
 // Create a task status
-router.post("/task/status", async (req, res) => {
+router.post("/task-status/status", async (req, res) => {
   try {
     const status = new TaskStatus(req.body);
     await status.save();
@@ -21,7 +21,7 @@ router.post("/task/status", async (req, res) => {
 });
 
 // Update multiple task statuses
-router.put("/task/status-reorder", async (req, res) => {
+router.put("/task-status/status-reorder", async (req, res) => {
   const updates = req.body;
   const bulkOps = updates.map(({ _id, name, color, order }) => ({
     updateOne: {
@@ -34,7 +34,7 @@ router.put("/task/status-reorder", async (req, res) => {
 });
 
 // Delete a single project status by ID
-router.delete("/task/status/:id", async (req, res) => {
+router.delete("/task-status/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const deletedStatus = await TaskStatus.findByIdAndDelete(id);

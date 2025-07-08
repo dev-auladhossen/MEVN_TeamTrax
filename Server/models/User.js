@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   githubUsername: { type: String, default: "" },
   githubToken: { type: String, default: "" },
+  department: { type: String, default: "" },
 });
 
 module.exports = mongoose.model("User", userSchema);

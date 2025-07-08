@@ -25,6 +25,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// GET all tasks
+router.get("/get-allTasks", async (req, res) => {
+  try {
+    const tasks = await SprintTasks.find({})
+      .populate("assignedTo")
+      .populate("projectId", "_id name")
+      .populate("sprintId");
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch tasks" });
+  }
+});
+
 // GET tasks (with optional filtering by projectId and sprintId)
 router.get("/sprint-tasks", async (req, res) => {
   try {
@@ -164,5 +177,19 @@ router.put(
     }
   }
 );
+
+// Get tasks assigned to the logged-in developer
+router.get("/dev/sprint-tasks", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const tasks = await SprintTasks.find({
+      "assignedTo.id": userId,
+    });
+
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch tasks" });
+  }
+});
 
 module.exports = router;
