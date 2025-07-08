@@ -1,5 +1,10 @@
 <template>
-  <CardViewBoard :statuses="statuses" :items="tasks" type="task" />
+  <CardViewBoard
+    @update-task-status="refreshBoard"
+    :statuses="statuses"
+    :items="tasks"
+    type="task"
+  />
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
@@ -9,16 +14,19 @@ import CardViewBoard from "../components/Task/CardViewBoard.vue";
 
 const projects = ref([]);
 const tasks = ref([]);
-const statuses = ref(["To Do", "Pending", "In Progress", "Completed"]);
+const statuses = ref(["Backlog", "Todo", "InProgress", "Review", "Done"]);
 
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/task/status", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await axios.get(
+      "http://localhost:5000/api/task-status/status",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     statuses.value = res.data;
 
     console.log("clg from statuses ", statuses.value);
@@ -30,20 +38,17 @@ const fetchStatuses = async () => {
 const fetchTasks = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/get-tasks", {
+    const res = await axios.get(`http://localhost:5000/api/get-allTasks`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     tasks.value = res.data;
-    console.log("res.data", res.data);
     tasks.value = res.data.map((task) => ({
       ...task,
       dueDate: moment(task.dueDate).format("LL"),
       project: task.projectId?.name,
-      assignedTo: task.assignedTo.map((user) => {
-        return user.fullName;
-      }),
+      assignedTo: task?.assignedTo,
     }));
     console.log("tasks from board", tasks.value);
   } catch (error) {
@@ -71,7 +76,9 @@ const fetchProjects = async () => {
     console.error("Failed to fetch users:", error);
   }
 };
-
+const refreshBoard = () => {
+  fetchTasks();
+};
 onMounted(() => {
   fetchProjects();
   fetchTasks();

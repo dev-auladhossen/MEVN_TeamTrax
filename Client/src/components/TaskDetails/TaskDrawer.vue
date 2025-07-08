@@ -59,6 +59,7 @@ const closeDrawer = () => {
 const taskEdited = (task) => {
   console.log(task._id);
   emit("close");
+  emit("taskEdited");
 };
 
 const taskDeleted = (task) => {

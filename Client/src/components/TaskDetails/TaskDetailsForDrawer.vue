@@ -1,6 +1,5 @@
 <template>
   <div v-if="task" class="p-2 space-y-1 overflow-auto">
-    insiddee{{ task }}
     <!-- Top Section: Task Info -->
     <div
       class="bg-white p-4 space-y-5 w-full rounded-lg shadow flex flex-col md:flex-row md:justify-between items-start md:items-center"
@@ -350,7 +349,6 @@ import FileUpload from "../FileUpload.vue";
 import { useToast } from "../Composables/useToast.js";
 import axios from "axios";
 import moment from "moment";
-
 const route = useRoute();
 const router = useRouter();
 const goBack = () => router.back();
@@ -499,7 +497,6 @@ const handleFileUpload = (files) => {
 };
 
 const updateTask = async () => {
-  emit("taskEdited", task.value);
   if (editMode.value) {
     console.log("task", task.value);
     console.log("assignedTo", task.value.assignedTo);
@@ -516,12 +513,13 @@ const updateTask = async () => {
       console.log("key value ", key, value);
     }
     await axios.put(
-      `http://localhost:5000/api/task/${currentTaskId}`,
+      `http://localhost:5000/api/sprint-task/${currentTaskId}`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
+    emit("taskEdited", task.value);
     success("Task edited successfully!", { title: "Success" });
     editMode.value = false;
     addAttachment.value = false;
@@ -579,7 +577,7 @@ const fetchTask = async () => {
   try {
     const token = localStorage.getItem("token");
     const res = await axios.get(
-      `http://localhost:5000/api/task-details/${currentTaskId}`,
+      `http://localhost:5000/api/sprintTask-details/${currentTaskId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -602,11 +600,14 @@ const fetchTask = async () => {
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/task/status", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await axios.get(
+      "http://localhost:5000/api/task-status/status",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     taskStatuses.value = res.data;
 
     console.log("clg from statuses ", taskStatuses.value);
@@ -674,23 +675,9 @@ const deleteAttachment = async (filename) => {
   }
 };
 
-const userSpecificTasks = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/dev/tasks", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    console.log("userSpecificTasks", res.data);
-  } catch (error) {
-    console.error("Failed to fetch statuses:", error);
-  }
-};
 provide("taskFromDrawerDeleted", handleDelete);
+provide("taskFromDrawerUpdated", updateTask);
 onMounted(() => {
-  userSpecificTasks();
   fetchStatuses();
   fetchUsers();
   fetchTask();

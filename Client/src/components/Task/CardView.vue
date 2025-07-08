@@ -1,6 +1,8 @@
 <template>
   <div
     class="bg-white project-card p-3 rounded-lg shadow hover:shadow-md transition"
+    draggable="true"
+    @dragstart="onDragStart"
   >
     <div class="card-header flex justify-between">
       <h4 v-if="type === 'project'" class="text-md font-semibold mb-2">
@@ -110,9 +112,8 @@
       v-if="type === 'project'"
       class="flex justify-between text-xs my-2 text-gray-600"
     >
-      <span>0 Tasks</span>
       <span
-        ><font-awesome-icon icon="calendar-days" /> Due:
+        ><font-awesome-icon icon="clock-rotate-left" /> Due:
         {{ item.endDate }}</span
       >
     </div>
@@ -134,7 +135,7 @@
             class="cursor-pointer w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold border-2 border-white hover:scale-105 transition"
             :title="member"
           >
-            {{ getInitials(member) }}
+            {{ getInitials(member.username) }}
           </div>
         </div>
         <div v-else>No Assignees Yet</div>
@@ -201,8 +202,11 @@ const router = useRouter();
 const openMenuId = ref(null);
 const menuRef = ref(null);
 
+const onDragStart = (e) => {
+  e.dataTransfer.setData("application/json", JSON.stringify(props.item));
+};
+
 const toggleDropdown = (projectId) => {
-  console.log("projectId", projectId);
   dropdownOpen.value = !dropdownOpen.value;
   openMenuId.value = openMenuId.value === projectId ? null : projectId;
 };
@@ -268,7 +272,6 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
-  console.log("props.type", props.type);
 });
 
 onBeforeUnmount(() => {

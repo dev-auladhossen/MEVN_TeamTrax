@@ -55,11 +55,14 @@ onMounted(fetchStatuses);
 async function fetchStatuses() {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/task/status", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await axios.get(
+      "http://localhost:5000/api/task-status/status",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     statuses.value = res.data;
   } catch (err) {
@@ -103,7 +106,7 @@ async function addStatus() {
 
   try {
     const res = await axios.post(
-      "http://localhost:5000/api/task/status",
+      "http://localhost:5000/api/task-status/status",
       newStatus
     );
     statuses.value.push(res.data);
@@ -120,9 +123,11 @@ async function saveAllStatuses() {
     color: status.color,
     order: index,
   }));
-
   try {
-    await axios.put("http://localhost:5000/api/task/status-reorder", formatted);
+    await axios.put(
+      "http://localhost:5000/api/task-status/status-reorder",
+      formatted
+    );
     success("Statuses updated successfully!", { title: "Success" });
   } catch (err) {
     console.error("Failed to save statuses", err);
@@ -143,11 +148,14 @@ const deleteStatus = async (statusId) => {
     if (!confirmed) {
       return;
     } else {
-      await axios.delete(`http://localhost:5000/api/task/status/${statusId}`, {
-        headers: {
-          Authorization: `Berear${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:5000/api/task-status/status/${statusId}`,
+        {
+          headers: {
+            Authorization: `Berear${token}`,
+          },
+        }
+      );
       fetchStatuses();
       success("Status Deleted successfully!", { title: "Success" });
     }

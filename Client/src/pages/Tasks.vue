@@ -15,7 +15,7 @@
     <!-- switch view  -->
     <div class="flex gap-3 space-x-3 mb-2 max-w-5xl mx-auto">
       <button @click="currentView = 'board'" :class="buttonClass('board')">
-        <font-awesome-icon class="mr-2" icon="grip" /> Board View
+        <font-awesome-icon class="mr-2" icon="grip" /> Kanban View
       </button>
       <button @click="currentView = 'list'" :class="buttonClass('list')">
         <font-awesome-icon class="mr-2" icon="list" /> List View
@@ -129,16 +129,18 @@
                   @click="showAssigneeDropdown = !showAssigneeDropdown"
                   class="w-full border border-gray-300 bg-white px-4 py-1 rounded-md shadow-sm text-left text-sm"
                 >
-                  <!-- <span v-if="newTask.assignedTo.length">
+                  <span v-if="newTask.assignedTo.length">
                     {{
-                      newTask.assignedTo.map((user) => user.username).join(", ")
+                      newTask?.assignedTo
+                        .map((user) => user?.username)
+                        .join(", ")
                     }}
-                    {{ newTask.assignedTo }}
-                  </span> -->
-                  <!-- <span v-else class="text-gray-400">Select users</span> -->
+                  </span>
+                  <span v-else class="text-gray-400">Select users</span>
                 </button>
 
                 <!-- Dropdown above the button -->
+
                 <div
                   v-if="showAssigneeDropdown"
                   class="absolute bottom-full mb-1 z-10 bg-white border border-gray-200 rounded-md shadow w-full max-h-64 overflow-y-auto"
@@ -242,7 +244,7 @@ const expandedDepts = ref([]);
 const message = ref("");
 const mode = ref("add");
 const currentView = ref("board");
-const taskStatuses = ["Todo", "In Progress", "Review", "Complete"];
+const taskStatuses = ["Todo", "InProgress", "Review", "Complete"];
 const taskListRef = ref(null);
 const taskBoardRef = ref(null);
 const selectedTaskId = ref(null);
@@ -267,16 +269,17 @@ async function submitTask() {
   try {
     const token = localStorage.getItem("token");
     const payLoad = { ...newTask };
+    console.log("payLoad", payLoad);
     if (mode.value === "add") {
-      await axios.post("http://localhost:5000/api/create-task", payLoad, {
+      await axios.post("http://localhost:5000/api/add-sprintTasks", payLoad, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       message.value = "Task Created Successfully!";
       success(message.value, { title: "Success" });
     } else if (mode.value === "edit") {
-      await axios.put(
-        `http://localhost:5000/api/task/${selectedTaskId.value}`,
+      await axios.patch(
+        `http://localhost:5000/api/sprint-task/${selectedTaskId.value}`,
         payLoad,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -293,14 +296,20 @@ async function submitTask() {
     message.value =
       error.response?.data?.message || "Failed to add Task. Try again.";
   }
+
+  // if (props.task == "edit") {
+  //   await axios.patch(
+  //     `http://localhost:5000/api/sprint-task/${props.task._id}`,
+  //     form
+  //   );
+  // } else {
+  //   console.log("...form", { ...form });
+  //   await axios.post("http://localhost:5000/api/add-sprintTasks", {
+  //     ...form,
+  //     projectId: props.projectId,
+  //   });
+  // }
 }
-const dummyUsers = [
-  { id: 1, username: "Alice", department: "Design" },
-  { id: 2, username: "Bob Johnson", department: "Design" },
-  { id: 3, username: "Charlie Brown", department: "Development" },
-  { id: 4, username: "David Lee", department: "Development" },
-  { id: 5, username: "Eva Green", department: "QA" },
-];
 
 const buttonClass = (view) => {
   return [
@@ -317,6 +326,7 @@ const groupedUsers = computed(() => {
     if (!map[user.department]) map[user.department] = [];
     map[user.department].push(user);
   });
+  console.log("map", map);
   return map;
 });
 
@@ -330,10 +340,10 @@ const toggleDept = (dept) => {
 
 const isAllSelected = (members) => {
   console.log("newTask", newTask.value);
-  console.log("newTask.value.assignedTo", newTask.value.assignedTo);
+  console.log("newTask.value.assignedTo", newTask.value?.assignedTo);
   console.log("users", users);
   return members.every((user) =>
-    newTask.value.assignedTo.some((u) => u.id === user.id)
+    newTask.value?.assignedTo.some((u) => u.id === user.id)
   );
 };
 
@@ -393,6 +403,7 @@ const refreshTaskList = () => {
 };
 
 const handleAddTask = (status) => {
+  console.log("current status", status);
   mode.value = "add";
   initialTask.status = status;
   showModal.value = true;
@@ -413,7 +424,7 @@ const handleDelete = async (row) => {
     if (!confirmed) {
       return;
     } else {
-      await axios.delete(`http://localhost:5000/api/task/${taskId}`, {
+      await axios.delete(`http://localhost:5000/api/sprint-task/${taskId}`, {
         headers: {
           Authorization: `Berear${token}`,
         },
@@ -427,7 +438,7 @@ const handleDelete = async (row) => {
 };
 
 const handleEdit = (row) => {
-  console.log("row", row);
+  console.log("row from edit", row);
   mode.value = "edit";
   selectedTaskId.value = row._id;
   const dueDate = new Date(row.dueDate);

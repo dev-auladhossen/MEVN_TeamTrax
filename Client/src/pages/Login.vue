@@ -123,8 +123,19 @@ const login = async () => {
     });
 
     console.log("Logged in:", response.data);
-    const { token, role, id, name, email, firstname, lastname, color } =
-      response.data;
+    const {
+      token,
+      role,
+      id,
+      name,
+      email,
+      firstname,
+      lastname,
+      color,
+      permissions,
+      status,
+      department,
+    } = response.data;
 
     const userData = {
       id: id,
@@ -132,6 +143,9 @@ const login = async () => {
       name: name,
       email: email,
       color: color,
+      permissions: permissions,
+      status: status,
+      department: department,
       token: token,
     };
 
@@ -141,12 +155,17 @@ const login = async () => {
 
     isLoading.value = false;
     success("Loged In Successfully!", { title: "Welcome!" });
+    alert(role);
 
     // Redirect based on role
-    if (role === "admin" || "manager") {
+    const normalizedRole = role.toLowerCase();
+
+    if (["admin", "manager"].includes(normalizedRole)) {
       router.push("/admindashboard");
-    } else if (role === "user") {
-      router.push("/userdashboard");
+    } else if (
+      ["developer", "tester", "designer", "devops"].includes(normalizedRole)
+    ) {
+      router.push("/dev-dashboard");
     } else {
       router.push("/");
     }

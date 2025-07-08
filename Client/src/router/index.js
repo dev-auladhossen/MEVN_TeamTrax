@@ -20,6 +20,9 @@ import ChatBox from "../pages/ChatBox.vue";
 import Chat from "../pages/Chat.vue";
 import AnalyticalDashboard from "../pages/AnalyticalDashboard.vue";
 import ScrumBanBoard from "../components/ScrumBan/ScrumBanBoard.vue";
+import BugsPage from "../components/BugsPage.vue";
+import GithubSetiings from "../components/Settings/GithubSetiings.vue";
+import DevDashboard from "../pages/DevDashboard.vue";
 const routes = [
   { path: "/", component: Login },
   {
@@ -127,6 +130,24 @@ const routes = [
     path: "/scrumboard",
     name: "scrumboard",
     component: ScrumBanBoard,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/bugs",
+    name: "bugs",
+    component: BugsPage,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/github-settings",
+    name: "github-settings",
+    component: GithubSetiings,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/dev-dashboard",
+    name: "dev-dashboard",
+    component: DevDashboard,
     meta: { hideLayout: true },
   },
 ];

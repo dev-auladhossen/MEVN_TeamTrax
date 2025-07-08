@@ -13,13 +13,29 @@
           <i class="fa text-black-600 fa-bars"></i>
         </a>
       </div>
+
       <div class="relative" ref="dropdownRef">
-        <button
-          @click="toggleDropdown"
-          class="rounded-full bg-blue-600 text-white w-10 h-10 flex items-center justify-center"
-        >
-          {{ initials }}
-        </button>
+        <div class="flex items-center gap-4">
+          <button @click="toggleNotificationDropdown" class="relative">
+            <font-awesome-icon
+              icon="bell"
+              class="text-xl text-gray-600 hover:text-black"
+            />
+            <span
+              v-if="unreadCount > 0"
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+            >
+              {{ unreadCount }}
+            </span>
+          </button>
+
+          <button
+            @click="toggleDropdown"
+            class="rounded-full bg-blue-600 text-white w-10 h-10 flex items-center justify-center"
+          >
+            {{ initials }}
+          </button>
+        </div>
 
         <transition
           enter-active-class="transition ease-out duration-100"
@@ -34,7 +50,10 @@
             class="absolute right-0 mt-2 w-52 border rounded-md bg-white shadow-2xl transform opacity-100 scale-100"
           >
             <div class="p-4">
-              <button class="w-full px-4 py-2 text-left hover:bg-gray-100">
+              <button
+                @click="showLoggedUserProfile"
+                class="w-full px-4 py-2 text-left hover:bg-gray-100"
+              >
                 <font-awesome-icon class="text-black mr-2" icon="user" />
                 Profile
               </button>
@@ -55,12 +74,43 @@
             </div>
           </div>
         </transition>
+
+        <!-- Notification Dropdown -->
+        <div
+          v-if="showDropdown"
+          class="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50 max-h-96 overflow-auto"
+        >
+          <div class="p-3 border-b font-semibold">Notifications</div>
+          <ul>
+            <li
+              v-for="(notification, index) in notifications"
+              :key="index"
+              class="px-4 py-2 hover:bg-gray-100 border-b last:border-b-0"
+            >
+              <div class="text-sm">{{ notification.message }}</div>
+              <div class="text-xs text-gray-500">{{ notification.time }}</div>
+            </li>
+          </ul>
+          <div
+            v-if="notifications.length === 0"
+            class="p-4 text-center text-gray-500 text-sm"
+          >
+            No new notifications.
+          </div>
+        </div>
+
+        <!-- Profile Dialog -->
+        <UserProfileDialog
+          :visible="showProfile"
+          :user="loggedUser"
+          @close="showProfile = false"
+        />
       </div>
     </nav>
 
     <div id="sideNav" class="side-nav-open">
       <div
-        class="side-nav-top flex gap-2 justify-center p-2 mb-5 text-xl font-bold text-blue-600"
+        class="side-nav-top flex gap-2 justify-center p-2 mb-3 text-xl font-bold text-blue-600"
       >
         <span class="text-xl"> <font-awesome-icon icon="hexagon-nodes" /></span>
         <span class="">TeamTrax</span>
@@ -86,10 +136,12 @@
           </span>
           <span class="side-bar-item-caption">Dashboard</span>
         </router-link>
+
         <router-link
-          to="/scrumboard"
+          v-if="loggedUser.role == 'developer'"
+          to="/dev-dashboard"
           class="side-bar-item rounded-full"
-          :class="isActive('/scrumboard')"
+          :class="isActive('/dev-dashboard')"
         >
           <span class="side-bar-item-icon">
             <font-awesome-icon
@@ -97,32 +149,13 @@
               icon="laptop-code"
               :class="[
                 'text-sm',
-                route.path === '/scrumboard' ? 'animate-bounce' : '',
+                route.path === '/dev-dashboard' ? 'animate-bounce' : '',
               ]"
             />
           </span>
-          <span class="side-bar-item-caption">Scrum Board</span>
+          <span class="side-bar-item-caption">My Dashboard</span>
         </router-link>
-        <router-link
-          v-if="
-            loggedUser.role == 'admin' || loggedUser.role == 'project manager'
-          "
-          to="/analytical-dashboard"
-          class="side-bar-item rounded-full"
-          :class="isActive('/analytical-dashboard')"
-        >
-          <span class="side-bar-item-icon">
-            <font-awesome-icon
-              class="text-sm"
-              icon="laptop-code"
-              :class="[
-                'text-sm',
-                route.path === '/analytical-dashboard' ? 'animate-bounce' : '',
-              ]"
-            />
-          </span>
-          <span class="side-bar-item-caption">Analytics</span>
-        </router-link>
+
         <router-link
           to="/daily-standup"
           class="side-bar-item rounded-full"
@@ -142,24 +175,6 @@
         </router-link>
 
         <router-link
-          v-if="loggedUser.role == 'developer'"
-          to="/devDashboard"
-          class="side-bar-item rounded-full"
-          :class="isActive('/devDashboard')"
-        >
-          <span class="side-bar-item-icon">
-            <font-awesome-icon
-              class="text-sm"
-              icon="laptop-code"
-              :class="[
-                'text-sm',
-                route.path === '/devDashboard' ? 'animate-bounce' : '',
-              ]"
-            />
-          </span>
-          <span class="side-bar-item-caption">My Dashboard</span>
-        </router-link>
-        <router-link
           to="/projects"
           class="side-bar-item rounded-full"
           :class="isActive('/projects')"
@@ -174,7 +189,7 @@
               ]"
           /></span>
           <span class="side-bar-item-caption hover:text-blue-600"
-            >Projects</span
+            >All Projects</span
           >
         </router-link>
 
@@ -218,19 +233,20 @@
 
         <router-link
           v-if="loggedUser.role == 'developer'"
-          to="/todo"
+          to="/bugs"
           class="side-bar-item rounded-full"
-          :class="isActive('/todo')"
+          :class="isActive('/bugs')"
         >
           <span class="side-bar-item-icon"
             ><font-awesome-icon
-              icon="tasks-alt"
+              class="text-sm"
+              icon="bug"
               :class="[
                 'text-sm',
-                route.path === '/todo' ? 'animate-bounce' : '',
+                route.path === '/bugs' ? 'animate-bounce' : '',
               ]"
           /></span>
-          <span class="side-bar-item-caption">ToDo</span>
+          <span class="side-bar-item-caption">Bugs</span>
         </router-link>
 
         <router-link
@@ -296,16 +312,16 @@
             loggedUser.role == 'projectManager' ||
             loggedUser.role == 'developer'
           "
-          to="/github-connect"
+          to="/github-settings"
           class="side-bar-item rounded-full"
-          :class="isActive('/github-connect')"
+          :class="isActive('/github-settings')"
         >
           <span class="side-bar-item-icon"
             ><font-awesome-icon
               icon="code"
               :class="[
                 'text-sm',
-                route.path === '/github-connect' ? 'animate-bounce' : '',
+                route.path === '/github-settings' ? 'animate-bounce' : '',
               ]"
           /></span>
           <span class="side-bar-item-caption">Link Github</span>
@@ -328,6 +344,26 @@
               ]"
           /></span>
           <span class="side-bar-item-caption">Reports</span>
+        </router-link>
+        <router-link
+          v-if="
+            loggedUser.role == 'admin' || loggedUser.role == 'project manager'
+          "
+          to="/analytical-dashboard"
+          class="side-bar-item rounded-full"
+          :class="isActive('/analytical-dashboard')"
+        >
+          <span class="side-bar-item-icon">
+            <font-awesome-icon
+              class="text-sm"
+              icon="chart-simple"
+              :class="[
+                'text-sm',
+                route.path === '/analytical-dashboard' ? 'animate-bounce' : '',
+              ]"
+            />
+          </span>
+          <span class="side-bar-item-caption">Analytics</span>
         </router-link>
         <router-link
           to="/chat-box"
@@ -358,8 +394,45 @@
 </template>
 <script setup>
 import { useAuth } from "../utils/auth";
-import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
+import { ref, reactive, onMounted, onBeforeUnmount, computed } from "vue";
 import { useRoute } from "vue-router";
+import UserProfileDialog from "./Task/UserProfileDialog.vue";
+const showDropdown = ref(false);
+const showProfile = ref(false);
+
+// Dummy data
+const notifications = ref([
+  { message: "Task #123 has been updated", seen: false, time: "2 minutes ago" },
+  {
+    message: "New comment on Project Alpha",
+    seen: false,
+    time: "10 minutes ago",
+  },
+  { message: "User John joined your team", seen: false, time: "1 hour ago" },
+]);
+
+const dummyUser = {
+  name: "Jane Doe",
+  email: "jane.doe@example.com",
+  role: "Project Manager",
+  avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+};
+
+const unreadCount = computed(
+  () => notifications.value.filter((n) => !n.seen).length
+);
+
+const toggleNotificationDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+
+  // Mark all as seen
+  if (showDropdown.value) {
+    notifications.value = notifications.value.map((n) => ({
+      ...n,
+      seen: true,
+    }));
+  }
+};
 const route = useRoute();
 const { logout } = useAuth();
 const loggedUser = JSON.parse(localStorage.getItem("current-user"));
@@ -371,6 +444,10 @@ console.log("current role", loggedUser.role);
 //   if (roles.includes("all")) return true;
 //   return roles.includes(loggedUser.role);
 // };
+
+const showLoggedUserProfile = () => {
+  showProfile.value = !showProfile.value;
+};
 
 const isActive = (path) =>
   route.path === path ? "bg-blue-500 text-white" : "";

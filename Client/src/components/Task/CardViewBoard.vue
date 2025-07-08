@@ -23,15 +23,26 @@
         />
       </div>
 
-      <div class="space-y-2 overflow-y-auto px-1 pb-1">
-        <CardView
-          v-for="item in filteredItems(status)"
-          :key="item._id"
-          :item="item"
-          :type="type"
-          :statusColor="status.color"
-          :statusList="props.statuses"
-        />
+      <div
+        class="space-y-2 overflow-y-auto px-1 pb-1"
+        @dragover.prevent
+        @drop="onDrop($event, status.name)"
+        @dragenter.prevent
+      >
+        <transition-group
+          name="fade"
+          tag="ul"
+          class="space-y-2 overflow-y-auto pr-1 pb-1"
+        >
+          <CardView
+            v-for="item in filteredItems(status)"
+            :key="item._id"
+            :item="item"
+            :type="type"
+            :statusColor="status.color"
+            :statusList="props.statuses"
+          />
+        </transition-group>
       </div>
     </div>
   </div>
@@ -39,9 +50,13 @@
 
 <script setup>
 import CardView from "./CardView.vue";
+import axios from "axios";
 import { defineEmits, inject, computed } from "vue";
+import { useToast } from "../Composables/useToast.js";
 
-const emit = defineEmits(["create"]);
+const { success, error } = useToast();
+
+const emit = defineEmits(["create", "update-task-status"]);
 
 const props = defineProps({
   items: {
@@ -56,7 +71,7 @@ const props = defineProps({
     type: Array,
     default: () => [
       "Planning",
-      "In Progress",
+      "InProgress",
       "On Hold",
       "Completed",
       "Cancelled",
@@ -64,6 +79,7 @@ const props = defineProps({
     required: true,
   },
 });
+
 
 const filteredItems = (status) => {
   return props.items.filter((item) => item.status === status.name);
@@ -83,6 +99,25 @@ const createNewItem = (status) => {
     console.warn("Modal function not available for type:", props.type);
   }
 };
+
+async function onDrop(event, targetStatus) {
+  console.log("droped targetStatus", targetStatus);
+  console.log(event, targetStatus);
+  const task = JSON.parse(event.dataTransfer.getData("application/json"));
+  if (task.status === targetStatus) return;
+  try {
+    await axios.patch(`http://localhost:5000/api/sprint-task/${task._id}`, {
+      status: targetStatus,
+    });
+    // fetchTasks();
+    emit("update-task-status");
+    success(`Task Status has Changed to ${targetStatus}!`, {
+      title: "Success",
+    });
+  } catch (err) {
+    console.error("Failed to update task:", err);
+  }
+}
 </script>
 <style scoped>
 ::-webkit-scrollbar {

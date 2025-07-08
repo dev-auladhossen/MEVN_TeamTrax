@@ -14,6 +14,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 
 // Import specific icons
 import {
+  faArrowRight,
   faHouseLaptop,
   faProjectDiagram,
   faTasksAlt,
@@ -70,6 +71,9 @@ import {
   faFilePdf,
   faUserPlus,
   faUsersViewfinder,
+  faChartSimple,
+  faBell,
+  faClockRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
 //Font Awesome component
@@ -80,6 +84,10 @@ import {
   faStackExchange,
 } from "@fortawesome/free-brands-svg-icons";
 library.add(
+  faArrowRight,
+  faClockRotateLeft,
+  faBell,
+  faChartSimple,
   faUsersViewfinder,
   faImage,
   faFileCsv,

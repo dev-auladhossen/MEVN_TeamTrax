@@ -10,12 +10,12 @@
           v-model="searchText"
           type="text"
           placeholder="Search tasks..."
-          class="px-4 py-2 border rounded-xl text-sm w-full md:w-1/3"
+          class="px-4 py-2 border rounded-md text-sm w-full md:w-1/3"
         />
         <!-- Sorting Dropdown -->
         <select
           v-model="sortOption"
-          class="px-4 py-2 border rounded-xl text-sm"
+          class="px-4 py-2 border rounded-md text-sm placeholder-gray-300 border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           <option value="">Sort By</option>
           <option value="dueDate-asc">Due Date ↑</option>
@@ -27,7 +27,7 @@
         <!-- Priority Filter -->
         <select
           v-model="selectedPriority"
-          class="px-8 py-2 border rounded-xl text-sm"
+          class="px-8 py-2 border rounded-md text-sm"
         >
           <option value="">All Priorities</option>
           <option value="Low">Low</option>
@@ -38,7 +38,7 @@
         <!-- Status Filter -->
         <select
           v-model="selectedStatus"
-          class="px-8 py-2 border rounded-xl text-sm"
+          class="px-8 py-2 border rounded-md text-sm"
         >
           <option value="">All Statuses</option>
           <option value="Pending">Pending</option>
@@ -58,6 +58,7 @@
           :isOpen="isDrawerOpen"
           :task="selectedTask"
           @close="isDrawerOpen = false"
+          @taskEdited="taskEdited"
         />
         <div
           v-for="task in paginatedTasks"
@@ -160,13 +161,21 @@ const totalPages = computed(() => {
   return Math.ceil(filteredTasks.value.length / itemsPerPage);
 });
 
+const taskEdited = () => {
+  alert("clicked");
+  fetchTasks();
+};
+
 // Fetch tasks from backend
 const fetchTasks = async () => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get("http://localhost:5000/api/dev/tasks", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axios.get(
+      "http://localhost:5000/api/dev/sprint-tasks",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     tasks.value = response.data;
   } catch (err) {
     console.error("Error fetching tasks:", err);
@@ -223,11 +232,14 @@ const filteredTasks = computed(() => {
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/task/status", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await axios.get(
+      "http://localhost:5000/api/task-status/status",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     taskStatuses.value = res.data;
 
     console.log("clg from statuses ", taskStatuses.value);
@@ -242,6 +254,7 @@ const getStatusColor = (statusName) => {
   );
   return matchedStatus ? matchedStatus.color : "#d1d5db"; // fallback color if not found
 };
+
 onMounted(() => {
   fetchTasks();
   fetchStatuses();

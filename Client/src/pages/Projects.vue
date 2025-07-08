@@ -16,7 +16,7 @@
     <!-- switch view  -->
     <div class="flex gap-3 space-x-3 mb-2 max-w-5xl mx-auto">
       <button @click="currentView = 'board'" :class="buttonClass('board')">
-        <font-awesome-icon class="mr-2" icon="grip" /> Board View
+        <font-awesome-icon class="mr-2" icon="grip" /> Kanban View
       </button>
       <button @click="currentView = 'list'" :class="buttonClass('list')">
         <font-awesome-icon class="mr-2" icon="list" /> List View

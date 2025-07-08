@@ -27,7 +27,7 @@ export function useFetchStatus() {
     loading.value = true;
     error.value = null;
     try {
-      const res = await fetch("http://localhost:5000/api/task/status");
+      const res = await fetch("http://localhost:5000/api/task-status/status");
       const data = await res.json();
       taskStatusList.value = data;
       console.log("taskStatusList.value", taskStatusList.value);
