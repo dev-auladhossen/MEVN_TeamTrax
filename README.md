@@ -1,10 +1,10 @@
-# 🌐 CSPTC - Cloud-based System to Facilitate Software Project Tracking and Collaboration
+# 🌐 Team - Cloud-based System to Facilitate Software Project Tracking and Collaboration
 
 A modern, scalable web-based system built to streamline software project tracking, task management, and team collaboration. Ideal for teams of all sizes working onsite or remotely, CSPTC provides robust tools for project control, real-time updates, and integrated GitHub tracking.
 
 ## Live Demo
 
-🔗 [Live Demo Frontend](https://your-frontend-url.com)  
+🔗 [Live Demo Frontend](https://[your-frontend-url.com](https://teamtrax-project-management.netlify.app/))  
 🔗 [Live Demo Backend API](https://your-backend-api-url.com) *(Optional)*
 
 > **Note:** Replace the links above with your deployed frontend and backend URLs.
