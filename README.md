@@ -1,4 +1,4 @@
-# 🌐 TeamTrax - Cloud-based System to Facilitate Software Project Tracking and Collaboration
+# TeamTrax - Cloud-based System to Facilitate Software Project Tracking and Collaboration
 
 A modern, scalable web-based system built to streamline software project tracking, task management, and team collaboration. Ideal for teams of all sizes working onsite or remotely, CSPTC provides robust tools for project control, real-time updates, and integrated GitHub tracking.
 
@@ -10,7 +10,7 @@ Backend:
 
 ---
 
-## 📌 Introduction
+## Introduction
 
 The **Cloud-based System to Facilitate Software Project Tracking and Collaboration (CSPTC)** is a comprehensive project management platform designed to improve how teams plan, manage, and deliver software and general projects.
 
@@ -45,7 +45,7 @@ Built with a modern technology stack, CSPTC offers responsive UI, seamless navig
 6. **GitHub Integration**  
    Link GitHub repositories directly from the project dashboard. Manage branches, commits, and sync project activities with GitHub.
 
-7. **🛡Access Control**  
+7. **Access Control**  
    Restrict access to critical actions like task deletion or editing based on user role and assigned permissions.
 
 8. **Real-Time Status Monitoring**  
@@ -75,7 +75,7 @@ Built with a modern technology stack, CSPTC offers responsive UI, seamless navig
 
 ---
 
-## 🛠Tech Stack
+## Tech Stack
 
 - **Frontend:** Vue 3 (Composition API), Tailwind CSS
 - **Backend:** Node.js, Express.js
