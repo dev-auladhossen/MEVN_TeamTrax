@@ -3,7 +3,7 @@
 A modern, scalable web-based system built to streamline software project tracking, task management, and team collaboration. Ideal for teams of all sizes working onsite or remotely, CSPTC provides robust tools for project control, real-time updates, and integrated GitHub tracking.
 
 ## Live Demo
-Frontend: https://teamtrax-project-management.netlify.app/
+Frontend: [https://teamtrax-project-management.netlify.app/](https://teamtrax-project-management-tool.netlify.app/)
 Backend: 
 
 > **Note:** Replace the links above with your deployed frontend and backend URLs.
