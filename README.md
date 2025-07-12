@@ -7,7 +7,7 @@ Frontend: [https://teamtrax-project-management.netlify.app/](https://teamtrax-pr
 
 Backend: 
 
-> **Note:** Replace the links above with your deployed frontend and backend URLs.
+
 
 ---
 
