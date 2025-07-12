@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const getMongoQueryFromPrompt = require("../services/geminiService");
 const Task = require("../models/Task");
+const SprintTasks = require("../models/SprintTasks");
 
 // Utility to extract a MongoDB query from raw text response
 function extractQuery(text) {
@@ -27,7 +28,9 @@ router.post("/analytics", async (req, res) => {
   const { prompt } = req.body;
 
   if (!prompt) {
-    return res.status(400).json({ success: false, error: "Prompt is required" });
+    return res
+      .status(400)
+      .json({ success: false, error: "Prompt is required" });
   }
 
   try {
@@ -50,7 +53,7 @@ router.post("/analytics", async (req, res) => {
       const jsonMatch = mongoQueryText.match(/find\s*\(\s*(\{[\s\S]*\})\s*\)/);
       if (!jsonMatch) throw new Error("No query object found in find()");
 
-      queryObj = eval('(' + jsonMatch[1] + ')'); // 👈 Be cautious with eval!
+      queryObj = eval("(" + jsonMatch[1] + ")"); // 👈 Be cautious with eval!
     } catch (err) {
       return res.status(400).json({
         success: false,
@@ -58,8 +61,9 @@ router.post("/analytics", async (req, res) => {
         raw: mongoQueryText,
       });
     }
-
-    const result = await Task.find(queryObj);
+console.log("queryObj", queryObj)
+    const result = await SprintTasks.find(queryObj);
+    console.log("result", result)
     return res.json({ success: true, data: result });
   } catch (err) {
     console.error("AI analytics error:", err);

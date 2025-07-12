@@ -17,6 +17,12 @@ const projectSchema = new mongoose.Schema(
     tasks: [Object],
     repoUrl: { type: String },
     githubRepo: { type: String },
+    clients: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Client",
+      },
+    ],
   },
   { timestamps: true }
 );

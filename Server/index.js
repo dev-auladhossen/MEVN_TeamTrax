@@ -23,6 +23,7 @@ const analyticsRoutes = require("./routes/analytics");
 const backlogsRoutes = require("./routes/backlogs");
 const sprintRoutes = require("./routes/sprintRoutes");
 const SprintTasksRoutes = require("./routes/SprintTasksRoutes");
+const clientRoutes = require("./routes/client");
 const authMiddleware = require("./middleware/authMiddleware");
 
 app.use(cors());
@@ -41,6 +42,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api", SprintTasksRoutes);
 app.use("/api", sprintRoutes);
 app.use("/api", backlogsRoutes);
+app.use("/api", clientRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 // Setup Socket.IO server
@@ -50,6 +52,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
+module.exports.io = io;
 
 io.on("connection", (socket) => {
   console.log("🔌 User connected:", socket.id);
@@ -71,6 +74,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join", (userId) => {
+    console.log(`User ${userId} joined their notification room`);
     socket.join(userId);
   });
 

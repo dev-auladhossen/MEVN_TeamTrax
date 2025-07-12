@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
       "designer",
       "devOps",
       "tester",
+      "teamLeader",
       "businessAnalyst",
       "marketer",
       "sales",
