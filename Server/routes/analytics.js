@@ -61,9 +61,8 @@ router.post("/analytics", async (req, res) => {
         raw: mongoQueryText,
       });
     }
-console.log("queryObj", queryObj)
+    console.log("queryObj", queryObj);
     const result = await SprintTasks.find(queryObj);
-    console.log("result", result)
     return res.json({ success: true, data: result });
   } catch (err) {
     console.error("AI analytics error:", err);
