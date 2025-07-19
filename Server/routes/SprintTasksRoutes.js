@@ -79,9 +79,6 @@ router.post("/add-sprintTasks", async (req, res) => {
     // Notify assigned users
     const assignedUsers = req.body.assignedTo || [];
 
-    console.log("assignedUsers:", assignedUsers);
-    console.log("Is array:", Array.isArray(assignedUsers));
-
     // for (const user of assignedUsers) {
     //   const userId = user.id || user; // handles both object and string
     //    console.log("Iterating user:", user);
