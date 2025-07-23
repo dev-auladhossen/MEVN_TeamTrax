@@ -74,7 +74,6 @@ router.post("/add-sprintTasks", async (req, res) => {
 
     const task = await SprintTasks.create(req.body);
     console.log("task", task);
-    console.log("assignedTo from sprint task", req.body.assignedTo);
 
     // Notify assigned users
     const assignedUsers = req.body.assignedTo || [];
