@@ -44,7 +44,7 @@ router.get("/get-allTasks", async (req, res) => {
 router.get("/sprint-tasks", async (req, res) => {
   try {
     const { projectId, sprintId } = req.query;
-    console.log("req.query", req.query);
+  
 
     if (!projectId) {
       return res.status(400).json({ error: "projectId is required" });
