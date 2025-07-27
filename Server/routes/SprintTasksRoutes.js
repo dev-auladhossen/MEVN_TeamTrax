@@ -44,7 +44,6 @@ router.get("/get-allTasks", async (req, res) => {
 router.get("/sprint-tasks", async (req, res) => {
   try {
     const { projectId, sprintId } = req.query;
-  
 
     if (!projectId) {
       return res.status(400).json({ error: "projectId is required" });
@@ -102,7 +101,6 @@ router.post("/add-sprintTasks", async (req, res) => {
 // PATCH update a task
 router.patch("/sprint-task/:id", async (req, res) => {
   try {
-    console.log(req.params.id);
     const updated = await SprintTasks.findByIdAndUpdate(
       req.params.id,
       req.body,
