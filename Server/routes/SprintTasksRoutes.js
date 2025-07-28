@@ -162,8 +162,6 @@ router.put(
   "/sprint-task/:id",
   upload.array("attachments", 5),
   async (req, res) => {
-    console.log("req.files", req.files);
-
     const taskId = req.params.id;
     const {
       title,
