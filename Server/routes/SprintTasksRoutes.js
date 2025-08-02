@@ -293,7 +293,6 @@ router.get("/sprint-member-performance", async (req, res) => {
     const now = new Date(); // consistent "now" reference
 
     const tasks = await SprintTasks.find(query).lean();
-    console.log("tasks", tasks);
 
     const userStats = {};
 
