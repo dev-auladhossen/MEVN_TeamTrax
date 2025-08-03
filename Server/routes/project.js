@@ -229,7 +229,7 @@ router.get("/project-progress/:projectId", async (req, res) => {
 
     // Fetch tasks with completedAt timestamp
     const tasks = await Task.find({ projectId });
-    console.log("tasks", tasks);
+ 
 
     // Group progress by date
     const progressByDate = {};
