@@ -5,7 +5,7 @@ const Project = require("../models/Project");
 const Task = require("../models/Task");
 const TaskStatus = require("../models/TaskStatus");
 const { getRepoDetails } = require("../services/github");
-const { trackProjectProgress } = require('../utils/trackProjectProgress');
+const { trackProjectProgress } = require("../utils/trackProjectProgress");
 const ProjectProgress = require("../models/ProjectProgress");
 
 // Create Project
@@ -226,7 +226,6 @@ router.get("/project-summary/:projectId", async (req, res) => {
 router.get("/project-progress/:projectId", async (req, res) => {
   try {
     const { projectId } = req.params;
-    console.log("projectId", projectId);
 
     // Fetch tasks with completedAt timestamp
     const tasks = await Task.find({ projectId });
