@@ -61,7 +61,7 @@ router.post("/analytics", async (req, res) => {
         raw: mongoQueryText,
       });
     }
-    console.log("queryObj", queryObj);
+
     const result = await SprintTasks.find(queryObj);
     return res.json({ success: true, data: result });
   } catch (err) {
