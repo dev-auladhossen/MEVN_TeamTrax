@@ -95,7 +95,7 @@
                   :key="idx"
                   class="bg-gray-100 text-gray-800 text-sm font-medium me-1 px-2.5 py-0.5 rounded"
                 >
-                  {{ value.username }}
+                  {{ value }}
                 </span>
               </div>
               <div

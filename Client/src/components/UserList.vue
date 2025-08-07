@@ -23,6 +23,7 @@ const fetchUsers = async () => {
       },
     });
     users.value = res.data;
+    console.log("users from userlist", users.value);
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }

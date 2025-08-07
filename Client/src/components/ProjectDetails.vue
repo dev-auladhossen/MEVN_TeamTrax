@@ -306,7 +306,10 @@
 
             <div>
               <!-- Sprint -->
-              <select v-model="form.sprintId" class="select mb-4 w-full">
+               <label class="block text-sm mb-2 font-medium text-gray-700"
+                >Sprint</label
+              >
+              <select v-model="form.sprintId" class="select mb-4 w-full border p-2 rounded">
                 <option disabled value="">Select Sprint</option>
                 <option
                   v-for="sprint in sprints"

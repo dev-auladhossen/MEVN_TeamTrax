@@ -110,11 +110,14 @@
                 >
                   <option value="">Select Role</option>
                   <option value="admin">Admin</option>
-                  <option value="manager">Project Manager</option>
-                  <option value="leader">Team Leader</option>
+                  <option value="projectManager">Project Manager</option>
+                  <option value="teamLeader">Team Leader</option>
                   <option value="developer">Developer</option>
                   <option value="tester">Tester</option>
+                  <option value="devOps">DevOps</option>
                   <option value="designer">UI/UX Designer</option>
+                  <option value="sales">Sales</option>
+                  <option value="businessAnalyst">Business Analyst</option>
                 </select>
               </div>
             </div>
@@ -247,7 +250,7 @@ const handleSubmit = async () => {
 
 const handleEdit = (row) => {
   mode.value = "edit";
-  selectedUserId.value = row._id; 
+  selectedUserId.value = row._id;
   Object.assign(form, {
     username: row.username,
     email: row.email,
@@ -255,7 +258,7 @@ const handleEdit = (row) => {
     role: row.role,
     color: row.color,
     status: row.status,
-    password: "", 
+    password: "",
   });
   showModal.value = true;
 };

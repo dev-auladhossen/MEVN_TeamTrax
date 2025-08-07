@@ -23,6 +23,9 @@ import ScrumBanBoard from "../components/ScrumBan/ScrumBanBoard.vue";
 import BugsPage from "../components/BugsPage.vue";
 import GithubSetiings from "../components/Settings/GithubSetiings.vue";
 import DevDashboard from "../pages/DevDashboard.vue";
+import ClientLogin from "../pages/ClientLogin.vue";
+import ClientDashboard from "../pages/ClientDashboard.vue";
+import ClientListPage from "../pages/ClientListPage.vue";
 const routes = [
   { path: "/", component: Login },
   {
@@ -148,6 +151,24 @@ const routes = [
     path: "/dev-dashboard",
     name: "dev-dashboard",
     component: DevDashboard,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/client-login",
+    name: "client-login",
+    component: ClientLogin,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/client-dashboard",
+    name: "client-dashboard",
+    component: ClientDashboard,
+    meta: { hideLayout: true },
+  },
+  {
+    path: "/client-list",
+    name: "client-list",
+    component: ClientListPage,
     meta: { hideLayout: true },
   },
 ];

@@ -121,6 +121,8 @@ const submitPrompt = async () => {
       prompt: prompt.value,
     });
 
+    console.log("res", res);
+
     if (res.data.success) {
       results.value = res.data.data || [];
       query.value = res.data.query || "";

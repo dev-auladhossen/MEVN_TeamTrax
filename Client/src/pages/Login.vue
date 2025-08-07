@@ -37,9 +37,7 @@
           @submit.prevent="login"
         >
           <div>
-            <p class="text-blue-600 text-3xl font-bold text-center">
-              Welcome back!
-            </p>
+            <p class="text-blue-600 text-3xl font-bold text-center">Welcome!</p>
             <p class="text-center text-base text-gray-700 dark:text-gray-500">
               Keep all your credentials safe!
             </p>
@@ -107,8 +105,8 @@ import { useToast } from "../components/Composables/useToast.js";
 const { success, error, warning, info, showToast, clear } = useToast();
 const router = useRouter();
 
-const username = ref("Himel");
-const password = ref("1234");
+const username = ref("");
+const password = ref("");
 const errorMessage = ref("");
 const isLoading = ref(false);
 // Email: testuser@codewave.com
@@ -155,7 +153,6 @@ const login = async () => {
 
     isLoading.value = false;
     success("Loged In Successfully!", { title: "Welcome!" });
-    alert(role);
 
     // Redirect based on role
     const normalizedRole = role.toLowerCase();

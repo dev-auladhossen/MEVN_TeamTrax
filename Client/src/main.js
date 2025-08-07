@@ -9,6 +9,8 @@ import "vue3-colorpicker/style.css";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
+import { setPermissions } from "../src/components/Composables/usePermissions";
+
 // Import Font Awesome core
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -148,6 +150,12 @@ library.add(
   faComment,
   faUserPlus
 );
+
+const loggedUser = JSON.parse(localStorage.getItem("current-user"));
+const savedPermissions = loggedUser?.permissions || "[]";
+console.log("savedPermissions", savedPermissions);
+
+setPermissions(savedPermissions);
 
 createApp(App)
   .component("font-awesome-icon", FontAwesomeIcon)

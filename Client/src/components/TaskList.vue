@@ -35,21 +35,22 @@ const tasks = ref([]);
 const fetchTasks = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/get-tasks", {
+    const res = await axios.get("http://localhost:5000/api/get-allTasks", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     tasks.value = res.data;
+    console.log("before formatall tasks", tasks.value);
     tasks.value = res.data.map((task) => ({
       ...task,
       dueDate: moment(task.dueDate).format("LL"),
-      project: task.projectId.name,
-      assignedTo: task.assignedTo.map((user) => {
-        return user.fullName;
+      project: task?.projectId?.name,
+      assignedTo: task?.assignedTo.map((user) => {
+        return user?.username;
       }),
     }));
-    console.log("tasks", tasks.value);
+    console.log("all tasks", tasks.value);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
   }

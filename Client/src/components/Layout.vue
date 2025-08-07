@@ -194,9 +194,7 @@
         </router-link>
 
         <router-link
-          v-if="
-            loggedUser.role == 'admin' || loggedUser.role == 'project manager'
-          "
+          v-if="loggedUser.role == 'admin' || can('viewTasks')"
           to="/tasks"
           class="side-bar-item rounded-full"
           :class="isActive('/tasks')"
@@ -214,7 +212,7 @@
         </router-link>
 
         <router-link
-          v-if="loggedUser.role == 'developer'"
+          v-if="loggedUser.role == 'developer' && can('viewTasks')"
           to="/dev-tasks"
           class="side-bar-item rounded-full"
           :class="isActive('/dev-tasks')"
@@ -366,6 +364,7 @@
           <span class="side-bar-item-caption">Analytics</span>
         </router-link>
         <router-link
+          v-if="loggedUser.role !== 'admin'"
           to="/chat-box"
           class="side-bar-item rounded-full"
           :class="isActive('/chat-box')"
@@ -378,7 +377,22 @@
                 route.path === '/chat-box' ? 'animate-bounce' : '',
               ]"
           /></span>
-          <span class="side-bar-item-caption">Chat</span>
+          <span class="side-bar-item-caption">Chatbox</span>
+        </router-link>
+        <router-link
+          to="/client-list"
+          class="side-bar-item rounded-full"
+          :class="isActive('/client-list')"
+        >
+          <span class="side-bar-item-icon"
+            ><font-awesome-icon
+              icon="user"
+              :class="[
+                'text-sm',
+                route.path === '/client-list' ? 'animate-bounce' : '',
+              ]"
+          /></span>
+          <span class="side-bar-item-caption">Clients</span>
         </router-link>
       </div>
     </div>
@@ -397,6 +411,8 @@ import { useAuth } from "../utils/auth";
 import { ref, reactive, onMounted, onBeforeUnmount, computed } from "vue";
 import { useRoute } from "vue-router";
 import UserProfileDialog from "./Task/UserProfileDialog.vue";
+import { usePermissions } from "./Composables/usePermissions";
+const { hasPermission } = usePermissions();
 const showDropdown = ref(false);
 const showProfile = ref(false);
 
@@ -411,12 +427,9 @@ const notifications = ref([
   { message: "User John joined your team", seen: false, time: "1 hour ago" },
 ]);
 
-const dummyUser = {
-  name: "Jane Doe",
-  email: "jane.doe@example.com",
-  role: "Project Manager",
-  avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-};
+function can(permission) {
+  return hasPermission(permission);
+}
 
 const unreadCount = computed(
   () => notifications.value.filter((n) => !n.seen).length
@@ -436,7 +449,6 @@ const toggleNotificationDropdown = () => {
 const route = useRoute();
 const { logout } = useAuth();
 const loggedUser = JSON.parse(localStorage.getItem("current-user"));
-console.log("current role", loggedUser.role);
 
 // const show = (...roles) => {
 //   console.log("roles", ...roles);
