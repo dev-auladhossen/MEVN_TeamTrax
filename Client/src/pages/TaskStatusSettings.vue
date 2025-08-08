@@ -135,8 +135,6 @@ async function saveAllStatuses() {
 }
 
 const deleteStatus = async (statusId) => {
-  console.log(statusId);
-
   try {
     const token = localStorage.getItem("token");
 
