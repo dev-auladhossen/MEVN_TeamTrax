@@ -270,7 +270,6 @@ const createProject = async () => {
 };
 
 const handleEdit = (row) => {
-  console.log("row", row);
   mode.value = "edit";
   selectedProjectId.value = row._id;
   const startDate = new Date(row.startDate);
