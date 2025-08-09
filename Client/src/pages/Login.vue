@@ -120,7 +120,6 @@ const login = async () => {
       password: password.value,
     });
 
-    console.log("Logged in:", response.data);
     const {
       token,
       role,
