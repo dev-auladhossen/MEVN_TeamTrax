@@ -241,8 +241,6 @@ const fetchStatuses = async () => {
       }
     );
     taskStatuses.value = res.data;
-
-    console.log("clg from statuses ", taskStatuses.value);
   } catch (error) {
     console.error("Failed to fetch statuses:", error);
   }
