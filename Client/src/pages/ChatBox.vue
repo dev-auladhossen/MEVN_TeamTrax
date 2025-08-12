@@ -71,7 +71,6 @@ const otherUser = ref(null);
 const messageContainer = ref(null);
 
 const scrollToBottom = () => {
-  console.log("scrollTop", messageContainer.value.scrollTop);
   console.log("scrollHeight", messageContainer.value.scrollHeight);
   if (messageContainer.value) {
     messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
