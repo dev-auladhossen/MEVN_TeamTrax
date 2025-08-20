@@ -50,7 +50,6 @@ const fetchTasks = async () => {
       project: task.projectId?.name,
       assignedTo: task?.assignedTo,
     }));
-    console.log("tasks from board", tasks.value);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
   }
