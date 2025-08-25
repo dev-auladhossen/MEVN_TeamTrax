@@ -28,8 +28,6 @@ const fetchStatuses = async () => {
       }
     );
     statuses.value = res.data;
-
-    console.log("clg from statuses ", statuses.value);
   } catch (error) {
     console.error("Failed to fetch statuses:", error);
   }
