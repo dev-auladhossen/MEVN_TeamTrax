@@ -68,7 +68,6 @@ const fetchProjects = async () => {
       startDate: moment(project.startDate).format("LL"),
       endDate: moment(project.endDate).format("LL"),
     }));
-    console.log("clg from projects board", projects.value);
   } catch (error) {
     console.error("Failed to fetch users:", error);
   }
