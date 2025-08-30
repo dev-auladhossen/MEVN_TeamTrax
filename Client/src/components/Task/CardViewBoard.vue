@@ -80,7 +80,6 @@ const props = defineProps({
   },
 });
 
-
 const filteredItems = (status) => {
   return props.items.filter((item) => item.status === status.name);
 };
@@ -101,7 +100,6 @@ const createNewItem = (status) => {
 };
 
 async function onDrop(event, targetStatus) {
-  console.log("droped targetStatus", targetStatus);
   console.log(event, targetStatus);
   const task = JSON.parse(event.dataTransfer.getData("application/json"));
   if (task.status === targetStatus) return;
