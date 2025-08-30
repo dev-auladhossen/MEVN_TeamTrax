@@ -695,6 +695,7 @@ defineExpose({ fetchUsers });
 watch(
   () => props.task,
   (val) => {
+    console.log("Received task:", val);
     fetchTask();
   }
 );
