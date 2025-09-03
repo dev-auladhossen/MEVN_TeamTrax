@@ -100,7 +100,6 @@ const createNewItem = (status) => {
 };
 
 async function onDrop(event, targetStatus) {
-  console.log(event, targetStatus);
   const task = JSON.parse(event.dataTransfer.getData("application/json"));
   if (task.status === targetStatus) return;
   try {
