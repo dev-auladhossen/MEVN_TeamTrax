@@ -430,7 +430,6 @@ const toggleDept = (dept) => {
 };
 
 const isAllSelected = (users) => {
-  console.log("users", users);
   return users.every((user) =>
     task.value.assignedTo.some((u) => u.id === user.id)
   );
@@ -627,11 +626,14 @@ const fetchTask = async () => {
 const fetchStatuses = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/task-status/status", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await axios.get(
+      "http://localhost:5000/api/task-status/status",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     taskStatuses.value = res.data;
 
     console.log("clg from statuses ", taskStatuses.value);
