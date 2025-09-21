@@ -430,6 +430,7 @@ const toggleDept = (dept) => {
 };
 
 const isAllSelected = (users) => {
+  console.log("users", users);
   return users.every((user) =>
     task.value.assignedTo.some((u) => u.id === user.id)
   );
