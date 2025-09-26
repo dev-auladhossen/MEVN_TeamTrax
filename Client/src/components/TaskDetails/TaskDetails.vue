@@ -436,6 +436,7 @@ const isAllSelected = (users) => {
 };
 
 const toggleSelectAll = (users) => {
+  
   const allSelected = isAllSelected(users);
   if (allSelected) {
     // Remove all users from that dept
