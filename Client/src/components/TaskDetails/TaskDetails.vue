@@ -422,7 +422,7 @@ const toggleEditMode = async () => {
   editMode.value = !editMode.value;
 };
 const toggleDept = (dept) => {
-  console.log("dept", dept);
+  <!-- console.log("dept", dept); -->
   if (expandedDepts.value.includes(dept)) {
     expandedDepts.value = expandedDepts.value.filter((d) => d !== dept);
   } else {
