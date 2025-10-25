@@ -40,7 +40,7 @@ router.post("/add-user", async (req, res) => {
 
 // Login route
 router.post("/login", async (req, res) => {
-  console.log("JWT_SECRET from here", JWT_SECRET);
+  // console.log("JWT_SECRET from here", JWT_SECRET);
   const { username, password } = req.body;
 
   try {
@@ -124,7 +124,7 @@ router.delete("/users/:id", async (req, res) => {
 });
 
 // GET GitHub settings
-router.get("/user/github-settings",authMiddleware, async (req, res) => {
+router.get("/user/github-settings", authMiddleware, async (req, res) => {
   const userId = req.user.userId;
   const user = await User.findById(userId).select("githubUsername");
   res.json(user);
@@ -135,8 +135,8 @@ router.post("/user/github-settings", authMiddleware, async (req, res) => {
   try {
     const { githubUsername, githubToken } = req.body;
     const userId = req.user.userId;
-    console.log(userId, githubUsername, githubToken)
-    console.log("req.user", req.user)
+    console.log(userId, githubUsername, githubToken);
+    console.log("req.user", req.user);
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -157,7 +157,5 @@ router.post("/user/github-settings", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 module.exports = router;
