@@ -40,7 +40,7 @@ router.post("/add-user", async (req, res) => {
 
 // Login route
 router.post("/login", async (req, res) => {
-  // console.log("JWT_SECRET from here", JWT_SECRET);
+  console.log("JWT_SECRET from here", JWT_SECRET);
   const { username, password } = req.body;
 
   try {
