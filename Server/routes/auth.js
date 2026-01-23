@@ -40,7 +40,7 @@ router.post("/add-user", async (req, res) => {
 
 // Login route
 router.post("/login", async (req, res) => {
-  // console.log("JWT_SECRET from here", JWT_SECRET);
+  console.log("JWT_SECRET from here", JWT_SECRET);
   const { username, password } = req.body;
 
   try {
@@ -141,7 +141,7 @@ router.post("/user/github-settings", authMiddleware, async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { githubUsername, githubToken },
-      { new: true } // <-- returns the updated user
+      { new: true }, // <-- returns the updated user
     );
 
     if (!updatedUser) {
